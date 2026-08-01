@@ -1,0 +1,34 @@
+{
+  "site": "nrupalakolkar.com",
+  "captured_utc": "2026-08-01T07:17:20.861332Z",
+  "deploy": {
+    "mechanism": "Cloudflare Worker 'nrupalakolkar-site' (hex-embedded gzip of 4 pages)",
+    "routes": [
+      "nrupalakolkar.com/*",
+      "www.nrupalakolkar.com/*"
+    ],
+    "zone": "3b4bc890ba1a88784ca84af2b6947204",
+    "gzip_sha256": "19e6b696150da1148f1290bbc0a6bbcfc59e34ae0447e8891beab4d5d58f8159"
+  },
+  "change": "Removed ci.nrupalakolkar.com and git.nrupalakolkar.com sitemap entries from all 4 pages; stripped Cloudflare-injected beacon/challenge scripts from stored source.",
+  "rollback": "Delete the two Worker routes -> apex/www fall back to tunnel->box (llmvm_nginx:9443).",
+  "note": "Sitemap still lists agents/ai/dev/oracle/rag subdomains (C1 targets) - only ci/git removed per explicit scope.",
+  "pages": {
+    "index.html": {
+      "bytes": 25072,
+      "sha256": "f914cb4c128ba528187345a136f4b0f0945f7e2246b182836d620b4799395d0c"
+    },
+    "links.html": {
+      "bytes": 12199,
+      "sha256": "684481f7464c3ebb860359f2d90175ca86df2bd90507321b480658b2b5e65cf8"
+    },
+    "hiking.html": {
+      "bytes": 11009,
+      "sha256": "68f5ee2dc922c0b4ab31ae98918dd4891bb903b114588c63eb6de9aabd6b4a0b"
+    },
+    "photography.html": {
+      "bytes": 11003,
+      "sha256": "ae9905d2be72f9339d9cabc66a2f44258bdeffb98d867225aec44ab76731e4fc"
+    }
+  }
+}
