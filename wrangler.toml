@@ -2,7 +2,7 @@ name = "nrupalakolkar-site"
 main = "src/index.ts"
 compatibility_date = "2026-07-15"
 
-# Static Assets: the four pages + books.html are served directly from ./public.
+# Static Assets: the pages + books.html are served directly from ./public.
 # html_handling maps /books -> books.html, / -> index.html, etc.
 [assets]
 directory = "./public"
@@ -21,21 +21,15 @@ pattern = "www.nrupalakolkar.com/*"
 zone_name = "nrupalakolkar.com"
 
 # Durable capture of every form submission (contact, launch-notify, book order).
-# Create the namespace once, then paste its id here:
-#   wrangler kv namespace create nk-submissions
+# Create once, then paste its id:  wrangler kv namespace create nk-submissions
 [[kv_namespaces]]
 binding = "SUBMISSIONS"
 id = "REPLACE_WITH_KV_NAMESPACE_ID"
 
-# --- Optional: email notifications for form submissions ---
-# Submissions are ALWAYS captured in the SUBMISSIONS KV namespace above, so
-# nothing is lost even with this disabled. To also receive an email per
-# submission, enable Cloudflare Email Routing on the zone, verify a destination
-# address, then uncomment the two blocks below with that address.
-#
-# [vars]
-# NOTIFY_TO = "your-verified@address.com"
-#
-# [[send_email]]
-# name = "SEB"
-# destination_address = "your-verified@address.com"
+# Form submissions are forwarded to a Google Apps Script Web App that appends a
+# row to the linked Google Sheet AND emails Nrupal. Set these as SECRETS
+# (capability URL -- do not commit):
+#   wrangler secret put APPSCRIPT_URL      # the Apps Script /exec URL
+#   wrangler secret put APPSCRIPT_SECRET   # shared secret, must match Code.gs
+# Even before these are set, submissions are captured in the SUBMISSIONS KV
+# namespace above, so nothing is lost.

@@ -2,7 +2,7 @@
 
 Personal site for Nrupal Akolkar, P.Eng. Deployed as a **Cloudflare Worker + Static Assets** — git is the source of truth, CI deploys on merge to `main`.
 
-This replaces the previous directly-deployed `nrupalakolkar-site` Worker (which embedded the pages as a hex-gzip blob with no repo). Same Worker name, so merging + deploying is a clean cutover.
+Replaces the previous directly-deployed `nrupalakolkar-site` Worker (which embedded the pages as a hex-gzip blob with no repo). Same Worker name, so merge + deploy is a clean cutover.
 
 ## Structure
 
@@ -14,31 +14,42 @@ public/            static pages, served directly (html_handling maps /books -> b
   photography.html photography
   books.html       Outcome Convergence Systems -- book page + order/notify forms
 src/index.ts       Worker: serves assets + handles POST /contact, /api/notify, /api/book-order
-wrangler.toml      Worker + Static Assets + KV + (optional) email config
+apps-script/Code.gs Google Apps Script Web App (Sheet append + email) -- deploy separately
+wrangler.toml      Worker + Static Assets + KV + Apps Script config
 ```
 
-## Form handling (resilient, no-lockout)
+## Form handling (email + Google Sheet, resilient)
 
-Every submission (`/contact`, `/api/notify`, `/api/book-order`) is written to the **`SUBMISSIONS` KV namespace first (durable)**, then an email is attempted best-effort. If email is not configured or fails, the submission is still captured in KV and never lost. This is the deliberate fix for the silent-failure bug where a deprecated free email path returned success while dropping the message.
+On submit, every form (`/contact`, `/api/notify`, `/api/book-order`):
+1. Is written to the **`SUBMISSIONS` KV namespace first (durable)** — nothing is ever silently lost.
+2. Is forwarded to a **Google Apps Script Web App** that appends a row to the linked **Google Sheet** (a tab per form type) **and emails Nrupal**.
 
-Retrieve captured submissions any time:
+The email + Sheet live in Apps Script (Gmail-backed), so there is no dependency on the dead free-tier MailChannels path. If the forward ever fails, the submission is still in KV:
 
 ```
-wrangler kv key list  --binding SUBMISSIONS
-wrangler kv key get   --binding SUBMISSIONS "order:<ref>"
+wrangler kv key list --binding SUBMISSIONS
+wrangler kv key get  --binding SUBMISSIONS "order:<ref>"
 ```
 
 ## Deploy setup (one-time)
 
-1. **Create the KV namespace** and paste its id into `wrangler.toml`:
+1. **KV namespace** — paste the id into `wrangler.toml`:
    ```
    wrangler kv namespace create nk-submissions
    ```
-2. **Repo secrets** (Settings -> Secrets -> Actions):
+2. **Google Sheet + Apps Script:**
+   - Create a Google Sheet.
+   - Extensions -> Apps Script, paste `apps-script/Code.gs`, set `NOTIFY_EMAIL` and a long random `SHARED_SECRET`.
+   - Deploy -> New deployment -> Web app: *Execute as: Me*, *Who has access: Anyone*. Copy the `/exec` URL.
+3. **Worker secrets:**
+   ```
+   wrangler secret put APPSCRIPT_URL      # the Apps Script /exec URL
+   wrangler secret put APPSCRIPT_SECRET   # same value as SHARED_SECRET
+   ```
+4. **Repo secrets** (Settings -> Secrets -> Actions):
    - `CF_API_TOKEN` — scopes: *Workers Scripts: Edit*, *Workers Routes: Edit*, *Workers KV Storage: Edit*, *Account Settings: Read*, *User Details: Read*
    - `CF_ACCOUNT_ID` = `2edd59d09fd816187b47afbb9ea43af1`
-3. **Add the deploy workflow** at `.github/workflows/deploy.yml` (provided in the seed PR — must be added by a human; the automation token cannot write workflow files).
-4. **(Optional) email notifications:** enable Cloudflare Email Routing on the zone, verify a destination address, then uncomment the `[vars] NOTIFY_TO` and `[[send_email]]` blocks in `wrangler.toml`.
+5. **Add the deploy workflow** at `.github/workflows/deploy.yml` (in the PR body — must be added by a human; the automation token cannot write workflow files).
 
 On merge to `main`, CI runs `wrangler deploy` and the site goes live.
 
