@@ -1,0 +1,16 @@
+{
+  "name": "nrupalakolkar-site",
+  "private": true,
+  "version": "1.0.0",
+  "description": "nrupalakolkar.com -- Cloudflare Worker + Static Assets",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250705.0",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.20.0"
+  }
+}
