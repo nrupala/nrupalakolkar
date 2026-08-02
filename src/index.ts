@@ -1,22 +1,19 @@
 // nrupalakolkar.com -- Cloudflare Worker + Static Assets
 //
-// Design: resilient, no-lockout. Every form submission is written to the
-// SUBMISSIONS KV namespace FIRST (durable), then an email is attempted on a
-// best-effort basis. If email is not configured or fails, the submission is
-// still captured in KV and never lost. This is the fix for the silent-failure
-// class of bug (deprecated free-tier email path returning success while
-// dropping the message).
+// Resilient form handling. Every submission (contact, launch-notify, book
+// order) is written to the SUBMISSIONS KV namespace FIRST (durable), then
+// forwarded to a Google Apps Script Web App that (a) appends a row to the
+// linked Google Sheet and (b) emails Nrupal. If the forward fails, the
+// submission is still captured in KV -- nothing is silently lost (the failure
+// mode that killed the old free-tier email path).
 //
-// No framework, no build step beyond esbuild-via-wrangler, no Docker.
-
-import { EmailMessage } from "cloudflare:email";
+// No framework, no Docker.
 
 export interface Env {
   ASSETS: Fetcher;
   SUBMISSIONS: KVNamespace;
-  // Optional email notification (see wrangler.toml). Guarded everywhere.
-  SEB?: { send(message: EmailMessage): Promise<void> };
-  NOTIFY_TO?: string;
+  APPSCRIPT_URL?: string; // Google Apps Script Web App /exec URL (secret)
+  APPSCRIPT_SECRET?: string; // shared secret echoed to Apps Script (secret)
 }
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" } as const;
@@ -45,48 +42,39 @@ async function readJson(request: Request): Promise<Record<string, unknown>> {
   }
 }
 
-// Best-effort email. Never throws; the submission is already persisted in KV.
-async function sendMail(env: Env, subject: string, text: string, ref: string): Promise<void> {
-  if (!env.SEB || !env.NOTIFY_TO) return;
+// Best-effort forward to Apps Script (Sheet append + email). Never throws;
+// the submission is already durable in KV.
+async function forward(env: Env, record: Record<string, unknown>): Promise<void> {
+  if (!env.APPSCRIPT_URL) return;
   try {
-    const from = "site@nrupalakolkar.com";
-    const to = env.NOTIFY_TO;
-    const raw =
-      `From: nrupalakolkar.com <${from}>\r\n` +
-      `To: <${to}>\r\n` +
-      `Reply-To: <${from}>\r\n` +
-      `Message-ID: <${ref}@nrupalakolkar.com>\r\n` +
-      `Date: ${new Date().toUTCString()}\r\n` +
-      `MIME-Version: 1.0\r\n` +
-      `Content-Type: text/plain; charset=utf-8\r\n` +
-      `Subject: ${subject}\r\n` +
-      `\r\n` +
-      text.replace(/\r?\n/g, "\r\n") +
-      `\r\n`;
-    await env.SEB.send(new EmailMessage(from, to, raw));
+    await fetch(env.APPSCRIPT_URL, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ ...record, secret: env.APPSCRIPT_SECRET || "" }),
+    });
   } catch {
-    // swallow -- submission is durable in KV
+    // durable copy already in KV
   }
 }
 
-async function handleNotify(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+async function handleNotify(request: Request, env: Env): Promise<Response> {
   const b = await readJson(request);
   const email = clean(b.email, 254);
   if (!looksLikeEmail(email)) return json({ ok: false, error: "invalid_email" }, 400);
   const ref = rid();
   const rec = {
     type: "notify",
+    ref,
     email,
     ts: new Date().toISOString(),
     ip: request.headers.get("cf-connecting-ip") || "",
-    ua: request.headers.get("user-agent") || "",
   };
   await env.SUBMISSIONS.put(`notify:${ref}`, JSON.stringify(rec));
-  ctx.waitUntil(sendMail(env, "New launch-notify signup", `Email: ${email}\nWhen: ${rec.ts}`, ref));
+  await forward(env, rec);
   return json({ ok: true });
 }
 
-async function handleOrder(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+async function handleOrder(request: Request, env: Env): Promise<Response> {
   const b = await readJson(request);
   const name = clean(b.name, 200);
   const email = clean(b.email, 254);
@@ -99,6 +87,7 @@ async function handleOrder(request: Request, env: Env, ctx: ExecutionContext): P
   const ref = rid();
   const rec = {
     type: "order",
+    ref,
     name,
     email,
     address,
@@ -108,15 +97,11 @@ async function handleOrder(request: Request, env: Env, ctx: ExecutionContext): P
     ip: request.headers.get("cf-connecting-ip") || "",
   };
   await env.SUBMISSIONS.put(`order:${ref}`, JSON.stringify(rec));
-  const body =
-    `Signed hard-copy request\n\n` +
-    `Name: ${name}\nEmail: ${email}\nFormat: ${format}\nQuantity: ${quantity}\n` +
-    `Shipping address:\n${address}\n\nWhen: ${rec.ts}\nRef: ${ref}`;
-  ctx.waitUntil(sendMail(env, "New signed hard-copy request", body, ref));
+  await forward(env, rec);
   return json({ ok: true, ref });
 }
 
-async function handleContact(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+async function handleContact(request: Request, env: Env): Promise<Response> {
   const b = await readJson(request);
   const name = clean(b.name, 200);
   const email = clean(b.email, 254);
@@ -128,6 +113,7 @@ async function handleContact(request: Request, env: Env, ctx: ExecutionContext):
   const ref = rid();
   const rec = {
     type: "contact",
+    ref,
     name,
     email,
     subject,
@@ -136,24 +122,22 @@ async function handleContact(request: Request, env: Env, ctx: ExecutionContext):
     ip: request.headers.get("cf-connecting-ip") || "",
   };
   await env.SUBMISSIONS.put(`contact:${ref}`, JSON.stringify(rec));
-  ctx.waitUntil(
-    sendMail(env, `Contact: ${subject || "(no subject)"}`, `From: ${name} <${email}>\n\n${message}\n\nWhen: ${rec.ts}`, ref),
-  );
+  await forward(env, rec);
   return json({ ok: true });
 }
 
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     if (request.method === "POST") {
       switch (url.pathname) {
         case "/api/notify":
-          return handleNotify(request, env, ctx);
+          return handleNotify(request, env);
         case "/api/book-order":
-          return handleOrder(request, env, ctx);
+          return handleOrder(request, env);
         case "/contact":
-          return handleContact(request, env, ctx);
+          return handleContact(request, env);
         default:
           return json({ ok: false, error: "not_found" }, 404);
       }
