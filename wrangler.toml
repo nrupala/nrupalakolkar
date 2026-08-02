@@ -21,10 +21,10 @@ pattern = "www.nrupalakolkar.com/*"
 zone_name = "nrupalakolkar.com"
 
 # Durable capture of every form submission (contact, launch-notify, book order).
-# Create once, then paste its id:  wrangler kv namespace create nk-submissions
+# 'nk-submissions' namespace created 2026-08-02.
 [[kv_namespaces]]
 binding = "SUBMISSIONS"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "5f9a6407028a45cfa928d9397d4c74e9"
 
 # Form submissions are forwarded to a Google Apps Script Web App that appends a
 # row to the linked Google Sheet AND emails Nrupal. Set these as SECRETS
