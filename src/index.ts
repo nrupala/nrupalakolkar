@@ -14,6 +14,7 @@ export interface Env {
   SUBMISSIONS: KVNamespace;
   APPSCRIPT_URL?: string; // Google Apps Script Web App /exec URL (secret)
   APPSCRIPT_SECRET?: string; // shared secret echoed to Apps Script (secret)
+  TURNSTILE_SECRET?: string; // Cloudflare Turnstile secret key (siteverify)
 }
 
 const JSON_HEADERS = { "content-type": "application/json; charset=utf-8" } as const;
@@ -107,6 +108,21 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   const email = clean(b.email, 254);
   const subject = clean(b.subject, 200);
   const message = clean(b.message, 5000);
+  // Turnstile verification (spam protection). Gates the durable KV write.
+  if (env.TURNSTILE_SECRET) {
+    const token = clean(b["cf-turnstile-response"], 4000) || clean(b.turnstile, 4000);
+    let vok = false;
+    try {
+      const vr = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({ secret: env.TURNSTILE_SECRET, response: token, remoteip: request.headers.get("cf-connecting-ip") || "" }),
+      });
+      const jr = (await vr.json()) as { success?: boolean };
+      vok = jr && jr.success === true ? true : false;
+    } catch { vok = false; }
+    if (vok === false) return json({ ok: false, error: "verification_failed" }, 400);
+  }
   if (!name || !looksLikeEmail(email) || !message) {
     return json({ ok: false, error: "missing_fields" }, 400);
   }
