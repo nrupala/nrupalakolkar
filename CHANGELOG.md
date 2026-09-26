@@ -11,3 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   tips, and tricks from work built with Muse (no conversational details).
   First post: fixing a Firefox-only SSL error via a one-time Cloudflare API
   token. Every post carries PayPal and Buy Me a Coffee support links.
+### Changed
+- Links page (`/links`) is now a three-panel layout: Pages menu on the left,
+  the link cards in the center, Infrastructure subdomains on the right.
+  Stacks to a single column on narrow screens.
