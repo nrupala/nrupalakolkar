@@ -6,6 +6,9 @@
  * Cloudflare Worker forwards submissions here after writing a durable copy to
  * KV, so the Sheet is the human-readable log and email is the live ping.
  *
+ * Contact-form emails are also labeled in Gmail by topic (consulting, boards,
+ * ...) via GmailApp — no Gmail filters needed.
+ *
  * Setup:
  *  1. Create a Google Sheet (this becomes the datastore).
  *  2. Extensions > Apps Script. Paste this file as Code.gs.
@@ -16,10 +19,27 @@
  *  5. In the Cloudflare Worker:
  *       wrangler secret put APPSCRIPT_URL      -> paste the /exec URL
  *       wrangler secret put APPSCRIPT_SECRET   -> the same SHARED_SECRET
+ *  6. After pasting a new version of this file: Deploy > Manage deployments >
+ *     edit the deployment > New version, then run any function once from the
+ *     editor to approve the Gmail permission (labeling needs it).
  */
 
 var NOTIFY_EMAIL = 'nrupalakolkar@gmail.com';
 var SHARED_SECRET = 'REPLACE_WITH_A_LONG_RANDOM_STRING';
+
+// Contact-form Topic -> Gmail label. Must match the Topic dropdown values on
+// the site. 'Other' intentionally maps to nothing (stays unlabeled in inbox).
+var TOPIC_LABELS = {
+  'Consulting': 'consulting',
+  'Boards & advisory': 'boards',
+  'Data analytics': 'analytics',
+  'Investment analytics': 'investing',
+  'AI / LLM infrastructure': 'ai-infra',
+  'Electrical engineering': 'electrical',
+  'Process improvement': 'ops',
+  'Open-source collaboration': 'open-source',
+  'STEM mentorship': 'mentorship'
+};
 
 function doPost(e) {
   try {
@@ -30,6 +50,7 @@ function doPost(e) {
     var type = String(data.type || 'unknown').toLowerCase();
     _append(type, data);
     _email(type, data);
+    _applyTopicLabel(type, data);
     return _json({ ok: true });
   } catch (err) {
     return _json({ ok: false, error: String(err) });
@@ -73,12 +94,29 @@ function _email(type, d) {
   } else if (type === 'contact') {
     subject = 'Contact: ' + (d.subject || '(no subject)');
     body = 'From: ' + (d.name || '') + ' <' + (d.email || '') + '>\n\n'
-      + (d.message || '') + '\n\nWhen: ' + (d.ts || '');
+      + (d.message || '') + '\n\nRef: ' + (d.ref || '') + '\nWhen: ' + (d.ts || '');
   } else {
     subject = 'Form submission: ' + type;
     body = JSON.stringify(d, null, 2);
   }
   MailApp.sendEmail({ to: NOTIFY_EMAIL, replyTo: d.email || NOTIFY_EMAIL, subject: subject, body: body });
+}
+
+// Best-effort: label the just-sent contact email by topic. The email is
+// already delivered at this point, so a labeling miss loses nothing.
+function _applyTopicLabel(type, d) {
+  if (type !== 'contact') return;
+  var labelName = TOPIC_LABELS[String(d.subject || '').trim()];
+  if (!labelName || !d.ref) return;
+  try {
+    var label = GmailApp.getUserLabelByName(labelName) || GmailApp.createLabel(labelName);
+    Utilities.sleep(3000); // let Gmail index the sent message
+    var q = '"' + String(d.ref).replace(/"/g, '') + '" newer_than:2h';
+    var threads = GmailApp.search(q, 0, 1);
+    if (threads.length > 0) threads[0].addLabel(label);
+  } catch (e) {
+    // labeling is best-effort; the email itself was already sent
+  }
 }
 
 function _json(o) {
