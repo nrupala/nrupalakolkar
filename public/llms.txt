@@ -1,0 +1,30 @@
+# nrupalakolkar.com
+
+Personal brand site of Nrupal Akolkar, P.Eng. — systems theorist and builder of
+trustworthy, verifiable AI tools. 24+ years operating safety-critical energy
+infrastructure (CNRL, Shell Canada, L&T, ABB). Guiding principle: the tool
+calculates, you decide.
+
+## Pages
+
+- https://nrupalakolkar.com/ — profile: engineering, analytics & strategy, projects, investing, boards & advisory, contact
+- https://nrupalakolkar.com/books — Outcome Convergence Systems, his book (feedback, constraints, control); launch-notify signup
+- https://nrupalakolkar.com/links — every platform: projects, code, research tools, social profiles
+- https://nrupalakolkar.com/town — Town AI assistant referral (Milo)
+- https://nrupalakolkar.com/hiking — hiking journal (trail reports, gear notes, route logs)
+- https://nrupalakolkar.com/photography — landscape and trail photography
+
+## More from Nrupal
+
+- https://aimlds.org — AIMLDS developer knowledge base (canonical front door)
+- https://onsmartgrid.com — energy intelligence
+- https://thinkwithfinance.com — finance thinking
+- https://pipavia.com — Conduit (trust-per-connection)
+- https://linktary.com — Linktary (trust-per-link)
+- https://x.com/nrupal_akolkar — X
+- https://linkedin.com/in/nrupalakolkar — LinkedIn
+
+## Machine-readable
+
+- Sitemap: https://nrupalakolkar.com/sitemap.xml
+- robots.txt: https://nrupalakolkar.com/robots.txt
