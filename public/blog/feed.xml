@@ -6,6 +6,7 @@
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
   <updated>2026-09-26</updated>
+  <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
   <entry>
     <title>Fixing a Firefox-only SSL error by switching off Cloudflare ECH</title>
     <link href="https://nrupalakolkar.com/blog/firefox-ssl-ech-fix"/>
@@ -14,5 +15,6 @@
     <summary>Firefox refused a Cloudflare-fronted site with SSL_ERROR_ECH_RETRY_WITHOUT_ECH while Chrome worked fine. The cause: flapping ECH keys in the DNS HTTPS record. The fix: a one-time, least-privilege Cloudflare API token — create, use once, delete.</summary>
     <author><name>Nrupal Akolkar</name></author>
     <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
   </entry>
 </feed>
