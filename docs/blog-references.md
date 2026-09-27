@@ -4,6 +4,10 @@ Mirrors the discipline of the aimlds.org / devinfo.dev blog: every factual
 claim that leans on an outside source cites a registry entry, and every
 registry URL is verified before it ships.
 
+## Voice
+
+Every post is also measured against [blog-voice-guardrails.md](blog-voice-guardrails.md) before publishing: the language bar (never cheap or slangy — least words most meaning — clarity is king), the public-copy doctrine, and the board-bio lessons. One converged voice across resume, board bio, LinkedIn, and blog.
+
 ## Rules
 
 1. **Three references minimum per post.** If a topic cannot cite three
