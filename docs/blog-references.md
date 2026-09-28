@@ -30,3 +30,6 @@ Every post is also measured against [blog-voice-guardrails.md](blog-voice-guardr
 | r-ech-01 | B | Good-bye ESNI, hello ECH! | Cloudflare Blog | https://blog.cloudflare.com/encrypted-client-hello/ | 2026-09-26 | firefox-ssl-ech-fix |
 | r-ech-02 | A | ECH Protocol | Cloudflare SSL/TLS docs | https://developers.cloudflare.com/ssl/edge-certificates/ech/ | 2026-09-26 | firefox-ssl-ech-fix |
 | r-https-01 | A | RFC 9460: Service Binding and Parameter Specification via the DNS (SVCB and HTTPS Resource Records) | IETF | https://www.rfc-editor.org/rfc/rfc9460.html | 2026-09-26 | firefox-ssl-ech-fix |
+| r-io-01 | A | IntersectionObserver | MDN Web Docs | https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver | 2026-09-27 | fixed-axis-timeline |
+| r-raf-01 | A | Window: requestAnimationFrame() | MDN Web Docs | https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame | 2026-09-27 | fixed-axis-timeline |
+| r-prm-01 | A | prefers-reduced-motion | MDN Web Docs | https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion | 2026-09-27 | fixed-axis-timeline |
