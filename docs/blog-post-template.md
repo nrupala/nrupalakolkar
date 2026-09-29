@@ -25,7 +25,8 @@ Internal checklist for drafting a new post. Public copy rules apply to every pos
 - Replace: `<title>`, meta description, canonical, og:/twitter: tags,
   `article:published_time`, h1, date line, all section blocks, footer URL.
 - Keep: the style block (add page-specific classes only if needed),
-  top-bar, header shell, support-block, links-row, more-block, footer shell.
+  top-bar, header shell, listen-row block + reader script (keep-alive read-aloud),
+  support-block, links-row, more-block, footer shell.
 
 ## 4. Required blocks in every post
 - Header: name link, h1 title, byline (`P.Eng.` — 24+ years…), date + "Built with Muse".
