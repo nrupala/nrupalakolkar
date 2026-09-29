@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Lymphatic Drainage · 10-Minute Routine</title>
+<meta name="description" content="A private guided 10-minute gentle lymphatic drainage exercise routine.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{
+  --bg:#0e0b1c; --surface:#171233; --surface2:#1e1840;
+  --violet:#b39dff; --violet-dim:#8a76d8;
+  --gold:#d9a94a; --gold-dim:#a87f33;
+  --text:#f0ebfa; --dim:#b3a8d6; --faint:#7d739e;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;line-height:1.65;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.screen{display:none}
+.screen.active{display:block;animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.kicker{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+h1{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.25;margin-bottom:.75rem}
+h1 em{font-style:italic;color:var(--violet)}
+.lede{color:var(--dim);font-size:1rem;margin-bottom:1.5rem;max-width:56ch}
+.card{background:var(--surface);border:1px solid #2a2352;border-radius:14px;padding:1.25rem 1.25rem;margin-bottom:1rem}
+.card h2{font-family:var(--serif);font-weight:400;font-size:1.15rem;margin-bottom:.5rem;color:var(--text)}
+.card p,.card li{color:var(--dim);font-size:.93rem}
+.card ul{padding-left:1.2rem;margin-top:.4rem}
+.card li{margin-bottom:.3rem}
+.how{display:flex;gap:.9rem;flex-wrap:wrap;margin:.9rem 0}
+.how div{flex:1;min-width:120px;background:var(--surface2);border-radius:10px;padding:.8rem .9rem;text-align:center}
+.how b{display:block;font-family:var(--serif);font-size:1.4rem;color:var(--violet);font-weight:400}
+.how span{font-size:.75rem;color:var(--dim)}
+.btn{display:inline-block;border:none;cursor:pointer;font-family:var(--sans);font-size:1.05rem;font-weight:600;
+  padding:1rem 2.2rem;border-radius:999px;color:#171233;background:linear-gradient(135deg,var(--violet),#d9a94a);
+  margin-top:1.25rem;transition:transform .15s ease,box-shadow .15s ease;box-shadow:0 4px 24px rgba(179,157,255,.25)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 30px rgba(179,157,255,.35)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{background:transparent;color:var(--dim);border:1px solid #3a3168;box-shadow:none;font-size:.9rem;padding:.7rem 1.4rem}
+.btn.ghost:hover{color:var(--text);border-color:var(--violet-dim)}
+.center{text-align:center}
+.stats{display:flex;gap:1rem;justify-content:center;margin:1rem 0 0;color:var(--faint);font-size:.85rem}
+.stats b{color:var(--gold);font-weight:600}
+.exlist{list-style:none;margin-top:.5rem}
+.exlist li{display:flex;gap:.9rem;align-items:baseline;padding:.55rem 0;border-bottom:1px solid #241e47;font-size:.92rem}
+.exlist li:last-child{border-bottom:none}
+.exnum{font-family:var(--serif);color:var(--gold);min-width:1.6rem;font-size:.95rem}
+.exname{flex:1;color:var(--text)}
+.expos{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);border:1px solid #3a3168;border-radius:999px;padding:.15rem .6rem;white-space:nowrap}
+.credit{margin-top:2rem;padding-top:1.25rem;border-top:1px solid #241e47;color:var(--faint);font-size:.8rem;line-height:1.7}
+.credit a{color:var(--violet-dim)}
+.credit a:hover{color:var(--violet)}
+.picto{width:72px;height:72px;color:var(--violet);flex-shrink:0}
+.picto.sm{width:46px;height:46px}
+.exlist li{align-items:center}
+/* player */
+.pbar{height:6px;background:#241e47;border-radius:999px;overflow:hidden;margin-bottom:1.5rem}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--gold));border-radius:999px;transition:width .4s ease}
+.phase{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+.pname{font-family:var(--serif);font-size:1.9rem;font-weight:400;line-height:1.3;margin-bottom:.35rem}
+.ppos{display:inline-block;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--violet);border:1px solid var(--violet-dim);border-radius:999px;padding:.2rem .75rem;margin-bottom:1rem}
+.pdetail{color:var(--dim);font-size:1rem;max-width:58ch;margin-bottom:1.5rem}
+.timer{font-family:var(--serif);font-size:4.5rem;line-height:1;color:var(--text);font-variant-numeric:tabular-nums;margin:.5rem 0 1.5rem}
+.pulse{width:14px;height:14px;border-radius:50%;background:var(--violet);margin:0 auto 1.25rem;animation:pulse 4s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.55}50%{transform:scale(1.5);opacity:1}}
+.nextup{color:var(--faint);font-size:.9rem;margin-bottom:1.25rem;min-height:1.6em}
+.nextup b{color:var(--dim);font-weight:600}
+.controls{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:.5rem}
+.cbtn{background:var(--surface2);border:1px solid #3a3168;color:var(--text);font-family:var(--sans);font-size:.92rem;font-weight:600;
+  padding:.8rem 1.3rem;border-radius:12px;cursor:pointer;min-width:88px;transition:border-color .15s,color .15s}
+.cbtn:hover{border-color:var(--violet-dim)}
+.cbtn.primary{background:linear-gradient(135deg,var(--violet),#d9a94a);color:#171233;border:none;min-width:130px}
+.cbtn.danger{color:var(--faint)}
+.cbtn.danger:hover{color:#ff9d9d;border-color:#6e3a3a}
+.count{color:var(--faint);font-size:.85rem;letter-spacing:.12em;margin-bottom:1rem}
+/* done */
+.done-mark{width:84px;height:84px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;color:var(--gold);margin:1.5rem auto}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){
+  .screen.active{animation:none}.pulse{animation:none}.pbar i{transition:none}.btn{transition:none}
+}
+@media (max-width:480px){h1{font-size:1.6rem}.pname{font-size:1.55rem}.timer{font-size:3.6rem}}
+</style>
+</head>
+<body>
+<main id="app">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<g id="pc-neck" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="14" r="7"/><path d="M20 32a13 13 0 1 0 24 0"/><path d="M40 25l5 7 6-5"/></g>
+<g id="pc-shrug" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="32" cy="12" r="6"/><path d="M18 24h28"/><path d="M20 24l6-4M20 24l6 4M44 24l-6-4M44 24l-6 4"/><path d="M32 26v20"/></g>
+<g id="pc-chest" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="26" cy="12" r="6"/><path d="M26 20v26"/><path d="M26 28L12 34"/><path d="M26 28l16-2"/><path d="M44 26a18 18 0 0 1 8 10"/></g>
+<g id="pc-side" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="36" cy="12" r="6"/><path d="M36 20c0 10-3 16-9 22l-7 10"/><path d="M36 20c5-6 3-11-1-15"/><path d="M48 32a14 14 0 0 1-8 12"/></g>
+<g id="pc-fold" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="44" cy="13" r="6"/><path d="M40 21c-8 6-12 14-12 26"/><path d="M28 47l-8 9"/><path d="M54 28c2 8 0 16-6 21"/></g>
+<g id="pc-twist" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 32h26"/><circle cx="46" cy="32" r="6"/><path d="M24 32c-2-8-6-10-10-12M24 32c-2 8-6 10-10 12"/></g>
+<g id="pc-bridge" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M8 46h10l12-16 12 16h10"/><path d="M32 22v-8M28 18l4-4 4 4"/></g>
+<g id="pc-knee" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="42" r="6"/><path d="M20 42h20l6-14"/><path d="M52 40a10 10 0 0 1-9 8"/></g>
+<g id="pc-leg" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="44" r="6"/><path d="M20 44h24"/><path d="M36 44V16"/><path d="M52 20v16M48 24l4-6 4 6M48 32l4 6 4-6"/></g>
+<g id="pc-belly" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M24 12h16v18a8 8 0 0 1-16 0z"/><circle cx="32" cy="42" r="8"/><path d="M32 30v-4M32 54v4M20 42h-4M44 42h4"/></g>
+</defs></svg>
+
+
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="screen-home" aria-labelledby="home-title">
+    <p class="kicker">Private self-care</p>
+    <h1 id="home-title">Lymphatic Drainage<br><em>a 10-minute gentle routine</em></h1>
+    <p class="lede">Ten slow exercises that follow the natural pathways of the lymphatic system — neck to belly, standing to lying. No equipment, no impact. Just press start and follow along.</p>
+
+    <div class="card">
+      <h2>How it works</h2>
+      <div class="how">
+        <div><b>10</b><span>exercises</span></div>
+        <div><b>50s</b><span>gentle movement</span></div>
+        <div><b>10s</b><span>rest between</span></div>
+      </div>
+      <p>Move slowly and stay pain-free. Breathe easy throughout — the last exercise is deep belly breathing to finish.</p>
+    </div>
+
+    <div class="card">
+      <h2>A few kind notes</h2>
+      <ul>
+        <li>Start gently and build up over days and weeks — never push through pain or swelling.</li>
+        <li>Exercises 1–5 are standing (or seated); 6–10 are lying down. Use the rest before #6 to get on the floor.</li>
+        <li>For personal guidance, talk to your healthcare provider or a lymphedema therapist.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>The routine</h2>
+      <ol class="exlist" id="home-exlist"></ol>
+    </div>
+
+    <div class="center">
+      <button class="btn" id="btn-start">Begin the 10 minutes</button>
+      <div class="stats"><span>Last done <b id="stat-last">—</b></span><span>Sessions this week <b id="stat-week">0</b></span></div>
+    </div>
+
+    <p class="credit">Routine by <b>Kelly Sturm, PT, DPT</b> — Doctor of Physical Therapy and Certified Lymphedema Therapist, <a href="https://cancerrehabpt.com/lymphatic-drainage-exercises/" rel="noopener">Cancer Rehab PT</a> · <a href="https://www.youtube.com/watch?v=_muVoQ83fKY" rel="noopener">guided video</a>. Adapted here for private personal use.</p>
+  </section>
+
+  <!-- ============ PLAYER ============ -->
+  <section class="screen" id="screen-player" aria-labelledby="p-name">
+    <div class="pbar" aria-hidden="true"><i id="pbar-fill"></i></div>
+    <p class="count" id="p-count">Exercise 1 of 10</p>
+    <p class="phase" id="p-phase">Move gently</p>
+    <svg class="picto" viewBox="0 0 64 64" aria-hidden="true"><use id="p-icon" href="#pc-neck"/></svg>
+    <h2 class="pname" id="p-name"></h2>
+    <span class="ppos" id="p-pos"></span>
+    <p class="pdetail" id="p-detail"></p>
+    <div class="center">
+      <div class="pulse" id="pulse" aria-hidden="true"></div>
+      <div class="timer" id="p-timer" role="timer" aria-label="time remaining">0:50</div>
+      <p class="nextup" id="p-next"></p>
+      <div class="controls">
+        <button class="cbtn primary" id="btn-pause">Pause</button>
+        <button class="cbtn" id="btn-back">Back</button>
+        <button class="cbtn" id="btn-skip">Skip</button>
+        <button class="cbtn danger" id="btn-end">End</button>
+      </div>
+    </div>
+    <p class="sr" role="status" aria-live="polite" id="announcer"></p>
+  </section>
+
+  <!-- ============ DONE ============ -->
+  <section class="screen" id="screen-done" aria-labelledby="done-title">
+    <div class="center">
+      <div class="done-mark" aria-hidden="true">✓</div>
+      <p class="kicker">Well done</p>
+      <h1 id="done-title">Routine <em>complete</em></h1>
+      <p class="lede" style="text-align:center;margin-left:auto;margin-right:auto">Ten minutes of gentle movement for your lymphatic system. Consistency matters more than intensity — see you tomorrow.</p>
+      <div class="stats"><span>Sessions this week <b id="done-week">0</b></span></div>
+      <button class="btn" id="btn-again">Do it again</button><br>
+      <button class="btn ghost" id="btn-home">Back to overview</button>
+    </div>
+  </section>
+
+</main>
+<script>
+(function(){
+"use strict";
+var WORK = 50, REST = 10;
+var EXERCISES = [
+ {icon:"pc-neck", name:"Neck Rolls", pos:"Standing or seated",
+  cue:"Slow half-circles, chin tucked",
+  detail:"Sit or stand tall, shoulders relaxed. Drop your chin toward your chest, then slowly roll your head to the right — ear toward shoulder — then back, to the left, and return to the chest. Repeat in each direction, slow and smooth."},
+ {icon:"pc-shrug", name:"Shoulder Blade Series", pos:"Standing",
+  cue:"Squeeze back, then reach forward",
+  detail:"Feet hip-width apart. Cactus your arms: pull elbows back and down, squeezing your shoulder blades together as if pinching a pencil — hold a second. Release, reach arms forward and round the upper back. Flow back and forth."},
+ {icon:"pc-chest", name:"Standing Chest Openers", pos:"Standing",
+  cue:"Alternate arms, open wide",
+  detail:"Arms extended in front at shoulder height, palms together. Pull your right arm back as if bringing the shoulder blades together — open the chest wide, hold 2–5 seconds. Release and repeat on the left. Slow and controlled."},
+ {icon:"pc-side", name:"Ballerina Stretch", pos:"Standing",
+  cue:"Arms overhead, side bend",
+  detail:"Feet together or hip-width. Reach both arms overhead, grab your right wrist with your left hand, and gently pull as you bend sideways at the waist. Feel the stretch through your side. Hold a few seconds, switch sides, alternate."},
+ {icon:"pc-fold", name:"Forward Body Rolls", pos:"Standing",
+  cue:"Roll down, curl small, roll up",
+  detail:"Feet hip-width, knees slightly bent. Tuck your chin and slowly roll down one vertebra at a time; bend knees and hips to curl into a small ball. Roll back up slowly, stacking the spine. Move with control."},
+ {icon:"pc-twist", name:"Trunk Rotation", pos:"Lying down",
+  cue:"Knees fall side to side",
+  detail:"Lie on your back, knees bent, feet flat. Gently let both knees fall to the right, keeping your shoulder blades on the floor. Hold a few seconds, return to center, repeat to the left. Use the rest before this one to lie down."},
+ {icon:"pc-bridge", name:"Bridges", pos:"Lying down",
+  cue:"Lift hips, squeeze glutes",
+  detail:"On your back, knees bent, feet flat and hip-width. Press through your heels and lift your hips into a straight line from knees to shoulders — avoid arching the lower back. Squeeze your glutes at the top, lower slowly."},
+ {icon:"pc-knee", name:"Alternating Knee to Chest", pos:"Lying down",
+  cue:"Hug each knee in",
+  detail:"Legs extended — or knees bent with feet flat if your back prefers. Slowly pull one knee toward your chest, hugging it gently with both hands. Hold a few seconds, release, switch legs. Alternate."},
+ {icon:"pc-leg", name:"Hamstring Floss", pos:"Lying down",
+  cue:"Straighten up, bend back down",
+  detail:"Knees bent, feet flat. Straighten your right knee with the leg up toward the ceiling, then bend it back down. Repeat on the left. Alternate back and forth, smooth and easy."},
+ {icon:"pc-belly", name:"Belly Breathing", pos:"Lying down",
+  cue:"In through the nose, out through the mouth",
+  detail:"Knees bent, hands resting on your belly with light pressure. Inhale deeply through your nose — feel the belly rise against your hands. Exhale slowly through your mouth — feel it fall. Slow, controlled, relaxing."}
+];
+var TOTAL = EXERCISES.length * WORK + (EXERCISES.length - 1) * REST;
+
+/* ---------- element refs ---------- */
+function $(id){ return document.getElementById(id); }
+var screens = { home:$("screen-home"), player:$("screen-player"), done:$("screen-done") };
+var els = {
+  exlist:$("home-exlist"), statLast:$("stat-last"), statWeek:$("stat-week"),
+  count:$("p-count"), phase:$("p-phase"), name:$("p-name"), pos:$("p-pos"),
+  detail:$("p-detail"), timer:$("p-timer"), next:$("p-next"), fill:$("pbar-fill"),
+  pulse:$("pulse"), announcer:$("announcer"), doneWeek:$("done-week")
+};
+
+/* ---------- home list ---------- */
+els.exlist.innerHTML = EXERCISES.map(function(e,i){
+  return '<li><svg class="picto sm" viewBox="0 0 64 64" aria-hidden="true"><use href="#'+e.icon+'"/></svg>'+
+    '<span class="exnum">'+(i+1)+'</span><span class="exname">'+e.name+
+    '</span><span class="expos">'+e.pos+'</span></li>';
+}).join("");
+
+/* ---------- completions ---------- */
+var LS_KEY = "ldw-completions";
+function getCompletions(){
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || "[]"); } catch(e){ return []; }
+}
+function saveCompletion(){
+  var c = getCompletions(); c.push(new Date().toISOString());
+  try { localStorage.setItem(LS_KEY, JSON.stringify(c.slice(-90))); } catch(e){}
+}
+function weekCount(){
+  var now = new Date(), start = new Date(now); start.setDate(now.getDate()-6); start.setHours(0,0,0,0);
+  return getCompletions().filter(function(iso){ return new Date(iso) >= start; }).length;
+}
+function fmtDate(iso){
+  var d = new Date(iso), now = new Date();
+  var days = Math.floor((now - d) / 86400000);
+  if (days < 1) return "today";
+  if (days === 1) return "yesterday";
+  return d.toLocaleDateString(undefined, {month:"short", day:"numeric"});
+}
+function refreshStats(){
+  var c = getCompletions();
+  els.statLast.textContent = c.length ? fmtDate(c[c.length-1]) : "—";
+  els.statWeek.textContent = weekCount();
+  els.doneWeek.textContent = weekCount();
+}
+
+/* ---------- audio + haptics ---------- */
+var audioCtx = null;
+function chime(){
+  try {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === "suspended") audioCtx.resume();
+    var t = audioCtx.currentTime;
+    [523.25, 783.99].forEach(function(f, i){
+      var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.type = "sine"; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t + i*0.35);
+      g.gain.exponentialRampToValueAtTime(0.18, t + i*0.35 + 0.05);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + i*0.35 + 1.4);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t + i*0.35); o.stop(t + i*0.35 + 1.5);
+    });
+  } catch(e){}
+  try { if (navigator.vibrate) navigator.vibrate(120); } catch(e){}
+}
+
+/* ---------- wake lock ---------- */
+var wakeLock = null;
+function lockScreen(){
+  try {
+    if ("wakeLock" in navigator) navigator.wakeLock.request("screen").then(function(l){ wakeLock = l; }).catch(function(){});
+  } catch(e){}
+}
+function unlockScreen(){
+  try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch(e){}
+}
+
+/* ---------- player state ---------- */
+var S = { idx:0, phase:"work", remaining:WORK, endAt:0, timerId:null, paused:false, elapsed:0, phaseStart:0 };
+
+function show(name){
+  Object.keys(screens).forEach(function(k){ screens[k].classList.toggle("active", k === name); });
+  window.scrollTo(0,0);
+}
+function announce(msg){ els.announcer.textContent = ""; setTimeout(function(){ els.announcer.textContent = msg; }, 60); }
+function fmt(s){ return Math.floor(s/60) + ":" + ("0"+(s%60)).slice(-2); }
+
+function progress(){
+  var done = 0;
+  for (var i = 0; i < S.idx; i++) done += WORK + REST;
+  if (S.phase === "rest") done += WORK;
+  done += (S.phase === "work" ? WORK - S.remaining : REST - S.remaining);
+  return Math.min(100, done / TOTAL * 100);
+}
+
+function render(){
+  var e = EXERCISES[S.idx];
+  var isWork = S.phase === "work";
+  els.count.textContent = "Exercise " + (S.idx+1) + " of " + EXERCISES.length;
+  els.phase.textContent = isWork ? "Move gently" : "Rest";
+  els.phase.style.color = isWork ? "var(--gold)" : "var(--violet)";
+  els.name.textContent = isWork ? e.name : "Rest";
+  var iconTarget = isWork ? e.icon : (EXERCISES[S.idx+1] ? EXERCISES[S.idx+1].icon : e.icon);
+  document.getElementById("p-icon").setAttribute("href", "#"+iconTarget);
+  els.pos.textContent = isWork ? e.pos : e.pos;
+  els.pos.style.display = "inline-block";
+  els.detail.textContent = isWork ? e.cue + ". " + e.detail
+    : (S.idx + 1 < EXERCISES.length
+        ? "Breathe easy. Next: " + EXERCISES[S.idx+1].name + " — " + EXERCISES[S.idx+1].pos.toLowerCase() + "."
+        : "Almost there — finish with slow belly breaths.");
+  els.timer.textContent = fmt(S.remaining);
+  els.fill.style.width = progress() + "%";
+  els.pulse.style.animationPlayState = isWork ? "running" : "paused";
+  els.pulse.style.opacity = isWork ? "" : "0.25";
+  els.next.innerHTML = (S.idx + 1 < EXERCISES.length)
+    ? "Next up: <b>" + EXERCISES[S.idx+1].name + "</b>" + (S.idx === 4 && isWork ? " — get onto the floor during the rest" : "")
+    : "";
+  $("btn-pause").textContent = S.paused ? "Resume" : "Pause";
+}
+
+function startPhase(idx, phase){
+  S.idx = idx; S.phase = phase;
+  S.remaining = phase === "work" ? WORK : REST;
+  S.paused = false;
+  S.phaseStart = Date.now();
+  S.endAt = S.phaseStart + S.remaining * 1000;
+  var e = EXERCISES[idx];
+  announce(phase === "work"
+    ? "Exercise " + (idx+1) + " of " + EXERCISES.length + ": " + e.name
+    : "Rest. Next: " + (idx+1 < EXERCISES.length ? EXERCISES[idx+1].name : "finish"));
+  render();
+}
+
+function tick(){
+  if (S.paused) return;
+  var left = Math.max(0, Math.ceil((S.endAt - Date.now()) / 1000));
+  if (left !== S.remaining) { S.remaining = left; render(); }
+  if (left <= 0) advance();
+}
+
+function advance(){
+  clearInterval(S.timerId);
+  if (S.phase === "work" && S.idx < EXERCISES.length - 1) {
+    chime(); startPhase(S.idx, "rest");
+  } else if (S.phase === "rest") {
+    chime(); startPhase(S.idx + 1, "work");
+  } else {
+    finish();
+    return;
+  }
+  S.timerId = setInterval(tick, 200);
+}
+
+function startRoutine(){
+  show("player");
+  lockScreen();
+  try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch(e){}
+  startPhase(0, "work");
+  chime();
+  clearInterval(S.timerId);
+  S.timerId = setInterval(tick, 200);
+}
+
+function pauseResume(){
+  if (S.paused) {
+    S.paused = false;
+    S.endAt = Date.now() + S.remaining * 1000;
+    S.timerId = setInterval(tick, 200);
+  } else {
+    S.paused = true;
+    clearInterval(S.timerId);
+  }
+  render();
+}
+
+function quit(){
+  clearInterval(S.timerId);
+  unlockScreen();
+  refreshStats();
+  show("home");
+}
+
+function finish(){
+  clearInterval(S.timerId);
+  unlockScreen();
+  chime();
+  saveCompletion();
+  refreshStats();
+  show("done");
+}
+
+/* ---------- events ---------- */
+$("btn-start").addEventListener("click", startRoutine);
+$("btn-pause").addEventListener("click", pauseResume);
+$("btn-again").addEventListener("click", startRoutine);
+$("btn-home").addEventListener("click", function(){ refreshStats(); show("home"); });
+$("btn-end").addEventListener("click", function(){
+  if (confirm("End the routine early?")) quit();
+});
+$("btn-skip").addEventListener("click", function(){
+  clearInterval(S.timerId);
+  if (S.phase === "work" && S.idx === EXERCISES.length - 1) { finish(); return; }
+  if (S.phase === "work") startPhase(S.idx, "rest"); else startPhase(S.idx + 1, "work");
+  S.timerId = setInterval(tick, 200);
+});
+$("btn-back").addEventListener("click", function(){
+  clearInterval(S.timerId);
+  if (S.phase === "rest") startPhase(S.idx, "work");
+  else if (S.idx > 0) startPhase(S.idx - 1, "work");
+  else startPhase(0, "work");
+  S.timerId = setInterval(tick, 200);
+});
+document.addEventListener("visibilitychange", function(){
+  if (document.hidden && screens.player.classList.contains("active") && !S.paused) pauseResume();
+});
+document.addEventListener("keydown", function(e){
+  if (!screens.player.classList.contains("active")) return;
+  if (e.code === "Space") { e.preventDefault(); pauseResume(); }
+});
+refreshStats();
+})();
+</script>
+</body>
+</html>

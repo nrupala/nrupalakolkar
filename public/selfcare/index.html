@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Self-care · Private</title>
+<meta name="description" content="Private guided movement routines.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{
+  --bg:#0e0b1c; --surface:#171233; --surface2:#1e1840;
+  --violet:#b39dff; --gold:#d9a94a;
+  --text:#f0ebfa; --dim:#b3a8d6; --faint:#7d739e;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;line-height:1.65;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;padding:2.5rem 1.25rem 4rem}
+.kicker{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+h1{font-family:var(--serif);font-weight:400;font-size:2rem;margin-bottom:.75rem}
+h1 em{font-style:italic;color:var(--violet)}
+.lede{color:var(--dim);margin-bottom:2rem;max-width:56ch}
+.routine{display:flex;gap:1.1rem;align-items:flex-start;background:var(--surface);border:1px solid #2a2352;border-radius:14px;
+  padding:1.25rem;margin-bottom:1rem;text-decoration:none;color:var(--text);transition:border-color .15s,transform .15s}
+.routine:hover{border-color:var(--violet);transform:translateY(-1px)}
+.picto{width:64px;height:64px;flex-shrink:0;color:var(--violet)}
+.routine h2{font-family:var(--serif);font-weight:400;font-size:1.25rem;margin-bottom:.25rem}
+.routine p{color:var(--dim);font-size:.92rem}
+.meta{margin-top:.5rem;font-size:.78rem;color:var(--faint);letter-spacing:.06em}
+.meta b{color:var(--gold);font-weight:600}
+.lock{margin-top:2rem;padding-top:1.25rem;border-top:1px solid #241e47;color:var(--faint);font-size:.8rem}
+@media (prefers-reduced-motion:reduce){.routine{transition:none}}
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">Private · for Nrupal</p>
+  <h1>Self-care <em>routines</em></h1>
+  <p class="lede">Gentle guided movement for lymphatic flow and pressure relief. Pick one, press start, and follow along — everything runs privately in this space.</p>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="pc-flow" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="12" r="6"/><path d="M32 20v24"/><path d="M32 28c-10-2-16-8-18-16M32 28c10-2 16-8 18-16"/>
+      <path d="M14 8v-5M50 8v-5"/>
+    </g>
+    <g id="pc-sinus" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="16" r="9"/><path d="M14 38c6-8 30-8 36 0"/>
+      <path d="M24 30l-4-6M40 30l4-6"/>
+    </g>
+    <g id="pc-bounce" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="10" r="6"/><path d="M32 18v20"/><path d="M32 38l-8 10M32 38l8 10"/>
+      <path d="M20 58l6-4 6 4 6-4 6 4"/>
+    </g>
+  </defs></svg>
+
+  <a class="routine" href="/selfcare/lymphatic-drainage-workout/">
+    <svg class="picto" viewBox="0 0 64 64" aria-hidden="true"><use href="#pc-flow"/></svg>
+    <div>
+      <h2>10-Minute Lymphatic Drainage</h2>
+      <p>Ten slow exercises from neck to belly, standing to lying — the classic daily sequence.</p>
+      <p class="meta"><b>10 min</b> · 10 exercises · guided timer</p>
+    </div>
+  </a>
+
+  <a class="routine" href="/selfcare/sinus-relief/">
+    <svg class="picto" viewBox="0 0 64 64" aria-hidden="true"><use href="#pc-sinus"/></svg>
+    <div>
+      <h2>Sinus Pressure Relief</h2>
+      <p>Open the collarbone drains first, then release the chest, neck and diaphragm — for congested days.</p>
+      <p class="meta"><b>~10 min</b> · 5 steps · guided stepper</p>
+    </div>
+  </a>
+
+  <a class="routine" href="/selfcare/full-body-lymphatic/">
+    <svg class="picto" viewBox="0 0 64 64" aria-hidden="true"><use href="#pc-bounce"/></svg>
+    <div>
+      <h2>Full-Body Lymphatic Flow</h2>
+      <p>Breathing, twists, calf pumps and a finishing bounce — upper body down to flush the whole system.</p>
+      <p class="meta"><b>~8 min</b> · 7 movements · guided timer</p>
+    </div>
+  </a>
+
+  <p class="lock">🔒 This space is private — protected by Cloudflare Access. General wellness information, not medical advice. Move gently, stay pain-free, and check with your healthcare provider for personal guidance.</p>
+</main>
+</body>
+</html>
