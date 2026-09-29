@@ -97,20 +97,25 @@ voice=(en[0]||vs[0])||null;}
 try{if("onvoiceschanged" in synth)synth.onvoiceschanged=pickVoice;}catch(e){}
 pickVoice();
 var state="idle",idx=0,gen=0,keepAlive=null;
+var posKey="nka-listen:"+location.pathname;
+function savePos(){try{localStorage.setItem(posKey,JSON.stringify({i:idx,t:Date.now()}));}catch(e){}}
+function clearPos(){try{localStorage.removeItem(posKey);}catch(e){}}
+try{var _sp=JSON.parse(localStorage.getItem(posKey)||"null");
+if(_sp&&_sp.i>0&&_sp.i<chunks.length){idx=_sp.i;}}catch(e){}
 function clearHi(){var h=root.querySelector(".read-sent.reading");if(h)h.classList.remove("reading");}
 function progress(i){if(fill)fill.style.width=(i<0?0:Math.round(((i+1)/chunks.length)*100))+"%";}
 function setPlay(){
 if(state==="playing")play.innerHTML="⏸ Pause";
 else if(state==="paused")play.innerHTML="▶ Resume";
-else play.innerHTML="🔊 Listen";
+else play.innerHTML=idx>0?"▶ Resume":"🔊 Listen";
 play.setAttribute("aria-pressed",state==="playing"?"true":"false");
 if(stopBtn)stopBtn.disabled=(state==="idle");}
 function disarm(){if(keepAlive){clearInterval(keepAlive);keepAlive=null;}}
 function arm(){disarm();keepAlive=setInterval(function(){try{if(state==="playing"&&!synth.paused)synth.resume();}catch(e){}},8000);}
 function speak(i,g){
 if(g!==gen||state!=="playing")return;
-if(i>=chunks.length){stopAll();return;}
-idx=i;var ch=chunks[i];clearHi();ch.el.classList.add("reading");
+if(i>=chunks.length){stopAll(true);return;}
+idx=i;savePos();var ch=chunks[i];clearHi();ch.el.classList.add("reading");
 var u=new SpeechSynthesisUtterance(ch.text);
 if(voice)u.voice=voice;
 try{u.rate=parseFloat(rateSel.value)||1;}catch(e){u.rate=1;}
@@ -120,11 +125,12 @@ try{synth.speak(u);}catch(e){if(g===gen&&state==="playing")speak(i+1,g);}}
 function doPlay(){
 if(state==="playing"){try{synth.pause();}catch(e){}state="paused";setPlay();disarm();return;}
 if(state==="paused"){try{synth.resume();}catch(e){}state="playing";setPlay();arm();return;}
-gen++;try{synth.cancel();}catch(e){}state="playing";setPlay();arm();speak(0,gen);}
-function stopAll(){gen++;disarm();try{synth.cancel();}catch(e){}state="idle";idx=0;clearHi();progress(-1);setPlay();}
+gen++;try{synth.cancel();}catch(e){}state="playing";setPlay();arm();speak(idx,gen);}
+function stopAll(done){gen++;disarm();try{synth.cancel();}catch(e){}state="idle";if(done){idx=0;clearPos();}clearHi();progress(-1);setPlay();}
 play.addEventListener("click",doPlay);
-if(stopBtn)stopBtn.addEventListener("click",stopAll);
+if(stopBtn)stopBtn.addEventListener("click",function(){stopAll(false);});
 if(rateSel)rateSel.addEventListener("change",function(){if(state!=="playing")return;gen++;try{synth.cancel();}catch(e){}speak(idx,gen);});
-document.addEventListener("pagehide",stopAll);
+document.addEventListener("pagehide",function(){stopAll(false);});
+if(idx>0)progress(idx-1);
 setPlay();
 })();</script></body></html>
