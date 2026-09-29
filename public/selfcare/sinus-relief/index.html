@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Sinus Pressure Relief · 5-Step Sequence</title>
+<meta name="description" content="A private guided 5-step sequence to relieve sinus-related neck, back, chest and diaphragm pressure.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{
+  --bg:#0e0b1c; --surface:#171233; --surface2:#1e1840;
+  --violet:#b39dff; --violet-dim:#8a76d8;
+  --gold:#d9a94a;
+  --text:#f0ebfa; --dim:#b3a8d6; --faint:#7d739e;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;line-height:1.65;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.screen{display:none}
+.screen.active{display:block;animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.kicker{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+h1{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.25;margin-bottom:.75rem}
+h1 em{font-style:italic;color:var(--violet)}
+.lede{color:var(--dim);font-size:1rem;margin-bottom:1.5rem;max-width:56ch}
+.card{background:var(--surface);border:1px solid #2a2352;border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.card h2{font-family:var(--serif);font-weight:400;font-size:1.15rem;margin-bottom:.5rem}
+.card p,.card li{color:var(--dim);font-size:.93rem}
+.card ul{padding-left:1.2rem;margin-top:.4rem}
+.card li{margin-bottom:.3rem}
+.picto{width:72px;height:72px;color:var(--violet);flex-shrink:0}
+.picto.sm{width:46px;height:46px}
+.btn{display:inline-block;border:none;cursor:pointer;font-family:var(--sans);font-size:1.05rem;font-weight:600;
+  padding:1rem 2.2rem;border-radius:999px;color:#171233;background:linear-gradient(135deg,var(--violet),#d9a94a);
+  margin-top:1.25rem;transition:transform .15s ease,box-shadow .15s ease;box-shadow:0 4px 24px rgba(179,157,255,.25)}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--dim);border:1px solid #3a3168;box-shadow:none;font-size:.9rem;padding:.7rem 1.4rem}
+.center{text-align:center}
+.steplist{list-style:none;margin-top:.5rem}
+.steplist li{display:flex;gap:.9rem;align-items:center;padding:.6rem 0;border-bottom:1px solid #241e47;font-size:.92rem}
+.steplist li:last-child{border-bottom:none}
+.stepnum{font-family:var(--serif);color:var(--gold);min-width:1.6rem}
+.stepname{flex:1}
+.steptarget{font-size:.75rem;color:var(--faint)}
+/* player */
+.pbar{height:6px;background:#241e47;border-radius:999px;overflow:hidden;margin-bottom:1.5rem}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--gold));border-radius:999px;transition:width .4s ease}
+.count{color:var(--faint);font-size:.85rem;letter-spacing:.12em;margin-bottom:1rem}
+.why{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
+.pname{font-family:var(--serif);font-size:1.9rem;font-weight:400;line-height:1.3;margin:.6rem 0 .35rem}
+.ptarget{display:inline-block;font-size:.78rem;letter-spacing:.08em;color:var(--violet);border:1px solid var(--violet-dim);
+  border-radius:999px;padding:.25rem .8rem;margin-bottom:1rem}
+.pdetail{color:var(--dim);font-size:1rem;max-width:58ch;margin-bottom:1.5rem}
+.counter{display:flex;align-items:center;justify-content:center;gap:1rem;margin:1rem 0 1.5rem}
+.tapbtn{width:110px;height:110px;border-radius:50%;border:2px solid var(--violet);background:var(--surface2);color:var(--text);
+  font-family:var(--serif);font-size:2.2rem;cursor:pointer;transition:transform .1s}
+.tapbtn:active{transform:scale(.94)}
+.counter small{color:var(--faint);font-size:.78rem;max-width:14ch}
+.resetlink{background:none;border:none;color:var(--faint);font-size:.8rem;cursor:pointer;text-decoration:underline}
+.resetlink:hover{color:var(--text)}
+.controls{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:.5rem}
+.cbtn{background:var(--surface2);border:1px solid #3a3168;color:var(--text);font-family:var(--sans);font-size:.92rem;font-weight:600;
+  padding:.8rem 1.3rem;border-radius:12px;cursor:pointer;min-width:88px}
+.cbtn:hover{border-color:var(--violet-dim)}
+.cbtn.primary{background:linear-gradient(135deg,var(--violet),#d9a94a);color:#171233;border:none;min-width:130px}
+.cbtn.danger{color:var(--faint)}
+.done-mark{width:84px;height:84px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;color:var(--gold);margin:1.5rem auto}
+.credit{margin-top:2rem;padding-top:1.25rem;border-top:1px solid #241e47;color:var(--faint);font-size:.8rem;line-height:1.7}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.backlink{display:inline-block;margin-bottom:1.5rem;color:var(--faint);font-size:.85rem;text-decoration:none}
+.backlink:hover{color:var(--violet)}
+@media (prefers-reduced-motion:reduce){.screen.active{animation:none}.pbar i{transition:none}.btn,.tapbtn{transition:none}}
+@media (max-width:480px){h1{font-size:1.6rem}.pname{font-size:1.55rem}}
+</style>
+</head>
+<body>
+<main id="app">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <g id="ps-collar" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 32c8-6 32-6 40 0"/><path d="M32 32v12"/>
+      <circle cx="24" cy="23" r="2.6" fill="currentColor" stroke="none"/><circle cx="40" cy="23" r="2.6" fill="currentColor" stroke="none"/>
+      <path d="M18 27l7 2M46 27l-7 2"/>
+    </g>
+    <g id="ps-ribs" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="10" r="5"/><ellipse cx="32" cy="36" rx="13" ry="15"/>
+      <path d="M15 31l-7-2M15 41l-7 2M49 31l7-2M49 41l7 2"/>
+    </g>
+    <g id="ps-cactus" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="32" cy="10" r="6"/><path d="M32 18v28"/>
+      <path d="M32 30H18V18M32 30h14V18"/><path d="M12 22l-5-4M52 22l5-4"/>
+    </g>
+    <g id="ps-catcow" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 38c10-12 20 4 30-6 6-6 12-4 18 0"/>
+      <path d="M20 22v-9M17 17l3-4 3 4M44 54v-9M41 50l3-4 3 4"/>
+    </g>
+    <g id="ps-scm" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="37" cy="14" r="7"/><path d="M35 22c-2 8-7 12-11 16"/>
+      <path d="M27 32l-3 10M21 36l-3 9"/><path d="M50 12a10 10 0 0 1-5 9"/>
+    </g>
+  </defs></svg>
+
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="screen-home" aria-labelledby="home-title">
+    <a class="backlink" href="/selfcare/">← All routines</a>
+    <p class="kicker">For congested days</p>
+    <h1 id="home-title">Sinus Pressure <em>relief</em></h1>
+    <p class="lede">Sinus congestion jams the neck, back, chest and diaphragm. This 5-step sequence opens the main lymphatic drains behind your collarbones <em>first</em> — so fluid from your head and chest has somewhere to go — then releases the pressure step by step.</p>
+
+    <div class="card">
+      <h2>Do it in order</h2>
+      <ol class="steplist" id="home-steplist"></ol>
+    </div>
+
+    <div class="card">
+      <h2>Two things that help</h2>
+      <ul>
+        <li><b>Hydrate.</b> Lymphatic fluid is mostly water — it can't flow if you're dehydrated.</li>
+        <li><b>Use gravity.</b> Don't lie flat right after; stay upright or propped on pillows so drainage keeps moving down and out.</li>
+      </ul>
+    </div>
+
+    <div class="center">
+      <button class="btn" id="btn-start">Begin the sequence</button>
+    </div>
+    <p class="credit">General wellness information, not medical advice. Use very light pressure throughout — if anything hurts, stop. Talk to your healthcare provider for personal guidance.</p>
+  </section>
+
+  <!-- ============ PLAYER ============ -->
+  <section class="screen" id="screen-player" aria-labelledby="p-name">
+    <a class="backlink" href="/selfcare/" id="quit-link">← Quit</a>
+    <div class="pbar" aria-hidden="true"><i id="pbar-fill"></i></div>
+    <p class="count" id="p-count">Step 1 of 5</p>
+    <p class="why" id="p-why"></p>
+    <svg class="picto" viewBox="0 0 64 64" aria-hidden="true"><use id="p-icon" href="#ps-collar"/></svg>
+    <h2 class="pname" id="p-name"></h2>
+    <span class="ptarget" id="p-target"></span>
+    <p class="pdetail" id="p-detail"></p>
+    <div class="center">
+      <div class="counter">
+        <button class="tapbtn" id="btn-tap" aria-label="tap to count one repetition">0</button>
+        <small>tap the circle for each rep or breath</small>
+      </div>
+      <button class="resetlink" id="btn-resetcount">reset count</button>
+      <div class="controls">
+        <button class="cbtn" id="btn-back">Back</button>
+        <button class="cbtn primary" id="btn-next">Next step</button>
+        <button class="cbtn" id="btn-skip">Skip</button>
+      </div>
+    </div>
+    <p class="sr" role="status" aria-live="polite" id="announcer"></p>
+  </section>
+
+  <!-- ============ DONE ============ -->
+  <section class="screen" id="screen-done" aria-labelledby="done-title">
+    <div class="center">
+      <div class="done-mark" aria-hidden="true">✓</div>
+      <p class="kicker">Breathe easy</p>
+      <h1 id="done-title">Sequence <em>complete</em></h1>
+      <p class="lede" style="text-align:center;margin-left:auto;margin-right:auto">Drains open, chest released, neck freed. Drink some water and stay upright a while to let gravity finish the job.</p>
+      <button class="btn" id="btn-again">Run it again</button><br>
+      <button class="btn ghost" id="btn-home">Back to overview</button>
+    </div>
+  </section>
+</main>
+<script>
+(function(){
+"use strict";
+var STEPS = [
+ {icon:"ps-collar", name:"The Collarbone Pump", why:"Open the main drain",
+  target:"15–20 gentle pulses",
+  detail:"Before moving your body, clear the main lymphatic dumping ground so fluid from your sinuses has somewhere to go. Place your index and middle fingers in the hollow notches right above your collarbones. Apply very light pressure — the weight of a coin, not a massage — and sweep inward toward your throat, or pulse gently. 15 to 20 times."},
+ {icon:"ps-ribs", name:"Diaphragmatic 360 Breathing", why:"Decompress the core",
+  target:"10 deep breaths",
+  detail:"Congestion leads to shallow chest breathing, which freezes the diaphragm and tightens the back. Sit comfortably, hands around your lower ribs. Inhale deeply through your nose, expanding your ribs outward to the sides and back — 360 degrees — not just lifting your chest. Exhale fully through pursed lips, letting the ribs collapse inward. Deep breathing is a literal vacuum pump for your lymphatic system."},
+ {icon:"ps-cactus", name:"Cactus Arm Chest Opener", why:"Release the chest & upper back",
+  target:"10 slow repetitions",
+  detail:"Stand or sit tall. Inhale and bring your arms to a 90-degree cactus — goalpost — shape. As you exhale, gently draw your elbows back, pull your shoulder blades together, and lift your chest toward the ceiling. Inhale to return to the start. Fluid, unhurried repetitions."},
+ {icon:"ps-catcow", name:"Seated Cat-Cow with Neck Release", why:"Unjam the spine & neck",
+  target:"8–10 slow cycles",
+  detail:"Rest your hands on your knees. Inhale: arch your back and look up slightly, opening the front of your neck and chest. Exhale: round your spine, tuck your chin deeply to your chest, gaze down at your belly button — stretching the back of your neck and upper spine. Move slowly, married to your breath."},
+ {icon:"ps-scm", name:"SCM Neck Stretch & Drainage", why:"Free the neck drains",
+  target:"Both sides · 3 breaths + 5–10 strokes each",
+  detail:"The SCM muscles run down the sides of your neck and tighten under sinus pressure, blocking fluid flow. Turn your head 45 degrees to the right, then tilt your left ear toward your left shoulder — feel the stretch down the right side of your neck. Take 3 deep breaths. Then, with the flats of your fingers, very gently stroke down that tight muscle from just behind your ear to your collarbone, 5–10 times. Repeat on the opposite side."}
+];
+function $(id){ return document.getElementById(id); }
+var screens = { home:$("screen-home"), player:$("screen-player"), done:$("screen-done") };
+var idx = 0, count = 0;
+
+$("home-steplist").innerHTML = STEPS.map(function(s,i){
+  return '<li><svg class="picto sm" viewBox="0 0 64 64" aria-hidden="true"><use href="#'+s.icon+'"/></svg>'+
+    '<span class="stepnum">'+(i+1)+'</span><span class="stepname">'+s.name+'</span>'+
+    '<span class="steptarget">'+s.target+'</span></li>';
+}).join("");
+
+function show(name){
+  Object.keys(screens).forEach(function(k){ screens[k].classList.toggle("active", k === name); });
+  window.scrollTo(0,0);
+}
+function announce(m){ var a=$("announcer"); a.textContent=""; setTimeout(function(){ a.textContent=m; },60); }
+function render(){
+  var s = STEPS[idx];
+  $("p-count").textContent = "Step " + (idx+1) + " of " + STEPS.length;
+  $("p-why").textContent = s.why;
+  $("p-icon").setAttribute("href", "#"+s.icon);
+  $("p-name").textContent = s.name;
+  $("p-target").textContent = "Aim: " + s.target;
+  $("p-detail").textContent = s.detail;
+  $("pbar-fill").style.width = ((idx)/STEPS.length*100) + "%";
+  count = 0; $("btn-tap").textContent = "0";
+  $("btn-next").textContent = idx === STEPS.length-1 ? "Finish" : "Next step";
+  announce("Step " + (idx+1) + " of " + STEPS.length + ": " + s.name + ". " + s.why + ".");
+}
+function start(){ idx = 0; show("player"); render(); }
+function next(){
+  if (idx < STEPS.length-1) { idx++; render(); }
+  else { $("pbar-fill").style.width = "100%"; show("done"); }
+}
+$("btn-start").addEventListener("click", start);
+$("btn-again").addEventListener("click", start);
+$("btn-home").addEventListener("click", function(){ show("home"); });
+$("btn-next").addEventListener("click", next);
+$("btn-skip").addEventListener("click", next);
+$("btn-back").addEventListener("click", function(){ if (idx > 0) { idx--; render(); } });
+$("btn-tap").addEventListener("click", function(){ count++; $("btn-tap").textContent = count; });
+$("btn-resetcount").addEventListener("click", function(){ count = 0; $("btn-tap").textContent = "0"; });
+$("quit-link").addEventListener("click", function(e){
+  if (!confirm("Quit the sequence?")) e.preventDefault();
+});
+document.addEventListener("keydown", function(e){
+  if (!screens.player.classList.contains("active")) return;
+  if (e.key === " " || e.key === "Enter") { /* let buttons handle it */ }
+  if (e.key === "ArrowRight") next();
+  if (e.key === "ArrowLeft" && idx > 0) { idx--; render(); }
+});
+})();
+</script>
+</body>
+</html>
