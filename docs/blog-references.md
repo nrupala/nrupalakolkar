@@ -33,3 +33,6 @@ Every post is also measured against [blog-voice-guardrails.md](blog-voice-guardr
 | r-io-01 | A | IntersectionObserver | MDN Web Docs | https://developer.mozilla.org/en-US/docs/Web/API/IntersectionObserver | 2026-09-27 | fixed-axis-timeline |
 | r-raf-01 | A | Window: requestAnimationFrame() | MDN Web Docs | https://developer.mozilla.org/en-US/docs/Web/API/Window/requestAnimationFrame | 2026-09-27 | fixed-axis-timeline |
 | r-prm-01 | A | prefers-reduced-motion | MDN Web Docs | https://developer.mozilla.org/en-US/docs/Web/CSS/@media/prefers-reduced-motion | 2026-09-27 | fixed-axis-timeline |
+| r-html-01 | A | Scripting | WHATWG HTML Standard | https://html.spec.whatwg.org/multipage/scripting.html | 2026-09-28 | dont-escape-script-in-workers |
+| r-cfw-01 | A | Cloudflare Workers documentation | Cloudflare Docs | https://developers.cloudflare.com/workers/ | 2026-09-28 | dont-escape-script-in-workers |
+| r-mdnscript-01 | A | <script>: The Script element | MDN Web Docs | https://developer.mozilla.org/en-US/docs/Web/HTML/Element/script | 2026-09-28 | dont-escape-script-in-workers |

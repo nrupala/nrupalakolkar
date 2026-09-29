@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-09-27</updated>
+  <updated>2026-09-28</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>Don&apos;t escape &lt;/script&gt; in a Cloudflare Worker</title>
+    <link href="https://nrupalakolkar.com/blog/dont-escape-script-in-workers"/>
+    <id>https://nrupalakolkar.com/blog/dont-escape-script-in-workers</id>
+    <updated>2026-09-28</updated>
+    <summary>A Worker&apos;s HTML template closed its script tag with &lt;\/script&gt; &#8212; correct inside an HTML document, wrong in a Worker. Browsers didn&apos;t recognize it, and the first script element swallowed the page. The fix: write &lt;/script&gt; literally, plus a drop-in pre-publish check.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The smoothest scroll animation is the one you delete</title>
     <link href="https://nrupalakolkar.com/blog/fixed-axis-timeline"/>
