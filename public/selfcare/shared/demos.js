@@ -188,6 +188,7 @@ window.SCDemos = (function () {
     stylesDone = true;
     var css =
       ".scdemo{position:relative;max-width:280px;margin:0 auto;border-radius:16px;overflow:hidden;background:#0b1020;border:1px solid #26314d}" +
+      ".scdemo-stage{position:relative}" +
       ".scdemo video,.scdemo img{display:block;width:100%;aspect-ratio:1/2;object-fit:cover;background:#0b1020}" +
       ".scdemo-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}" +
       ".scdemo .node{fill:#7ef9d2;stroke:#0b1020;stroke-width:.25;opacity:.8}" +
@@ -196,6 +197,9 @@ window.SCDemos = (function () {
       "@keyframes scd-pulse{0%,100%{opacity:.45}50%{opacity:.95}}" +
       "@media (prefers-reduced-motion:reduce){.scdemo .pulse{animation:none;opacity:.8}}" +
       ".scdemo-badge{position:absolute;top:8px;left:8px;right:8px;text-align:center;font-size:11px;line-height:1.4;padding:4px 8px;border-radius:999px;background:rgba(11,16,32,.8);color:#cfe3ff;border:1px solid #33415f}" +
+      ".scdemo-ctl{position:absolute;right:8px;bottom:8px;width:36px;height:36px;border-radius:50%;border:1px solid #33415f;background:rgba(11,16,32,.82);color:#e8f0ff;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}" +
+      ".scdemo-ctl:hover{background:rgba(38,50,88,.92)}" +
+      ".scdemo-ctl:focus-visible{outline:2px solid #7ef9d2;outline-offset:2px}" +
       ".scdemo-cap{margin:0;padding:7px 10px;font-size:11px;line-height:1.45;color:#9fb2d8;background:rgba(11,16,32,.94);text-align:center}" +
       ".char-toggle{display:inline-flex;gap:6px;padding:3px;border:1px solid #26314d;border-radius:999px;background:#0f1526}" +
       ".char-toggle button{border:0;border-radius:999px;padding:7px 18px;font-size:13px;background:transparent;color:#9fb2d8;cursor:pointer}" +
@@ -219,8 +223,9 @@ window.SCDemos = (function () {
     var mediaHtml;
     if (res.kind === "video") {
       mediaHtml = '<video src="' + esc(res.src) +
-        '" muted loop playsinline autoplay preload="metadata" disablepictureinpicture' +
-        ' aria-label="Movement demonstration video"></video>';
+        '" muted loop playsinline autoplay preload="auto" disablepictureinpicture' +
+        ' aria-label="Movement demonstration video"></video>' +
+        '<button type="button" class="scdemo-ctl" data-scdemo-ctl aria-label="Pause demonstration video" aria-pressed="true">&#10074;&#10074;</button>';
     } else {
       mediaHtml = '<img src="' + esc(res.src) + '" alt="Movement demonstration pose">';
     }
@@ -232,15 +237,49 @@ window.SCDemos = (function () {
       : "Demonstration · markers show approximate node areas.";
     el.innerHTML =
       '<div class="scdemo' + (res.placeholder ? " is-placeholder" : "") + '">' +
+      '<div class="scdemo-stage">' +
       mediaHtml +
       '<svg class="scdemo-overlay" viewBox="0 0 50 100" preserveAspectRatio="none" aria-hidden="true">' +
       renderOverlay(move) + "</svg>" + badge +
+      "</div>" +
       '<p class="scdemo-cap">' + cap + "</p></div>";
-    var v = el.querySelector("video");
-    if (v) {
-      try { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
-      catch (e) {}
-    }
+    wirePlayback(el);
+  }
+
+  /* ---------- playback controls ----------
+     Every figure gets a real play/pause button. This is the reliable path on
+     mobile: autoplay (muted) is attempted first, but real mobile browsers can
+     refuse it (data saver, battery saver, MEI, user autoplay settings). The
+     button is always visible, so a tap — a genuine user gesture — unlocks
+     playback everywhere, and the play/pause events keep the button in sync. */
+  function syncCtl(btn, v) {
+    var playing = !!v && !v.paused && !v.ended;
+    btn.innerHTML = playing ? "&#10074;&#10074;" : "&#9654;";
+    btn.setAttribute("aria-label", playing ? "Pause demonstration video" : "Play demonstration video");
+    btn.setAttribute("aria-pressed", playing ? "true" : "false");
+  }
+  function wirePlayback(scope) {
+    var v = scope.querySelector("video");
+    var btn = scope.querySelector("[data-scdemo-ctl]");
+    if (!v || !btn) return;
+    try { v.muted = true; v.defaultMuted = true; } catch (e) {}
+    btn.addEventListener("click", function (ev) {
+      ev.stopPropagation();
+      if (v.paused || v.ended) {
+        try { var p = v.play(); if (p && p.catch) p.catch(function () { syncCtl(btn, v); }); }
+        catch (e) { syncCtl(btn, v); }
+      } else {
+        v.pause();
+      }
+    });
+    v.addEventListener("play", function () { syncCtl(btn, v); });
+    v.addEventListener("pause", function () { syncCtl(btn, v); });
+    syncCtl(btn, v);
+    /* primary path: muted autoplay attempt */
+    try { var ap = v.play(); if (ap && ap.catch) ap.catch(function () { syncCtl(btn, v); }); }
+    catch (e) { syncCtl(btn, v); }
+    /* safety net: re-sync once loading has had a beat (slow networks) */
+    setTimeout(function () { syncCtl(btn, v); }, 1500);
   }
 
   /* ---------- character toggle ---------- */
