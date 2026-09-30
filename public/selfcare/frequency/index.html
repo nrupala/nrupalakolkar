@@ -319,8 +319,14 @@ $("btn-save").addEventListener("click", function(){
   SC.logSave(T.doneInfo); T.saved=true;
   $("btn-save").textContent="Saved ✓"; SC.chime();
 });
-document.addEventListener("visibilitychange", function(){
-  if(document.hidden && T && !T.paused && screens.player.classList.contains("active")) pause();
+/* Wall-clock session: backgrounding/sleep never loses time. Core resumes the
+   AudioContext on return so the drone keeps playing; we just re-sync display. */
+SC.onReturn(function(){
+  if(!T || T.paused) return;
+  if(!screens.player.classList.contains("active")) return;
+  var left=(T.endAt-Date.now())/1000;
+  if(left<=0){ finish(); return; }
+  $("total").textContent = SC.fmtClock(left) + " remaining";
 });
 window.addEventListener("pagehide", function(){ SC.droneStop(0); });
 })();

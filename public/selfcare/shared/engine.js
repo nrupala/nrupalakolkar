@@ -135,6 +135,36 @@ window.SC = (function () {
   }
   function droneOn() { return !!drone; }
 
+  /* ---------- background-resilient sessions (core lifecycle) ----------
+     Mobile browsers throttle/suspend timers and audio when the tab hides or the
+     phone sleeps. Strategy: sessions run on WALL-CLOCK time (Date.now());
+     pages never auto-pause on hide — they register re-sync hooks that core
+     fires when the page becomes visible again. Core also resumes the
+     AudioContext and re-acquires the wake lock on return. */
+  var returnHooks = [], hideHooks = [];
+  function onReturn(fn){ if (typeof fn === "function") returnHooks.push(fn); }
+  function onHide(fn){ if (typeof fn === "function") hideHooks.push(fn); }
+  var wantLock = false;
+  var _lock = lock, _unlock = unlock;
+  lock = function(){ wantLock = true; _lock(); };
+  unlock = function(){ wantLock = false; _unlock(); };
+  function fireHooks(list){
+    for (var i = 0; i < list.length; i++) { try { list[i](); } catch (e) {} }
+  }
+  if (typeof document !== "undefined" && document.addEventListener) {
+    document.addEventListener("visibilitychange", function(){
+      if (document.hidden) { fireHooks(hideHooks); }
+      else {
+        try { ac(); } catch (e) {}        /* resume audio after OS suspend */
+        if (wantLock) { try { _lock(); } catch (e) {} }  /* wake lock releases on hide */
+        fireHooks(returnHooks);
+      }
+    });
+  }
+  /* Wall-clock elapsed ms since startStamp — immune to background throttling.
+     Pages derive "time left" from this, so sleep/background never loses time. */
+  function wallElapsed(startStamp){ return Date.now() - startStamp; }
+
   /* ---------- helpers ---------- */
   function fmtClock(sec) {
     sec = Math.max(0, Math.ceil(sec));
@@ -147,6 +177,7 @@ window.SC = (function () {
     lock: lock, unlock: unlock,
     logRead: read, logSave: saveSession, logNote: updateNote, logStats: stats, dayKey: dayKey,
     droneStart: startDrone, droneStop: stopDrone, droneVolume: droneVolume, droneOn: droneOn,
+    onReturn: onReturn, onHide: onHide, wallElapsed: wallElapsed,
     fmtClock: fmtClock
   };
 })();
