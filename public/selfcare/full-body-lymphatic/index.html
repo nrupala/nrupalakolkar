@@ -46,7 +46,7 @@ h1 em{font-style:italic;color:var(--violet)}
 .stats{display:flex;gap:1rem;justify-content:center;margin:1rem 0 0;color:var(--faint);font-size:.85rem}
 .stats b{color:var(--gold);font-weight:600}
 .exlist{list-style:none;margin-top:.5rem}
-.exlist li{display:flex;gap:.9rem;align-items:baseline;padding:.55rem 0;border-bottom:1px solid #241e47;font-size:.92rem}
+.exlist li{display:block;padding:0;border:none}
 .exlist li:last-child{border-bottom:none}
 .exnum{font-family:var(--serif);color:var(--gold);min-width:1.6rem;font-size:.95rem}
 .exname{flex:1;color:var(--text)}
@@ -56,6 +56,16 @@ h1 em{font-style:italic;color:var(--violet)}
 .credit a:hover{color:var(--violet)}
 .picto{width:72px;height:72px;color:var(--violet);flex-shrink:0}
 .picto.sm{width:46px;height:46px}
+.move{width:132px;height:132px;margin:.2rem auto;color:var(--violet)}
+.move.sm{width:56px;height:56px;margin:0;flex-shrink:0}
+.move svg{width:100%;height:100%;display:block}
+.exlist .exitem{display:flex;gap:.9rem;align-items:center;width:100%;background:none;border:none;border-bottom:1px solid #241e47;
+  padding:.55rem .25rem;font-family:var(--sans);font-size:.92rem;cursor:pointer;text-align:left;border-radius:8px}
+.exlist .exitem:hover{background:var(--surface2)}
+.exlist .exitem:last-child{border-bottom:none}
+.explay{margin-left:auto;color:var(--faint);font-size:1.1rem;flex-shrink:0}
+.exitem:hover .explay{color:var(--gold)}
+.solo-hint{color:var(--faint);font-size:.82rem;margin-top:.5rem}
 .exlist li{align-items:center}
 /* player */
 .pbar{height:6px;background:#241e47;border-radius:999px;overflow:hidden;margin-bottom:1.5rem}
@@ -114,7 +124,7 @@ h1 em{font-style:italic;color:var(--violet)}
         <div><b>55s</b><span>gentle movement</span></div>
         <div><b>10s</b><span>rest between</span></div>
       </div>
-      <p>Move slowly and stay pain-free. Work from the top down toward the main drains — the last minute is a full-body bounce to flush the system.</p>
+      <p>Move slowly and stay pain-free, working from the top down. The last minute is a gentle full-body bounce to finish.</p>
     </div>
 
     <div class="card">
@@ -128,6 +138,7 @@ h1 em{font-style:italic;color:var(--violet)}
 
     <div class="card">
       <h2>The routine</h2>
+      <p class="solo-hint">Tap any movement to practice just that one — or run the full sequence below.</p>
       <ol class="exlist" id="home-exlist"></ol>
     </div>
 
@@ -144,7 +155,7 @@ h1 em{font-style:italic;color:var(--violet)}
     <div class="pbar" aria-hidden="true"><i id="pbar-fill"></i></div>
     <p class="count" id="p-count">Exercise 1 of 10</p>
     <p class="phase" id="p-phase">Move gently</p>
-    <svg class="picto" viewBox="0 0 64 64" aria-hidden="true"><use id="p-icon" href="#pf-sweep"/></svg>
+    <div class="move" id="p-move" aria-hidden="true"></div>
     <h2 class="pname" id="p-name"></h2>
     <span class="ppos" id="p-pos"></span>
     <p class="pdetail" id="p-detail"></p>
@@ -156,6 +167,7 @@ h1 em{font-style:italic;color:var(--violet)}
         <button class="cbtn primary" id="btn-pause">Pause</button>
         <button class="cbtn" id="btn-back">Back</button>
         <button class="cbtn" id="btn-skip">Skip</button>
+        <button class="cbtn" id="btn-voice" aria-pressed="false">🔇 Voice off</button>
         <button class="cbtn danger" id="btn-end">End</button>
       </div>
     </div>
@@ -176,32 +188,33 @@ h1 em{font-style:italic;color:var(--violet)}
   </section>
 
 </main>
+<script src="/selfcare/shared/moves.js"></script>
 <script>
 (function(){
 "use strict";
 var WORK = 55, REST = 10;
 var EXERCISES = [
- {icon:"pf-sweep", name:"Deep 360 Breathing with Arm Sweeps", pos:"Standing",
+ {icon:"pf-sweep", move:"arm-sweep", name:"Deep 360 Breathing with Arm Sweeps", pos:"Standing",
   cue:"Inhale arms up, exhale arms down",
-  detail:"Stand tall. Inhale deeply through your nose, expanding your belly, as you sweep your arms overhead. Exhale slowly as you lower them. This activates the thoracic duct — the main lymph pathway."},
- {icon:"pf-shrug", name:"Neck Rolls & Shoulder Shrugs", pos:"Standing",
+  detail:"Stand tall. Inhale deeply through your nose, expanding your belly, as you sweep your arms overhead. Exhale slowly as you lower them. Deep breathing with big arm movement is a calming way to begin."},
+ {icon:"pf-shrug", move:"neck-roll", name:"Neck Rolls & Shoulder Shrugs", pos:"Standing",
   cue:"Roll the neck, roll the shoulders back",
   detail:"Gently roll your neck side to side. Then make big backward shoulder rolls — up to your ears, back, and down. Stimulates the lymph nodes in the neck and collarbone area."},
- {icon:"pf-wash", name:"The Washing Machine", pos:"Standing",
+ {icon:"pf-wash", move:"trunk-twist", name:"The Washing Machine", pos:"Standing",
   cue:"Twist gently, arms tap front and back",
   detail:"Feet shoulder-width apart, knees soft. Twist your torso gently side to side, letting your arms swing and tap your front and back. Wakes up the core fluids."},
- {icon:"pf-calf", name:"Calf Raises with Overhead Reach", pos:"Standing",
+ {icon:"pf-calf", move:"calf-raise", name:"Calf Raises with Overhead Reach", pos:"Standing",
   cue:"Rise on toes, reach high",
   detail:"Rise up onto your toes while reaching your arms overhead, then lower with control. Your calves act as a pump, pushing lower-body fluid back up toward the heart."},
- {icon:"pf-hinge", name:"Good Mornings & Thoracic Rotation", pos:"Standing",
+ {icon:"pf-hinge", move:"good-morning", name:"Good Mornings & Thoracic Rotation", pos:"Standing",
   cue:"Hinge, rise, twist",
   detail:"Hinge forward slightly at the hips with a flat back. Rise up and twist your upper spine gently to one side. Return to center, hinge again, and twist to the other side."},
- {icon:"pf-march", name:"Knee Lifts with Opposite Arm Pull-Down", pos:"Standing",
+ {icon:"pf-march", move:"knee-arm", name:"Knee Lifts with Opposite Arm Pull-Down", pos:"Standing",
   cue:"March tall, pull the arm down",
   detail:"March in place, lifting one knee while gently pulling the same-side arm down from overhead. Alternate sides — targets the lymph nodes in the groin and hips."},
- {icon:"pf-bounce", name:"Full-Body Bounce", pos:"Standing",
+ {icon:"pf-bounce", move:"bounce", name:"Full-Body Bounce", pos:"Standing",
   cue:"Soft knees, bounce on your heels",
-  detail:"Stand with soft knees and gently bounce on your heels, letting your whole body jiggle loosely. Flushes the entire system. Finish here with a few deep breaths."}
+  detail:"Stand with soft knees and gently bounce on your heels, letting your whole body jiggle loosely. An easy, playful finish — end with a few deep breaths."}
 ];
 var TOTAL = EXERCISES.length * WORK + (EXERCISES.length - 1) * REST;
 
@@ -216,11 +229,18 @@ var els = {
 };
 
 /* ---------- home list ---------- */
+/* ---------- home list (tap any movement for a solo session) ---------- */
 els.exlist.innerHTML = EXERCISES.map(function(e,i){
-  return '<li><svg class="picto sm" viewBox="0 0 64 64" aria-hidden="true"><use href="#'+e.icon+'"/></svg>'+
+  return '<li><button class="exitem" data-i="'+i+'" aria-label="Practice just '+e.name+'">'+
+    '<span class="move sm" data-move="'+e.move+'"></span>'+
     '<span class="exnum">'+(i+1)+'</span><span class="exname">'+e.name+
-    '</span><span class="expos">'+e.pos+'</span></li>';
+    '</span><span class="expos">'+e.pos+'</span><span class="explay" aria-hidden="true">▶</span></button></li>';
 }).join("");
+SCMoves.fill(els.exlist);
+els.exlist.addEventListener("click", function(ev){
+  var b = ev.target.closest("button.exitem"); if(!b) return;
+  startSolo(+b.dataset.i);
+});
 
 /* ---------- completions ---------- */
 var LS_KEY = "ldw-fullbody";
@@ -280,8 +300,28 @@ function unlockScreen(){
   try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch(e){}
 }
 
+/* ---------- optional voice guidance (on-device speech, private) ---------- */
+var VOICE_KEY = "fbl-voice";
+var voiceOn = false;
+try { voiceOn = localStorage.getItem(VOICE_KEY) === "1"; } catch(e){}
+function speak(t){
+  if (!voiceOn || !("speechSynthesis" in window) || !t) return;
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(t);
+    u.rate = 0.95;
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+function hush(){ try { if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch(e){} }
+function refreshVoiceBtn(){
+  var b = $("btn-voice");
+  b.textContent = voiceOn ? "🔊 Voice on" : "🔇 Voice off";
+  b.setAttribute("aria-pressed", voiceOn ? "true" : "false");
+}
 /* ---------- player state ---------- */
-var S = { idx:0, phase:"work", remaining:WORK, endAt:0, timerId:null, paused:false, elapsed:0, phaseStart:0 };
+var S = { idx:0, phase:"work", remaining:WORK, endAt:0, timerId:null, paused:false,
+          elapsed:0, phaseStart:0, solo:false, phaseKey:null };
 
 function show(name){
   Object.keys(screens).forEach(function(k){ screens[k].classList.toggle("active", k === name); });
@@ -291,6 +331,7 @@ function announce(msg){ els.announcer.textContent = ""; setTimeout(function(){ e
 function fmt(s){ return Math.floor(s/60) + ":" + ("0"+(s%60)).slice(-2); }
 
 function progress(){
+  if (S.solo) return Math.min(100, (WORK - S.remaining) / WORK * 100);
   var done = 0;
   for (var i = 0; i < S.idx; i++) done += WORK + REST;
   if (S.phase === "rest") done += WORK;
@@ -298,15 +339,31 @@ function progress(){
   return Math.min(100, done / TOTAL * 100);
 }
 
+function phaseSpeech(){
+  var e = EXERCISES[S.idx];
+  if (S.solo) return e.name + ". " + e.cue + ".";
+  if (S.phase === "work") return "Exercise " + (S.idx+1) + " of " + EXERCISES.length + ": " + e.name + ". " + e.cue;
+  return S.idx + 1 < EXERCISES.length
+    ? "Rest. Next: " + EXERCISES[S.idx+1].name
+    : "Rest. Finish with a few deep breaths.";
+}
+
 function render(){
   var e = EXERCISES[S.idx];
   var isWork = S.phase === "work";
-  els.count.textContent = "Exercise " + (S.idx+1) + " of " + EXERCISES.length;
+  var key = (S.solo ? "solo:" : "") + S.phase + ":" + S.idx;
+  if (key !== S.phaseKey) {
+    S.phaseKey = key;
+    $("p-move").innerHTML = SCMoves.svg(isWork ? e.move : (EXERCISES[S.idx+1] ? EXERCISES[S.idx+1].move : e.move));
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      var svg = $("p-move").querySelector("svg"); if (svg && svg.pauseAnimations) svg.pauseAnimations();
+    }
+    speak(phaseSpeech());
+  }
+  els.count.textContent = S.solo ? "Solo practice" : "Exercise " + (S.idx+1) + " of " + EXERCISES.length;
   els.phase.textContent = isWork ? "Move gently" : "Rest";
   els.phase.style.color = isWork ? "var(--gold)" : "var(--violet)";
   els.name.textContent = isWork ? e.name : "Rest";
-  var iconTarget = isWork ? e.icon : (EXERCISES[S.idx+1] ? EXERCISES[S.idx+1].icon : e.icon);
-  document.getElementById("p-icon").setAttribute("href", "#"+iconTarget);
   els.pos.textContent = isWork ? e.pos : e.pos;
   els.pos.style.display = "inline-block";
   els.detail.textContent = isWork ? e.cue + ". " + e.detail
@@ -317,7 +374,7 @@ function render(){
   els.fill.style.width = progress() + "%";
   els.pulse.style.animationPlayState = isWork ? "running" : "paused";
   els.pulse.style.opacity = isWork ? "" : "0.25";
-  els.next.innerHTML = (S.idx + 1 < EXERCISES.length)
+  els.next.innerHTML = S.solo ? "" : (S.idx + 1 < EXERCISES.length)
     ? "Next up: <b>" + EXERCISES[S.idx+1].name + "</b>" + ""
     : "";
   $("btn-pause").textContent = S.paused ? "Resume" : "Pause";
@@ -345,6 +402,7 @@ function tick(){
 
 function advance(){
   clearInterval(S.timerId);
+  if (S.solo) { finish(); return; }
   if (S.phase === "work" && S.idx < EXERCISES.length - 1) {
     chime(); startPhase(S.idx, "rest");
   } else if (S.phase === "rest") {
@@ -359,8 +417,30 @@ function advance(){
 function startRoutine(){
   show("player");
   lockScreen();
+  refreshVoiceBtn();
   try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch(e){}
+  S.solo = false;
   startPhase(0, "work");
+  chime();
+  clearInterval(S.timerId);
+  S.timerId = setInterval(tick, 200);
+}
+
+/* solo: one movement only, no rests */
+function startSolo(i){
+  show("player");
+  lockScreen();
+  refreshVoiceBtn();
+  try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch(e){}
+  S.solo = true;
+  S.idx = i; S.phase = "work";
+  S.remaining = WORK;
+  S.paused = false;
+  S.phaseStart = Date.now();
+  S.endAt = S.phaseStart + S.remaining * 1000;
+  var e = EXERCISES[i];
+  announce("Solo practice: " + e.name);
+  render();
   chime();
   clearInterval(S.timerId);
   S.timerId = setInterval(tick, 200);
@@ -371,8 +451,10 @@ function pauseResume(){
     S.paused = false;
     S.endAt = Date.now() + S.remaining * 1000;
     S.timerId = setInterval(tick, 200);
+    speak(phaseSpeech());
   } else {
     S.paused = true;
+    hush();
     clearInterval(S.timerId);
   }
   render();
@@ -380,6 +462,7 @@ function pauseResume(){
 
 function quit(){
   clearInterval(S.timerId);
+  hush();
   unlockScreen();
   refreshStats();
   show("home");
@@ -387,9 +470,17 @@ function quit(){
 
 function finish(){
   clearInterval(S.timerId);
+  hush();
   unlockScreen();
   chime();
-  saveCompletion();
+  if (!S.solo) saveCompletion();
+  if (S.solo) {
+    $("done-title").innerHTML = "Exercise <em>complete</em>";
+    speak("Well done. " + EXERCISES[S.idx].name + " complete.");
+  } else {
+    $("done-title").innerHTML = "Routine <em>complete</em>";
+    speak("Routine complete. Well done.");
+  }
   refreshStats();
   show("done");
 }
@@ -397,18 +488,26 @@ function finish(){
 /* ---------- events ---------- */
 $("btn-start").addEventListener("click", startRoutine);
 $("btn-pause").addEventListener("click", pauseResume);
-$("btn-again").addEventListener("click", startRoutine);
+$("btn-again").addEventListener("click", function(){ if (S.solo) startSolo(S.idx); else startRoutine(); });
+$("btn-voice").addEventListener("click", function(){
+  voiceOn = !voiceOn;
+  try { localStorage.setItem(VOICE_KEY, voiceOn ? "1" : "0"); } catch(e){}
+  refreshVoiceBtn();
+  if (voiceOn) speak(phaseSpeech()); else hush();
+});
 $("btn-home").addEventListener("click", function(){ refreshStats(); show("home"); });
 $("btn-end").addEventListener("click", function(){
   if (confirm("End the routine early?")) quit();
 });
 $("btn-skip").addEventListener("click", function(){
   clearInterval(S.timerId);
+  if (S.solo) { startSolo(S.idx); return; }
   if (S.phase === "work" && S.idx === EXERCISES.length - 1) { finish(); return; }
   if (S.phase === "work") startPhase(S.idx, "rest"); else startPhase(S.idx + 1, "work");
   S.timerId = setInterval(tick, 200);
 });
 $("btn-back").addEventListener("click", function(){
+  if (S.solo) { if (confirm("Back to the exercise list?")) quit(); return; }
   clearInterval(S.timerId);
   if (S.phase === "rest") startPhase(S.idx, "work");
   else if (S.idx > 0) startPhase(S.idx - 1, "work");
@@ -416,6 +515,7 @@ $("btn-back").addEventListener("click", function(){
   S.timerId = setInterval(tick, 200);
 });
 document.addEventListener("visibilitychange", function(){
+  if (document.hidden) hush();
   if (document.hidden && screens.player.classList.contains("active") && !S.paused) pauseResume();
 });
 document.addEventListener("keydown", function(e){

@@ -32,6 +32,16 @@ h1 em{font-style:italic;color:var(--violet)}
 .card li{margin-bottom:.3rem}
 .picto{width:72px;height:72px;color:var(--violet);flex-shrink:0}
 .picto.sm{width:46px;height:46px}
+.move{width:132px;height:132px;margin:.2rem auto;color:var(--violet)}
+.move.sm{width:56px;height:56px;margin:0;flex-shrink:0}
+.move svg{width:100%;height:100%;display:block}
+.steplist .stepitem{display:flex;gap:.9rem;align-items:center;width:100%;background:none;border:none;border-bottom:1px solid #241e47;
+  padding:.6rem .25rem;font-family:var(--sans);font-size:.92rem;cursor:pointer;text-align:left;border-radius:8px}
+.steplist .stepitem:hover{background:var(--surface2)}
+.steplist .stepitem:last-child{border-bottom:none}
+.stepplay{margin-left:auto;color:var(--faint);font-size:1.1rem;flex-shrink:0}
+.stepitem:hover .stepplay{color:var(--gold)}
+.solo-hint{color:var(--faint);font-size:.82rem;margin-top:.5rem}
 .btn{display:inline-block;border:none;cursor:pointer;font-family:var(--sans);font-size:1.05rem;font-weight:600;
   padding:1rem 2.2rem;border-radius:999px;color:#171233;background:linear-gradient(135deg,var(--violet),#d9a94a);
   margin-top:1.25rem;transition:transform .15s ease,box-shadow .15s ease;box-shadow:0 4px 24px rgba(179,157,255,.25)}
@@ -39,7 +49,7 @@ h1 em{font-style:italic;color:var(--violet)}
 .btn.ghost{background:transparent;color:var(--dim);border:1px solid #3a3168;box-shadow:none;font-size:.9rem;padding:.7rem 1.4rem}
 .center{text-align:center}
 .steplist{list-style:none;margin-top:.5rem}
-.steplist li{display:flex;gap:.9rem;align-items:center;padding:.6rem 0;border-bottom:1px solid #241e47;font-size:.92rem}
+.steplist li{display:block;padding:0;border:none}
 .steplist li:last-child{border-bottom:none}
 .stepnum{font-family:var(--serif);color:var(--gold);min-width:1.6rem}
 .stepname{flex:1}
@@ -107,10 +117,11 @@ h1 em{font-style:italic;color:var(--violet)}
     <a class="backlink" href="/selfcare/">← All routines</a>
     <p class="kicker">For congested days</p>
     <h1 id="home-title">Sinus Pressure <em>relief</em></h1>
-    <p class="lede">Sinus congestion jams the neck, back, chest and diaphragm. This 5-step sequence opens the main lymphatic drains behind your collarbones <em>first</em> — so fluid from your head and chest has somewhere to go — then releases the pressure step by step.</p>
+    <p class="lede">Sinus congestion tightens the neck, back, chest and diaphragm. This 5-step sequence starts with gentle touch around your collarbones, then loosens the neck, chest and breathing step by step.</p>
 
     <div class="card">
-      <h2>Do it in order</h2>
+      <h2>The sequence</h2>
+      <p class="solo-hint">Tap any step to do just that one — or run the full sequence below.</p>
       <ol class="steplist" id="home-steplist"></ol>
     </div>
 
@@ -134,7 +145,7 @@ h1 em{font-style:italic;color:var(--violet)}
     <div class="pbar" aria-hidden="true"><i id="pbar-fill"></i></div>
     <p class="count" id="p-count">Step 1 of 5</p>
     <p class="why" id="p-why"></p>
-    <svg class="picto" viewBox="0 0 64 64" aria-hidden="true"><use id="p-icon" href="#ps-collar"/></svg>
+    <div class="move" id="p-move" aria-hidden="true"></div>
     <h2 class="pname" id="p-name"></h2>
     <span class="ptarget" id="p-target"></span>
     <p class="pdetail" id="p-detail"></p>
@@ -148,6 +159,7 @@ h1 em{font-style:italic;color:var(--violet)}
         <button class="cbtn" id="btn-back">Back</button>
         <button class="cbtn primary" id="btn-next">Next step</button>
         <button class="cbtn" id="btn-skip">Skip</button>
+        <button class="cbtn" id="btn-voice" aria-pressed="false">🔇 Voice off</button>
       </div>
     </div>
     <p class="sr" role="status" aria-live="polite" id="announcer"></p>
@@ -159,41 +171,69 @@ h1 em{font-style:italic;color:var(--violet)}
       <div class="done-mark" aria-hidden="true">✓</div>
       <p class="kicker">Breathe easy</p>
       <h1 id="done-title">Sequence <em>complete</em></h1>
-      <p class="lede" style="text-align:center;margin-left:auto;margin-right:auto">Drains open, chest released, neck freed. Drink some water and stay upright a while to let gravity finish the job.</p>
+      <p class="lede" style="text-align:center;margin-left:auto;margin-right:auto">Neck loosened, chest opened, breathing eased. Drink some water and move gently through your day.</p>
       <button class="btn" id="btn-again">Run it again</button><br>
       <button class="btn ghost" id="btn-home">Back to overview</button>
     </div>
   </section>
 </main>
+<script src="/selfcare/shared/moves.js"></script>
 <script>
 (function(){
 "use strict";
 var STEPS = [
- {icon:"ps-collar", name:"The Collarbone Pump", why:"Open the main drain",
+ {icon:"ps-collar", move:"collarbone", name:"The Collarbone Pump", why:"Ease the collarbone area",
   target:"15–20 gentle pulses",
-  detail:"Before moving your body, clear the main lymphatic dumping ground so fluid from your sinuses has somewhere to go. Place your index and middle fingers in the hollow notches right above your collarbones. Apply very light pressure — the weight of a coin, not a massage — and sweep inward toward your throat, or pulse gently. 15 to 20 times."},
- {icon:"ps-ribs", name:"Diaphragmatic 360 Breathing", why:"Decompress the core",
+  detail:"Begin with gentle touch in the hollows just above your collarbones before moving on. Place your index and middle fingers in those notches. Apply very light pressure — the weight of a coin, not a massage — and sweep inward toward your throat, or pulse gently. 15 to 20 times."},
+ {icon:"ps-ribs", move:"belly-breathe", name:"Diaphragmatic 360 Breathing", why:"Decompress the core",
   target:"10 deep breaths",
-  detail:"Congestion leads to shallow chest breathing, which freezes the diaphragm and tightens the back. Sit comfortably, hands around your lower ribs. Inhale deeply through your nose, expanding your ribs outward to the sides and back — 360 degrees — not just lifting your chest. Exhale fully through pursed lips, letting the ribs collapse inward. Deep breathing is a literal vacuum pump for your lymphatic system."},
- {icon:"ps-cactus", name:"Cactus Arm Chest Opener", why:"Release the chest & upper back",
+  detail:"Congestion leads to shallow chest breathing, which freezes the diaphragm and tightens the back. Sit comfortably, hands around your lower ribs. Inhale deeply through your nose, expanding your ribs outward to the sides and back — 360 degrees — not just lifting your chest. Exhale fully through pursed lips, letting the ribs collapse inward. Slow and unhurried."},
+ {icon:"ps-cactus", move:"cactus", name:"Cactus Arm Chest Opener", why:"Release the chest & upper back",
   target:"10 slow repetitions",
   detail:"Stand or sit tall. Inhale and bring your arms to a 90-degree cactus — goalpost — shape. As you exhale, gently draw your elbows back, pull your shoulder blades together, and lift your chest toward the ceiling. Inhale to return to the start. Fluid, unhurried repetitions."},
- {icon:"ps-catcow", name:"Seated Cat-Cow with Neck Release", why:"Unjam the spine & neck",
+ {icon:"ps-catcow", move:"cat-cow", name:"Seated Cat-Cow with Neck Release", why:"Unjam the spine & neck",
   target:"8–10 slow cycles",
   detail:"Rest your hands on your knees. Inhale: arch your back and look up slightly, opening the front of your neck and chest. Exhale: round your spine, tuck your chin deeply to your chest, gaze down at your belly button — stretching the back of your neck and upper spine. Move slowly, married to your breath."},
- {icon:"ps-scm", name:"SCM Neck Stretch & Drainage", why:"Free the neck drains",
+ {icon:"ps-scm", move:"neck-tilt", name:"SCM Neck Stretch & Drainage", why:"Free the neck drains",
   target:"Both sides · 3 breaths + 5–10 strokes each",
-  detail:"The SCM muscles run down the sides of your neck and tighten under sinus pressure, blocking fluid flow. Turn your head 45 degrees to the right, then tilt your left ear toward your left shoulder — feel the stretch down the right side of your neck. Take 3 deep breaths. Then, with the flats of your fingers, very gently stroke down that tight muscle from just behind your ear to your collarbone, 5–10 times. Repeat on the opposite side."}
+  detail:"The SCM muscles run down the sides of your neck and tighten when you're congested. Turn your head 45 degrees to the right, then tilt your left ear toward your left shoulder — feel the stretch down the right side of your neck. Take 3 deep breaths. Then, with the flats of your fingers, very gently stroke down that tight muscle from just behind your ear to your collarbone, 5–10 times. Repeat on the opposite side."}
 ];
 function $(id){ return document.getElementById(id); }
 var screens = { home:$("screen-home"), player:$("screen-player"), done:$("screen-done") };
-var idx = 0, count = 0;
+var idx = 0, count = 0, solo = false;
 
+/* ---------- optional voice guidance (on-device speech, private) ---------- */
+var VOICE_KEY = "sr-voice";
+var voiceOn = false;
+try { voiceOn = localStorage.getItem(VOICE_KEY) === "1"; } catch(e){}
+function speak(t){
+  if (!voiceOn || !("speechSynthesis" in window) || !t) return;
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(t);
+    u.rate = 0.95;
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+function hush(){ try { if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch(e){} }
+function refreshVoiceBtn(){
+  var b = $("btn-voice");
+  b.textContent = voiceOn ? "🔊 Voice on" : "🔇 Voice off";
+  b.setAttribute("aria-pressed", voiceOn ? "true" : "false");
+}
+
+/* ---------- home list (tap any step to do just that one) ---------- */
 $("home-steplist").innerHTML = STEPS.map(function(s,i){
-  return '<li><svg class="picto sm" viewBox="0 0 64 64" aria-hidden="true"><use href="#'+s.icon+'"/></svg>'+
+  return '<li><button class="stepitem" data-i="'+i+'" aria-label="Do just step '+(i+1)+': '+s.name+'">'+
+    '<span class="move sm" data-move="'+s.move+'"></span>'+
     '<span class="stepnum">'+(i+1)+'</span><span class="stepname">'+s.name+'</span>'+
-    '<span class="steptarget">'+s.target+'</span></li>';
+    '<span class="steptarget">'+s.target+'</span><span class="stepplay" aria-hidden="true">▶</span></button></li>';
 }).join("");
+SCMoves.fill($("home-steplist"));
+$("home-steplist").addEventListener("click", function(ev){
+  var b = ev.target.closest("button.stepitem"); if(!b) return;
+  solo = true; idx = +b.dataset.i; show("player"); refreshVoiceBtn(); render();
+});
 
 function show(name){
   Object.keys(screens).forEach(function(k){ screens[k].classList.toggle("active", k === name); });
@@ -202,33 +242,53 @@ function show(name){
 function announce(m){ var a=$("announcer"); a.textContent=""; setTimeout(function(){ a.textContent=m; },60); }
 function render(){
   var s = STEPS[idx];
-  $("p-count").textContent = "Step " + (idx+1) + " of " + STEPS.length;
+  $("p-count").textContent = solo ? "Solo step" : "Step " + (idx+1) + " of " + STEPS.length;
   $("p-why").textContent = s.why;
-  $("p-icon").setAttribute("href", "#"+s.icon);
+  $("p-move").innerHTML = SCMoves.svg(s.move);
+  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    var svg = $("p-move").querySelector("svg"); if (svg && svg.pauseAnimations) svg.pauseAnimations();
+  }
   $("p-name").textContent = s.name;
   $("p-target").textContent = "Aim: " + s.target;
   $("p-detail").textContent = s.detail;
-  $("pbar-fill").style.width = ((idx)/STEPS.length*100) + "%";
+  $("pbar-fill").style.width = solo ? "100%" : ((idx)/STEPS.length*100) + "%";
   count = 0; $("btn-tap").textContent = "0";
-  $("btn-next").textContent = idx === STEPS.length-1 ? "Finish" : "Next step";
+  $("btn-next").textContent = (solo || idx === STEPS.length-1) ? "Finish" : "Next step";
   announce("Step " + (idx+1) + " of " + STEPS.length + ": " + s.name + ". " + s.why + ".");
+  speak((solo ? "Solo step. " : "Step " + (idx+1) + " of " + STEPS.length + ". ") + s.name + ". " + s.why + ". Aim: " + s.target + ".");
 }
-function start(){ idx = 0; show("player"); render(); }
+function start(){ solo = false; idx = 0; show("player"); refreshVoiceBtn(); render(); }
 function next(){
-  if (idx < STEPS.length-1) { idx++; render(); }
-  else { $("pbar-fill").style.width = "100%"; show("done"); }
+  if (!solo && idx < STEPS.length-1) { idx++; render(); return; }
+  $("pbar-fill").style.width = "100%";
+  hush();
+  if (solo) { $("done-title").innerHTML = "Step <em>complete</em>"; }
+  else { $("done-title").innerHTML = "Sequence <em>complete</em>"; }
+  speak(solo ? "Well done. Step complete." : "Sequence complete. Well done.");
+  show("done");
 }
 $("btn-start").addEventListener("click", start);
-$("btn-again").addEventListener("click", start);
-$("btn-home").addEventListener("click", function(){ show("home"); });
+$("btn-again").addEventListener("click", function(){ if (solo) { show("player"); render(); } else start(); });
+$("btn-home").addEventListener("click", function(){ hush(); show("home"); });
 $("btn-next").addEventListener("click", next);
 $("btn-skip").addEventListener("click", next);
-$("btn-back").addEventListener("click", function(){ if (idx > 0) { idx--; render(); } });
+$("btn-back").addEventListener("click", function(){
+  if (solo) { if (confirm("Back to the step list?")) { hush(); show("home"); } return; }
+  if (idx > 0) { idx--; render(); }
+});
+$("btn-voice").addEventListener("click", function(){
+  voiceOn = !voiceOn;
+  try { localStorage.setItem(VOICE_KEY, voiceOn ? "1" : "0"); } catch(e){}
+  refreshVoiceBtn();
+  if (voiceOn) speakCurrent(); else hush();
+});
+function speakCurrent(){ speak((solo ? "Solo step. " : "Step " + (idx+1) + " of " + STEPS.length + ". ") + STEPS[idx].name + ". " + STEPS[idx].why + "."); }
 $("btn-tap").addEventListener("click", function(){ count++; $("btn-tap").textContent = count; });
 $("btn-resetcount").addEventListener("click", function(){ count = 0; $("btn-tap").textContent = "0"; });
 $("quit-link").addEventListener("click", function(e){
-  if (!confirm("Quit the sequence?")) e.preventDefault();
+  if (!confirm("Quit the sequence?")) e.preventDefault(); else hush();
 });
+document.addEventListener("visibilitychange", function(){ if (document.hidden) hush(); });
 document.addEventListener("keydown", function(e){
   if (!screens.player.classList.contains("active")) return;
   if (e.key === " " || e.key === "Enter") { /* let buttons handle it */ }

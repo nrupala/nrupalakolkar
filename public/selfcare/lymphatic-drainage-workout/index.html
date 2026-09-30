@@ -46,7 +46,7 @@ h1 em{font-style:italic;color:var(--violet)}
 .stats{display:flex;gap:1rem;justify-content:center;margin:1rem 0 0;color:var(--faint);font-size:.85rem}
 .stats b{color:var(--gold);font-weight:600}
 .exlist{list-style:none;margin-top:.5rem}
-.exlist li{display:flex;gap:.9rem;align-items:baseline;padding:.55rem 0;border-bottom:1px solid #241e47;font-size:.92rem}
+.exlist li{display:block;padding:0;border:none}
 .exlist li:last-child{border-bottom:none}
 .exnum{font-family:var(--serif);color:var(--gold);min-width:1.6rem;font-size:.95rem}
 .exname{flex:1;color:var(--text)}
@@ -56,6 +56,16 @@ h1 em{font-style:italic;color:var(--violet)}
 .credit a:hover{color:var(--violet)}
 .picto{width:72px;height:72px;color:var(--violet);flex-shrink:0}
 .picto.sm{width:46px;height:46px}
+.move{width:132px;height:132px;margin:.2rem auto;color:var(--violet)}
+.move.sm{width:56px;height:56px;margin:0;flex-shrink:0}
+.move svg{width:100%;height:100%;display:block}
+.exlist .exitem{display:flex;gap:.9rem;align-items:center;width:100%;background:none;border:none;border-bottom:1px solid #241e47;
+  padding:.55rem .25rem;font-family:var(--sans);font-size:.92rem;cursor:pointer;text-align:left;border-radius:8px}
+.exlist .exitem:hover{background:var(--surface2)}
+.exlist .exitem:last-child{border-bottom:none}
+.explay{margin-left:auto;color:var(--faint);font-size:1.1rem;flex-shrink:0}
+.exitem:hover .explay{color:var(--gold)}
+.solo-hint{color:var(--faint);font-size:.82rem;margin-top:.5rem}
 .exlist li{align-items:center}
 /* player */
 .pbar{height:6px;background:#241e47;border-radius:999px;overflow:hidden;margin-bottom:1.5rem}
@@ -130,6 +140,7 @@ h1 em{font-style:italic;color:var(--violet)}
 
     <div class="card">
       <h2>The routine</h2>
+      <p class="solo-hint">Tap any exercise to practice just that one — or run the full sequence below.</p>
       <ol class="exlist" id="home-exlist"></ol>
     </div>
 
@@ -146,7 +157,7 @@ h1 em{font-style:italic;color:var(--violet)}
     <div class="pbar" aria-hidden="true"><i id="pbar-fill"></i></div>
     <p class="count" id="p-count">Exercise 1 of 10</p>
     <p class="phase" id="p-phase">Move gently</p>
-    <svg class="picto" viewBox="0 0 64 64" aria-hidden="true"><use id="p-icon" href="#pc-neck"/></svg>
+    <div class="move" id="p-move" aria-hidden="true"></div>
     <h2 class="pname" id="p-name"></h2>
     <span class="ppos" id="p-pos"></span>
     <p class="pdetail" id="p-detail"></p>
@@ -158,6 +169,7 @@ h1 em{font-style:italic;color:var(--violet)}
         <button class="cbtn primary" id="btn-pause">Pause</button>
         <button class="cbtn" id="btn-back">Back</button>
         <button class="cbtn" id="btn-skip">Skip</button>
+        <button class="cbtn" id="btn-voice" aria-pressed="false">🔇 Voice off</button>
         <button class="cbtn danger" id="btn-end">End</button>
       </div>
     </div>
@@ -178,39 +190,40 @@ h1 em{font-style:italic;color:var(--violet)}
   </section>
 
 </main>
+<script src="/selfcare/shared/moves.js"></script>
 <script>
 (function(){
 "use strict";
 var WORK = 50, REST = 10;
 var EXERCISES = [
- {icon:"pc-neck", name:"Neck Rolls", pos:"Standing or seated",
+ {icon:"pc-neck", move:"neck-roll", name:"Neck Rolls", pos:"Standing or seated",
   cue:"Slow half-circles, chin tucked",
   detail:"Sit or stand tall, shoulders relaxed. Drop your chin toward your chest, then slowly roll your head to the right — ear toward shoulder — then back, to the left, and return to the chest. Repeat in each direction, slow and smooth."},
- {icon:"pc-shrug", name:"Shoulder Blade Series", pos:"Standing",
+ {icon:"pc-shrug", move:"shoulder-roll", name:"Shoulder Blade Series", pos:"Standing",
   cue:"Squeeze back, then reach forward",
   detail:"Feet hip-width apart. Cactus your arms: pull elbows back and down, squeezing your shoulder blades together as if pinching a pencil — hold a second. Release, reach arms forward and round the upper back. Flow back and forth."},
- {icon:"pc-chest", name:"Standing Chest Openers", pos:"Standing",
+ {icon:"pc-chest", move:"chest-open", name:"Standing Chest Openers", pos:"Standing",
   cue:"Alternate arms, open wide",
   detail:"Arms extended in front at shoulder height, palms together. Pull your right arm back as if bringing the shoulder blades together — open the chest wide, hold 2–5 seconds. Release and repeat on the left. Slow and controlled."},
- {icon:"pc-side", name:"Ballerina Stretch", pos:"Standing",
+ {icon:"pc-side", move:"side-stretch", name:"Ballerina Stretch", pos:"Standing",
   cue:"Arms overhead, side bend",
   detail:"Feet together or hip-width. Reach both arms overhead, grab your right wrist with your left hand, and gently pull as you bend sideways at the waist. Feel the stretch through your side. Hold a few seconds, switch sides, alternate."},
- {icon:"pc-fold", name:"Forward Body Rolls", pos:"Standing",
+ {icon:"pc-fold", move:"forward-roll", name:"Forward Body Rolls", pos:"Standing",
   cue:"Roll down, curl small, roll up",
   detail:"Feet hip-width, knees slightly bent. Tuck your chin and slowly roll down one vertebra at a time; bend knees and hips to curl into a small ball. Roll back up slowly, stacking the spine. Move with control."},
- {icon:"pc-twist", name:"Trunk Rotation", pos:"Lying down",
+ {icon:"pc-twist", move:"trunk-twist", name:"Trunk Rotation", pos:"Lying down",
   cue:"Knees fall side to side",
   detail:"Lie on your back, knees bent, feet flat. Gently let both knees fall to the right, keeping your shoulder blades on the floor. Hold a few seconds, return to center, repeat to the left. Use the rest before this one to lie down."},
- {icon:"pc-bridge", name:"Bridges", pos:"Lying down",
+ {icon:"pc-bridge", move:"bridge", name:"Bridges", pos:"Lying down",
   cue:"Lift hips, squeeze glutes",
   detail:"On your back, knees bent, feet flat and hip-width. Press through your heels and lift your hips into a straight line from knees to shoulders — avoid arching the lower back. Squeeze your glutes at the top, lower slowly."},
- {icon:"pc-knee", name:"Alternating Knee to Chest", pos:"Lying down",
+ {icon:"pc-knee", move:"knee-chest", name:"Alternating Knee to Chest", pos:"Lying down",
   cue:"Hug each knee in",
   detail:"Legs extended — or knees bent with feet flat if your back prefers. Slowly pull one knee toward your chest, hugging it gently with both hands. Hold a few seconds, release, switch legs. Alternate."},
- {icon:"pc-leg", name:"Hamstring Floss", pos:"Lying down",
+ {icon:"pc-leg", move:"leg-floss", name:"Hamstring Floss", pos:"Lying down",
   cue:"Straighten up, bend back down",
   detail:"Knees bent, feet flat. Straighten your right knee with the leg up toward the ceiling, then bend it back down. Repeat on the left. Alternate back and forth, smooth and easy."},
- {icon:"pc-belly", name:"Belly Breathing", pos:"Lying down",
+ {icon:"pc-belly", move:"belly-breathe", name:"Belly Breathing", pos:"Lying down",
   cue:"In through the nose, out through the mouth",
   detail:"Knees bent, hands resting on your belly with light pressure. Inhale deeply through your nose — feel the belly rise against your hands. Exhale slowly through your mouth — feel it fall. Slow, controlled, relaxing."}
 ];
@@ -226,12 +239,18 @@ var els = {
   pulse:$("pulse"), announcer:$("announcer"), doneWeek:$("done-week")
 };
 
-/* ---------- home list ---------- */
+/* ---------- home list (tap any exercise for a solo session) ---------- */
 els.exlist.innerHTML = EXERCISES.map(function(e,i){
-  return '<li><svg class="picto sm" viewBox="0 0 64 64" aria-hidden="true"><use href="#'+e.icon+'"/></svg>'+
+  return '<li><button class="exitem" data-i="'+i+'" aria-label="Practice just '+e.name+'">'+
+    '<span class="move sm" data-move="'+e.move+'"></span>'+
     '<span class="exnum">'+(i+1)+'</span><span class="exname">'+e.name+
-    '</span><span class="expos">'+e.pos+'</span></li>';
+    '</span><span class="expos">'+e.pos+'</span><span class="explay" aria-hidden="true">▶</span></button></li>';
 }).join("");
+SCMoves.fill(els.exlist);
+els.exlist.addEventListener("click", function(ev){
+  var b = ev.target.closest("button.exitem"); if(!b) return;
+  startSolo(+b.dataset.i);
+});
 
 /* ---------- completions ---------- */
 var LS_KEY = "ldw-completions";
@@ -291,8 +310,29 @@ function unlockScreen(){
   try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch(e){}
 }
 
+/* ---------- optional voice guidance (on-device speech, private) ---------- */
+var VOICE_KEY = "ldw-voice";
+var voiceOn = false;
+try { voiceOn = localStorage.getItem(VOICE_KEY) === "1"; } catch(e){}
+function speak(t){
+  if (!voiceOn || !("speechSynthesis" in window) || !t) return;
+  try {
+    speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(t);
+    u.rate = 0.95;
+    speechSynthesis.speak(u);
+  } catch(e){}
+}
+function hush(){ try { if ("speechSynthesis" in window) speechSynthesis.cancel(); } catch(e){} }
+function refreshVoiceBtn(){
+  var b = $("btn-voice");
+  b.textContent = voiceOn ? "🔊 Voice on" : "🔇 Voice off";
+  b.setAttribute("aria-pressed", voiceOn ? "true" : "false");
+}
+
 /* ---------- player state ---------- */
-var S = { idx:0, phase:"work", remaining:WORK, endAt:0, timerId:null, paused:false, elapsed:0, phaseStart:0 };
+var S = { idx:0, phase:"work", remaining:WORK, endAt:0, timerId:null, paused:false,
+          elapsed:0, phaseStart:0, solo:false, phaseKey:null };
 
 function show(name){
   Object.keys(screens).forEach(function(k){ screens[k].classList.toggle("active", k === name); });
@@ -302,6 +342,7 @@ function announce(msg){ els.announcer.textContent = ""; setTimeout(function(){ e
 function fmt(s){ return Math.floor(s/60) + ":" + ("0"+(s%60)).slice(-2); }
 
 function progress(){
+  if (S.solo) return Math.min(100, (WORK - S.remaining) / WORK * 100);
   var done = 0;
   for (var i = 0; i < S.idx; i++) done += WORK + REST;
   if (S.phase === "rest") done += WORK;
@@ -309,15 +350,31 @@ function progress(){
   return Math.min(100, done / TOTAL * 100);
 }
 
+function phaseSpeech(){
+  var e = EXERCISES[S.idx];
+  if (S.solo) return e.name + ". " + e.cue + ".";
+  if (S.phase === "work") return "Exercise " + (S.idx+1) + " of " + EXERCISES.length + ": " + e.name + ". " + e.cue;
+  return S.idx + 1 < EXERCISES.length
+    ? "Rest. Next: " + EXERCISES[S.idx+1].name
+    : "Rest. Finish with slow belly breaths.";
+}
+
 function render(){
   var e = EXERCISES[S.idx];
   var isWork = S.phase === "work";
-  els.count.textContent = "Exercise " + (S.idx+1) + " of " + EXERCISES.length;
+  var key = (S.solo ? "solo:" : "") + S.phase + ":" + S.idx;
+  if (key !== S.phaseKey) {
+    S.phaseKey = key;
+    $("p-move").innerHTML = SCMoves.svg(isWork ? e.move : (EXERCISES[S.idx+1] ? EXERCISES[S.idx+1].move : e.move));
+    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      var svg = $("p-move").querySelector("svg"); if (svg && svg.pauseAnimations) svg.pauseAnimations();
+    }
+    speak(phaseSpeech());
+  }
+  els.count.textContent = S.solo ? "Solo practice" : "Exercise " + (S.idx+1) + " of " + EXERCISES.length;
   els.phase.textContent = isWork ? "Move gently" : "Rest";
   els.phase.style.color = isWork ? "var(--gold)" : "var(--violet)";
   els.name.textContent = isWork ? e.name : "Rest";
-  var iconTarget = isWork ? e.icon : (EXERCISES[S.idx+1] ? EXERCISES[S.idx+1].icon : e.icon);
-  document.getElementById("p-icon").setAttribute("href", "#"+iconTarget);
   els.pos.textContent = isWork ? e.pos : e.pos;
   els.pos.style.display = "inline-block";
   els.detail.textContent = isWork ? e.cue + ". " + e.detail
@@ -328,7 +385,7 @@ function render(){
   els.fill.style.width = progress() + "%";
   els.pulse.style.animationPlayState = isWork ? "running" : "paused";
   els.pulse.style.opacity = isWork ? "" : "0.25";
-  els.next.innerHTML = (S.idx + 1 < EXERCISES.length)
+  els.next.innerHTML = S.solo ? "" : (S.idx + 1 < EXERCISES.length)
     ? "Next up: <b>" + EXERCISES[S.idx+1].name + "</b>" + (S.idx === 4 && isWork ? " — get onto the floor during the rest" : "")
     : "";
   $("btn-pause").textContent = S.paused ? "Resume" : "Pause";
@@ -356,6 +413,7 @@ function tick(){
 
 function advance(){
   clearInterval(S.timerId);
+  if (S.solo) { finish(); return; }
   if (S.phase === "work" && S.idx < EXERCISES.length - 1) {
     chime(); startPhase(S.idx, "rest");
   } else if (S.phase === "rest") {
@@ -370,8 +428,30 @@ function advance(){
 function startRoutine(){
   show("player");
   lockScreen();
+  refreshVoiceBtn();
   try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch(e){}
+  S.solo = false;
   startPhase(0, "work");
+  chime();
+  clearInterval(S.timerId);
+  S.timerId = setInterval(tick, 200);
+}
+
+/* solo: one exercise only, no rests */
+function startSolo(i){
+  show("player");
+  lockScreen();
+  refreshVoiceBtn();
+  try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch(e){}
+  S.solo = true;
+  S.idx = i; S.phase = "work";
+  S.remaining = WORK;
+  S.paused = false;
+  S.phaseStart = Date.now();
+  S.endAt = S.phaseStart + S.remaining * 1000;
+  var e = EXERCISES[i];
+  announce("Solo practice: " + e.name);
+  render();
   chime();
   clearInterval(S.timerId);
   S.timerId = setInterval(tick, 200);
@@ -382,8 +462,10 @@ function pauseResume(){
     S.paused = false;
     S.endAt = Date.now() + S.remaining * 1000;
     S.timerId = setInterval(tick, 200);
+    speak(phaseSpeech());
   } else {
     S.paused = true;
+    hush();
     clearInterval(S.timerId);
   }
   render();
@@ -391,6 +473,7 @@ function pauseResume(){
 
 function quit(){
   clearInterval(S.timerId);
+  hush();
   unlockScreen();
   refreshStats();
   show("home");
@@ -398,9 +481,17 @@ function quit(){
 
 function finish(){
   clearInterval(S.timerId);
+  hush();
   unlockScreen();
   chime();
-  saveCompletion();
+  if (!S.solo) saveCompletion();
+  if (S.solo) {
+    $("done-title").innerHTML = "Exercise <em>complete</em>";
+    speak("Well done. " + EXERCISES[S.idx].name + " complete.");
+  } else {
+    $("done-title").innerHTML = "Routine <em>complete</em>";
+    speak("Routine complete. Well done.");
+  }
   refreshStats();
   show("done");
 }
@@ -408,18 +499,26 @@ function finish(){
 /* ---------- events ---------- */
 $("btn-start").addEventListener("click", startRoutine);
 $("btn-pause").addEventListener("click", pauseResume);
-$("btn-again").addEventListener("click", startRoutine);
+$("btn-again").addEventListener("click", function(){ if (S.solo) startSolo(S.idx); else startRoutine(); });
+$("btn-voice").addEventListener("click", function(){
+  voiceOn = !voiceOn;
+  try { localStorage.setItem(VOICE_KEY, voiceOn ? "1" : "0"); } catch(e){}
+  refreshVoiceBtn();
+  if (voiceOn) speak(phaseSpeech()); else hush();
+});
 $("btn-home").addEventListener("click", function(){ refreshStats(); show("home"); });
 $("btn-end").addEventListener("click", function(){
   if (confirm("End the routine early?")) quit();
 });
 $("btn-skip").addEventListener("click", function(){
   clearInterval(S.timerId);
+  if (S.solo) { startSolo(S.idx); return; }
   if (S.phase === "work" && S.idx === EXERCISES.length - 1) { finish(); return; }
   if (S.phase === "work") startPhase(S.idx, "rest"); else startPhase(S.idx + 1, "work");
   S.timerId = setInterval(tick, 200);
 });
 $("btn-back").addEventListener("click", function(){
+  if (S.solo) { if (confirm("Back to the exercise list?")) quit(); return; }
   clearInterval(S.timerId);
   if (S.phase === "rest") startPhase(S.idx, "work");
   else if (S.idx > 0) startPhase(S.idx - 1, "work");
@@ -427,6 +526,7 @@ $("btn-back").addEventListener("click", function(){
   S.timerId = setInterval(tick, 200);
 });
 document.addEventListener("visibilitychange", function(){
+  if (document.hidden) hush();
   if (document.hidden && screens.player.classList.contains("active") && !S.paused) pauseResume();
 });
 document.addEventListener("keydown", function(e){
