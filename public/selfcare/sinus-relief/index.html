@@ -55,6 +55,7 @@ h1 em{font-style:italic;color:var(--violet)}
 .stepname{flex:1}
 .steptarget{font-size:.75rem;color:var(--faint)}
 /* player */
+#p-move{margin:.2rem auto 1.25rem}
 .pbar{height:6px;background:#241e47;border-radius:999px;overflow:hidden;margin-bottom:1.5rem}
 .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--gold));border-radius:999px;transition:width .4s ease}
 .count{color:var(--faint);font-size:.85rem;letter-spacing:.12em;margin-bottom:1rem}
@@ -118,6 +119,7 @@ h1 em{font-style:italic;color:var(--violet)}
     <p class="kicker">For congested days</p>
     <h1 id="home-title">Sinus Pressure <em>relief</em></h1>
     <p class="lede">Sinus congestion tightens the neck, back, chest and diaphragm. This 5-step sequence starts with gentle touch around your collarbones, then loosens the neck, chest and breathing step by step.</p>
+    <div class="center" style="margin:-.5rem 0 1.5rem"><span data-char-toggle></span></div>
 
     <div class="card">
       <h2>The sequence</h2>
@@ -128,8 +130,8 @@ h1 em{font-style:italic;color:var(--violet)}
     <div class="card">
       <h2>Two things that help</h2>
       <ul>
-        <li><b>Hydrate.</b> Lymphatic fluid is mostly water — it can't flow if you're dehydrated.</li>
-        <li><b>Use gravity.</b> Don't lie flat right after; stay upright or propped on pillows so drainage keeps moving down and out.</li>
+        <li><b>Hydrate.</b> Drink some water — moving feels better when you're hydrated.</li>
+        <li><b>Use gravity.</b> Don't lie flat right after; stay upright or propped on pillows for a while.</li>
       </ul>
     </div>
 
@@ -145,7 +147,8 @@ h1 em{font-style:italic;color:var(--violet)}
     <div class="pbar" aria-hidden="true"><i id="pbar-fill"></i></div>
     <p class="count" id="p-count">Step 1 of 5</p>
     <p class="why" id="p-why"></p>
-    <div class="move" id="p-move" aria-hidden="true"></div>
+    <div class="center" style="margin-bottom:.6rem"><span data-char-toggle></span></div>
+    <div id="p-move" aria-hidden="true"></div>
     <h2 class="pname" id="p-name"></h2>
     <span class="ptarget" id="p-target"></span>
     <p class="pdetail" id="p-detail"></p>
@@ -178,6 +181,7 @@ h1 em{font-style:italic;color:var(--violet)}
   </section>
 </main>
 <script src="/selfcare/shared/moves.js"></script>
+<script src="/selfcare/shared/demos.js"></script>
 <script>
 (function(){
 "use strict";
@@ -185,7 +189,7 @@ var STEPS = [
  {icon:"ps-collar", move:"collarbone", name:"The Collarbone Pump", why:"Ease the collarbone area",
   target:"15–20 gentle pulses",
   detail:"Begin with gentle touch in the hollows just above your collarbones before moving on. Place your index and middle fingers in those notches. Apply very light pressure — the weight of a coin, not a massage — and sweep inward toward your throat, or pulse gently. 15 to 20 times."},
- {icon:"ps-ribs", move:"belly-breathe", name:"Diaphragmatic 360 Breathing", why:"Decompress the core",
+ {icon:"ps-ribs", move:"belly-breathe", name:"Diaphragmatic 360 Breathing", why:"Settle and breathe",
   target:"10 deep breaths",
   detail:"Congestion leads to shallow chest breathing, which freezes the diaphragm and tightens the back. Sit comfortably, hands around your lower ribs. Inhale deeply through your nose, expanding your ribs outward to the sides and back — 360 degrees — not just lifting your chest. Exhale fully through pursed lips, letting the ribs collapse inward. Slow and unhurried."},
  {icon:"ps-cactus", move:"cactus", name:"Cactus Arm Chest Opener", why:"Release the chest & upper back",
@@ -194,7 +198,7 @@ var STEPS = [
  {icon:"ps-catcow", move:"cat-cow", name:"Seated Cat-Cow with Neck Release", why:"Unjam the spine & neck",
   target:"8–10 slow cycles",
   detail:"Rest your hands on your knees. Inhale: arch your back and look up slightly, opening the front of your neck and chest. Exhale: round your spine, tuck your chin deeply to your chest, gaze down at your belly button — stretching the back of your neck and upper spine. Move slowly, married to your breath."},
- {icon:"ps-scm", move:"neck-tilt", name:"SCM Neck Stretch & Drainage", why:"Free the neck drains",
+ {icon:"ps-scm", move:"neck-tilt", name:"SCM Neck Stretch & Drainage", why:"Ease the neck",
   target:"Both sides · 3 breaths + 5–10 strokes each",
   detail:"The SCM muscles run down the sides of your neck and tighten when you're congested. Turn your head 45 degrees to the right, then tilt your left ear toward your left shoulder — feel the stretch down the right side of your neck. Take 3 deep breaths. Then, with the flats of your fingers, very gently stroke down that tight muscle from just behind your ear to your collarbone, 5–10 times. Repeat on the opposite side."}
 ];
@@ -240,14 +244,18 @@ function show(name){
   window.scrollTo(0,0);
 }
 function announce(m){ var a=$("announcer"); a.textContent=""; setTimeout(function(){ a.textContent=m; },60); }
+/* Video demonstrator: the mapped clip (looping, muted, playsinline) with the
+   lymphatic overlay; a still for prefers-reduced-motion or the few clips
+   still being generated. */
+function renderDemo(move){
+  if (window.SCDemos) SCDemos.renderFigure($("p-move"), move);
+  else $("p-move").innerHTML = SCMoves.svg(move);
+}
 function render(){
   var s = STEPS[idx];
   $("p-count").textContent = solo ? "Solo step" : "Step " + (idx+1) + " of " + STEPS.length;
   $("p-why").textContent = s.why;
-  $("p-move").innerHTML = SCMoves.svg(s.move);
-  if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    var svg = $("p-move").querySelector("svg"); if (svg && svg.pauseAnimations) svg.pauseAnimations();
-  }
+  renderDemo(s.move);
   $("p-name").textContent = s.name;
   $("p-target").textContent = "Aim: " + s.target;
   $("p-detail").textContent = s.detail;
@@ -288,12 +296,28 @@ $("btn-resetcount").addEventListener("click", function(){ count = 0; $("btn-tap"
 $("quit-link").addEventListener("click", function(e){
   if (!confirm("Quit the sequence?")) e.preventDefault(); else hush();
 });
-document.addEventListener("visibilitychange", function(){ if (document.hidden) hush(); });
+/* No auto-pause here (no timers) — on hide just hush voice; on return nudge
+   the demo clip to keep playing. Consumes PR #36's hooks when present. */
+function handleHide(){ hush(); }
+function handleReturn(){
+  if (!screens.player.classList.contains("active")) return;
+  var v = $("p-move").querySelector("video");
+  if (v) { try { var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); } catch(e){} }
+}
+if (window.SCDemos) SCDemos.wireLifecycle(handleHide, handleReturn);
+else document.addEventListener("visibilitychange", function(){
+  if (document.hidden) handleHide(); else handleReturn();
+});
 document.addEventListener("keydown", function(e){
   if (!screens.player.classList.contains("active")) return;
   if (e.key === " " || e.key === "Enter") { /* let buttons handle it */ }
   if (e.key === "ArrowRight") next();
   if (e.key === "ArrowLeft" && idx > 0) { idx--; render(); }
+});
+/* Character selector on home + player; mid-sequence switches re-render the
+   figure only. */
+if (window.SCDemos) SCDemos.wireCharToggles(document, function(){
+  if (screens.player.classList.contains("active")) renderDemo(STEPS[idx].move);
 });
 })();
 </script>
