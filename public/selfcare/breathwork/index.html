@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Breathwork · Guided & Self-Paced</title>
+<meta name="description" content="Private guided breathwork pacer and self-paced breath timer.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{
+  --bg:#0e0b1c; --surface:#171233; --surface2:#1e1840;
+  --violet:#b39dff; --violet-dim:#8a76d8; --gold:#d9a94a;
+  --text:#f0ebfa; --dim:#b3a8d6; --faint:#7d739e;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;line-height:1.65;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.screen{display:none}
+.screen.active{display:block;animation:fadein .35s ease}
+@keyframes fadein{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.kicker{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+h1{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.25;margin-bottom:.75rem}
+h1 em{font-style:italic;color:var(--violet)}
+.lede{color:var(--dim);font-size:1rem;margin-bottom:1.5rem;max-width:56ch}
+.card{background:var(--surface);border:1px solid #2a2352;border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.card h2{font-family:var(--serif);font-weight:400;font-size:1.1rem;margin-bottom:.6rem}
+.card p{color:var(--dim);font-size:.93rem}
+.seg{display:flex;gap:.5rem;margin-bottom:1rem}
+.seg button{flex:1;background:var(--surface2);border:1px solid #3a3168;color:var(--dim);font-family:var(--sans);
+  font-size:.95rem;font-weight:600;padding:.8rem;border-radius:12px;cursor:pointer}
+.seg button.on{background:linear-gradient(135deg,var(--violet),#d9a94a);color:#171233;border:none}
+.opts{display:flex;flex-wrap:wrap;gap:.5rem}
+.opt{background:var(--surface2);border:1px solid #3a3168;color:var(--text);font-family:var(--sans);font-size:.88rem;
+  padding:.65rem 1rem;border-radius:999px;cursor:pointer}
+.opt.on{border-color:var(--gold);color:var(--gold)}
+.opt small{display:block;font-size:.72rem;color:var(--faint)}
+.opt.on small{color:var(--gold)}
+.patdesc{color:var(--faint);font-size:.85rem;margin-top:.6rem;min-height:2.6em}
+.btn{display:inline-block;border:none;cursor:pointer;font-family:var(--sans);font-size:1.05rem;font-weight:600;
+  padding:1rem 2.2rem;border-radius:999px;color:#171233;background:linear-gradient(135deg,var(--violet),#d9a94a);
+  margin-top:1.25rem;transition:transform .15s ease;box-shadow:0 4px 24px rgba(179,157,255,.25)}
+.btn:hover{transform:translateY(-1px)}
+.btn.ghost{background:transparent;color:var(--dim);border:1px solid #3a3168;box-shadow:none;font-size:.9rem;padding:.7rem 1.4rem}
+.center{text-align:center}
+/* player */
+.stage{display:flex;flex-direction:column;align-items:center;padding:1rem 0 0.5rem}
+#orb{width:170px;height:170px;border-radius:50%;margin:1.2rem 0;
+  background:radial-gradient(circle at 35% 35%, #d9c8ff, var(--violet) 55%, #5b4b9e 100%);
+  box-shadow:0 0 60px rgba(179,157,255,.35);transform:scale(1)}
+#phase{font-family:var(--serif);font-size:1.7rem;margin-bottom:.2rem;min-height:2.2rem}
+#phasecount{font-size:2.6rem;font-weight:300;color:var(--violet);font-variant-numeric:tabular-nums}
+#total{color:var(--faint);font-size:.9rem;margin-top:.6rem;font-variant-numeric:tabular-nums}
+.controls{display:flex;gap:.6rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem}
+.cbtn{background:var(--surface2);border:1px solid #3a3168;color:var(--text);font-family:var(--sans);font-size:.92rem;font-weight:600;
+  padding:.8rem 1.3rem;border-radius:12px;cursor:pointer;min-width:88px}
+.cbtn:hover{border-color:var(--violet-dim)}
+.cbtn.danger{color:var(--faint)}
+.toggle{display:flex;align-items:center;justify-content:center;gap:.6rem;margin-top:1rem;color:var(--dim);font-size:.88rem}
+.toggle input{width:1.1rem;height:1.1rem;accent-color:var(--violet)}
+textarea{width:100%;background:var(--surface2);border:1px solid #3a3168;border-radius:12px;color:var(--text);
+  font-family:var(--sans);font-size:.95rem;padding:.8rem;margin-top:.6rem;min-height:84px;resize:vertical}
+textarea:focus{outline:none;border-color:var(--violet)}
+.done-mark{width:84px;height:84px;border-radius:50%;border:2px solid var(--gold);display:flex;align-items:center;justify-content:center;
+  font-size:2.2rem;color:var(--gold);margin:1.5rem auto}
+.credit{margin-top:2rem;padding-top:1.25rem;border-top:1px solid #241e47;color:var(--faint);font-size:.8rem;line-height:1.7}
+.backlink{display:inline-block;margin-bottom:1.5rem;color:var(--faint);font-size:.85rem;text-decoration:none}
+.backlink:hover{color:var(--violet)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (prefers-reduced-motion:reduce){.screen.active{animation:none}#orb{transition:none!important}}
+@media (max-width:480px){h1{font-size:1.6rem}#orb{width:140px;height:140px}}
+</style>
+</head>
+<body>
+<main id="app">
+  <!-- ============ HOME ============ -->
+  <section class="screen active" id="screen-home" aria-labelledby="home-title">
+    <a class="backlink" href="/selfcare/">← All routines</a>
+    <p class="kicker">Mind · breath</p>
+    <h1 id="home-title">Breath<em>work</em></h1>
+    <p class="lede">Follow a guided breathing pattern with the pacer, or sit self-paced with just a timer. Breathe through your nose, keep it easy — never strain.</p>
+
+    <div class="card">
+      <h2>Mode</h2>
+      <div class="seg" role="group" aria-label="mode">
+        <button id="m-guided" class="on">Guided pacer</button>
+        <button id="m-self">Self-paced</button>
+      </div>
+      <div id="patblock">
+        <h2>Pattern</h2>
+        <div class="opts" id="pats" role="group" aria-label="breathing pattern"></div>
+        <p class="patdesc" id="patdesc"></p>
+      </div>
+      <div id="selfblock" style="display:none">
+        <p>Just you and the timer. An optional soft chime marks each minute.</p>
+        <label class="toggle" style="justify-content:flex-start;margin-top:.6rem">
+          <input type="checkbox" id="self-chime" checked> minute chime
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Duration</h2>
+      <div class="opts" id="durs" role="group" aria-label="duration"></div>
+    </div>
+
+    <div class="center">
+      <button class="btn" id="btn-start">Begin</button>
+    </div>
+    <p class="credit">General wellness practice, not medical advice. If you feel dizzy, return to normal breathing.</p>
+  </section>
+
+  <!-- ============ PLAYER ============ -->
+  <section class="screen" id="screen-player" aria-labelledby="phase">
+    <div class="center">
+      <p class="kicker" id="p-sub">Guided · Box breathing</p>
+      <div class="stage">
+        <div id="orb" aria-hidden="true"></div>
+        <p id="phase">Get ready…</p>
+        <p id="phasecount" aria-hidden="true"></p>
+        <p id="total"></p>
+      </div>
+      <div class="controls">
+        <button class="cbtn" id="btn-pause">Pause</button>
+        <button class="cbtn danger" id="btn-end">End</button>
+      </div>
+      <p class="sr" role="status" aria-live="polite" id="announcer"></p>
+    </div>
+  </section>
+
+  <!-- ============ DONE ============ -->
+  <section class="screen" id="screen-done" aria-labelledby="done-title">
+    <div class="center">
+      <div class="done-mark" aria-hidden="true">✓</div>
+      <p class="kicker">Well breathed</p>
+      <h1 id="done-title">Session <em>complete</em></h1>
+      <p class="lede" style="text-align:center;margin-left:auto;margin-right:auto" id="done-summary"></p>
+    </div>
+    <div class="card">
+      <h2>Note to self <span style="color:var(--faint);font-size:.8rem">(optional)</span></h2>
+      <textarea id="note" placeholder="How did that feel? Anything worth remembering…"></textarea>
+    </div>
+    <div class="center">
+      <button class="btn" id="btn-save">Save to practice log</button><br>
+      <button class="btn ghost" id="btn-again">Breathe again</button>
+      <a class="btn ghost" href="/selfcare/log/" style="text-decoration:none;display:inline-block">Open practice log</a>
+    </div>
+  </section>
+</main>
+<script src="/selfcare/shared/engine.js"></script>
+<script>
+(function(){
+"use strict";
+var PATTERNS = {
+  coherent:{name:"Coherent", sub:"5.5 · 5.5", desc:"Inhale 5.5s, exhale 5.5s. The steady everyday rhythm — calm and balancing.",
+    phases:[["Inhale",5.5,"in"],["Exhale",5.5,"out"]]},
+  box:{name:"Box", sub:"4 · 4 · 4 · 4", desc:"Inhale 4s, hold 4s, exhale 4s, hold 4s. Steadies focus and settles the nerves.",
+    phases:[["Inhale",4,"in"],["Hold",4,"hold"],["Exhale",4,"out"],["Hold",4,"hold"]]},
+  relax:{name:"4-7-8", sub:"4 · 7 · 8", desc:"Inhale 4s, hold 7s, exhale 8s. A winding-down pattern — lovely before rest.",
+    phases:[["Inhale",4,"in"],["Hold",7,"hold"],["Exhale",8,"out"]]}
+};
+var DURS = [3,5,10,15];
+var mode = "guided", patKey = "box", durMin = 5;
+
+function $(id){ return document.getElementById(id); }
+var screens = { home:$("screen-home"), player:$("screen-player"), done:$("screen-done") };
+function show(n){ Object.keys(screens).forEach(function(k){ screens[k].classList.toggle("active", k===n); }); window.scrollTo(0,0); }
+function announce(m){ var a=$("announcer"); a.textContent=""; setTimeout(function(){ a.textContent=m; },60); }
+
+/* option builders */
+$("pats").innerHTML = Object.keys(PATTERNS).map(function(k){
+  var p = PATTERNS[k];
+  return '<button class="opt'+(k===patKey?' on':'')+'" data-k="'+k+'">'+p.name+'<small>'+p.sub+'</small></button>';
+}).join("");
+$("durs").innerHTML = DURS.map(function(d){
+  return '<button class="opt'+(d===durMin?' on':'')+'" data-d="'+d+'">'+d+' min</button>';
+}).join("");
+function patDesc(){ $("patdesc").textContent = PATTERNS[patKey].desc; }
+patDesc();
+
+$("pats").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  patKey = b.dataset.k;
+  Array.prototype.forEach.call($("pats").children, function(x){ x.classList.toggle("on", x===b); });
+  patDesc();
+});
+$("durs").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  durMin = +b.dataset.d;
+  Array.prototype.forEach.call($("durs").children, function(x){ x.classList.toggle("on", x===b); });
+});
+$("m-guided").addEventListener("click", function(){
+  mode="guided"; $("m-guided").classList.add("on"); $("m-self").classList.remove("on");
+  $("patblock").style.display=""; $("selfblock").style.display="none";
+});
+$("m-self").addEventListener("click", function(){
+  mode="self"; $("m-self").classList.add("on"); $("m-guided").classList.remove("on");
+  $("patblock").style.display="none"; $("selfblock").style.display="";
+});
+
+/* ---------- session ---------- */
+var T = null; // {endAt, paused, pausedLeft, timerId, phaseTimerId, ...}
+var orb = $("orb");
+
+function fmt(s){ return SC.fmtClock(s); }
+
+function start(){
+  SC.lock();
+  var total = durMin*60;
+  T = { total:total, endAt:Date.now()+total*1000, paused:false, mode:mode,
+        startedAt:Date.now(), minuteChime:$("self-chime").checked, lastMinute:0 };
+  show("player");
+  if(mode==="guided"){
+    $("p-sub").textContent = "Guided · " + PATTERNS[patKey].name + " breathing";
+    runPhase(0);
+  } else {
+    $("p-sub").textContent = "Self-paced";
+    $("phase").textContent = "Breathe easy";
+    $("phasecount").textContent = "";
+  }
+  announce("Session started. " + durMin + " minutes.");
+  T.tickId = setInterval(tickTotal, 250);
+}
+function tickTotal(){
+  if(!T || T.paused) return;
+  var left = (T.endAt - Date.now())/1000;
+  if(left <= 0){ finish(); return; }
+  $("total").textContent = fmt(left) + " remaining";
+  if(T.mode==="self" && T.minuteChime){
+    var m = Math.floor((T.total*1000 - (T.endAt-Date.now()))/60000);
+    if(m > T.lastMinute){ T.lastMinute = m; SC.tick(); }
+  }
+}
+/* guided pacer */
+function runPhase(i){
+  if(!T || T.paused) return;
+  var ph = PATTERNS[patKey].phases[i % PATTERNS[patKey].phases.length];
+  var label = ph[0], secs = ph[1], act = ph[2];
+  $("phase").textContent = label + "…";
+  orb.style.transition = "transform " + secs + "s ease-in-out";
+  if(act==="in") orb.style.transform = "scale(1.55)";
+  else if(act==="out") orb.style.transform = "scale(1)";
+  /* hold: leave as-is */
+  var phaseEnd = Date.now() + secs*1000;
+  announce(label + ", " + secs + " seconds.");
+  clearInterval(T.phaseTick);
+  T.phaseTick = setInterval(function(){
+    if(T.paused) return;
+    var l = Math.max(0,(phaseEnd-Date.now())/1000);
+    $("phasecount").textContent = l > 0.05 ? Math.ceil(l) : "";
+  }, 200);
+  T.phaseTimerId = setTimeout(function(){
+    clearInterval(T.phaseTick);
+    if(!T || T.paused) return;
+    SC.tick();
+    runPhase(i+1);
+  }, secs*1000);
+}
+function pause(){
+  if(!T) return;
+  if(!T.paused){
+    T.paused = true;
+    T.leftMs = T.endAt - Date.now();
+    clearTimeout(T.phaseTimerId); clearInterval(T.phaseTick);
+    $("btn-pause").textContent = "Resume";
+    var cs = window.getComputedStyle(orb).transform;
+    orb.style.transition = "none"; orb.style.transform = cs;
+    announce("Paused.");
+  } else {
+    T.paused = false;
+    T.endAt = Date.now() + T.leftMs;
+    $("btn-pause").textContent = "Pause";
+    if(T.mode==="guided") runPhase(T.resumePhase != null ? T.resumePhase : 0);
+    announce("Resumed.");
+  }
+}
+/* track phase index for resume */
+var _runPhase = runPhase;
+runPhase = function(i){ T.resumePhase = i; _runPhase(i); };
+
+function cleanup(){
+  clearInterval(T.tickId); clearTimeout(T.phaseTimerId); clearInterval(T.phaseTick);
+  SC.unlock();
+}
+function finish(){
+  if(!T) return;
+  var mins = Math.min(durMin, Math.round((Date.now()-T.startedAt)/60000*10)/10);
+  var summaryMode = T.mode==="guided" ? "Guided · "+PATTERNS[patKey].name : "Self-paced";
+  cleanup();
+  SC.bell(); SC.chime();
+  T.doneInfo = { module:"Breathwork", mode:summaryMode, minutes:mins };
+  $("done-summary").textContent = summaryMode + " · " + fmt(mins*60) + ". Saved when you press the button below.";
+  $("note").value = "";
+  T = Object.assign(T||{}, {saved:false});
+  show("done");
+}
+function endEarly(){
+  if(!T) return;
+  if(confirm("End this session?")) finish();
+}
+
+$("btn-start").addEventListener("click", start);
+$("btn-pause").addEventListener("click", pause);
+$("btn-end").addEventListener("click", endEarly);
+$("btn-again").addEventListener("click", function(){ show("home"); });
+$("btn-save").addEventListener("click", function(){
+  if(!T || !T.doneInfo || T.saved) return;
+  T.doneInfo.note = $("note").value.trim();
+  SC.logSave(T.doneInfo);
+  T.saved = true;
+  $("btn-save").textContent = "Saved ✓";
+  SC.chime();
+});
+document.addEventListener("visibilitychange", function(){
+  if(document.hidden && T && !T.paused && screens.player.classList.contains("active")) pause();
+});
+})();
+</script>
+</body>
+</html>

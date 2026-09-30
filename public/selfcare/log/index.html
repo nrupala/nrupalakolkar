@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Practice Log · Calendar & Notes</title>
+<meta name="description" content="Private practice calendar, streaks and session notes.">
+<meta name="robots" content="noindex, nofollow">
+<style>
+:root{
+  --bg:#0e0b1c; --surface:#171233; --surface2:#1e1840;
+  --violet:#b39dff; --violet-dim:#8a76d8; --gold:#d9a94a;
+  --text:#f0ebfa; --dim:#b3a8d6; --faint:#7d739e;
+  --serif:Georgia,'Times New Roman',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Helvetica,Arial,sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);min-height:100vh;line-height:1.65;-webkit-font-smoothing:antialiased}
+main{max-width:640px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.kicker{font-size:.72rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:.6rem}
+h1{font-family:var(--serif);font-weight:400;font-size:2rem;line-height:1.25;margin-bottom:.75rem}
+h1 em{font-style:italic;color:var(--violet)}
+.lede{color:var(--dim);font-size:1rem;margin-bottom:1.5rem;max-width:56ch}
+.card{background:var(--surface);border:1px solid #2a2352;border-radius:14px;padding:1.25rem;margin-bottom:1rem}
+.stats{display:flex;gap:.6rem;flex-wrap:wrap;margin-bottom:1rem}
+.stat{flex:1;min-width:100px;background:var(--surface);border:1px solid #2a2352;border-radius:12px;padding:.8rem;text-align:center}
+.stat b{display:block;font-family:var(--serif);font-size:1.6rem;color:var(--gold);font-weight:400}
+.stat span{font-size:.75rem;color:var(--faint);letter-spacing:.06em}
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:.6rem}
+.calhead h2{font-family:var(--serif);font-weight:400;font-size:1.2rem}
+.calhead button{background:var(--surface2);border:1px solid #3a3168;color:var(--text);border-radius:8px;
+  font-size:1rem;width:2.4rem;height:2.4rem;cursor:pointer}
+.calhead button:hover{border-color:var(--violet)}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:.25rem}
+.dow{color:var(--faint);font-size:.72rem;text-align:center;padding:.3rem 0;letter-spacing:.08em}
+.day{aspect-ratio:1;border-radius:10px;border:1px solid transparent;background:transparent;color:var(--dim);
+  font-family:var(--sans);font-size:.85rem;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center}
+.day:hover{background:var(--surface2)}
+.day.dim{color:#4a4370;cursor:default}
+.day.dim:hover{background:transparent}
+.day.has{background:var(--surface2);border-color:#3a3168;color:var(--text)}
+.day.has::after{content:"";position:absolute;bottom:6px;width:5px;height:5px;border-radius:50%;background:var(--gold)}
+.day.sel{border-color:var(--violet);box-shadow:0 0 0 1px var(--violet)}
+.day.today{color:var(--gold);font-weight:700}
+.entry{border-bottom:1px solid #241e47;padding:.7rem 0}
+.entry:last-child{border-bottom:none}
+.entry .em{font-size:.92rem}
+.entry .em b{color:var(--violet);font-weight:600}
+.entry .et{font-size:.75rem;color:var(--faint)}
+.entry .en{font-size:.85rem;color:var(--dim);margin-top:.25rem;font-style:italic}
+.entry .en:empty{display:none}
+.addnote{background:none;border:none;color:var(--faint);font-size:.78rem;cursor:pointer;text-decoration:underline;padding:0;margin-top:.25rem}
+.addnote:hover{color:var(--violet)}
+.noteedit{width:100%;background:var(--surface2);border:1px solid #3a3168;border-radius:8px;color:var(--text);
+  font-family:var(--sans);font-size:.85rem;padding:.5rem;margin-top:.4rem}
+.empty{color:var(--faint);font-size:.9rem;text-align:center;padding:1.2rem 0}
+.btn{display:inline-block;border:none;cursor:pointer;font-family:var(--sans);font-size:.9rem;font-weight:600;
+  padding:.7rem 1.4rem;border-radius:999px;color:var(--dim);background:transparent;border:1px solid #3a3168;margin-top:1rem}
+.btn:hover{color:var(--text);border-color:var(--violet)}
+.center{text-align:center}
+.backlink{display:inline-block;margin-bottom:1.5rem;color:var(--faint);font-size:.85rem;text-decoration:none}
+.backlink:hover{color:var(--violet)}
+.credit{margin-top:2rem;padding-top:1.25rem;border-top:1px solid #241e47;color:var(--faint);font-size:.8rem;line-height:1.7}
+</style>
+</head>
+<body>
+<main>
+  <a class="backlink" href="/selfcare/">← All routines</a>
+  <p class="kicker">Mind · practice</p>
+  <h1>Practice <em>log</em></h1>
+  <p class="lede">Every session you save lands here — on this device only. Tap a day to see what you practiced and what you noted.</p>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="card">
+    <div class="calhead">
+      <button id="prev" aria-label="previous month">‹</button>
+      <h2 id="mtitle"></h2>
+      <button id="next" aria-label="next month">›</button>
+    </div>
+    <div class="grid" id="dows"></div>
+    <div class="grid" id="days"></div>
+  </div>
+
+  <div class="card">
+    <h2 id="daytitle" style="font-family:var(--serif);font-weight:400;font-size:1.15rem;margin-bottom:.4rem"></h2>
+    <div id="entries"></div>
+  </div>
+
+  <div class="center">
+    <button class="btn" id="btn-export">Export as JSON</button>
+  </div>
+  <p class="credit">🔒 Stored only in this browser's local storage. Clearing browser data erases it — export occasionally if your notes matter to you.</p>
+</main>
+<script src="/selfcare/shared/engine.js"></script>
+<script>
+(function(){
+"use strict";
+function $(id){ return document.getElementById(id); }
+var view = new Date(); view.setDate(1);
+var selKey = SC.dayKey(Date.now());
+var MONTHS = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+$("dows").innerHTML = ["S","M","T","W","T","F","S"].map(function(d){
+  return '<div class="dow">'+d+'</div>';
+}).join("");
+
+function keyOf(y,m,d){ return y+"-"+("0"+(m+1)).slice(-2)+"-"+("0"+d).slice(-2); }
+
+function renderStats(){
+  var s = SC.logStats();
+  $("stats").innerHTML =
+    stat(s.sessions,"sessions") + stat(s.minutes,"minutes") +
+    stat(s.streak,"day streak") + stat(s.days,"active days");
+  function stat(v,l){ return '<div class="stat"><b>'+v+'</b><span>'+l+'</span></div>'; }
+}
+function renderCal(){
+  var y=view.getFullYear(), m=view.getMonth();
+  $("mtitle").textContent = MONTHS[m]+" "+y;
+  var first=new Date(y,m,1).getDay(), dim=new Date(y,m+1,0).getDate();
+  var days=SC.logRead(), has={};
+  days.forEach(function(s){ has[SC.dayKey(s.ts)]=1; });
+  var todayKey=SC.dayKey(Date.now()), html="";
+  for(var i=0;i<first;i++) html+='<div class="day dim"></div>';
+  for(var d=1;d<=dim;d++){
+    var k=keyOf(y,m,d), cls="day";
+    if(has[k]) cls+=" has";
+    if(k===selKey) cls+=" sel";
+    if(k===todayKey) cls+=" today";
+    html+='<button class="'+cls+'" data-k="'+k+'">'+d+'</button>';
+  }
+  $("days").innerHTML=html;
+}
+function renderEntries(){
+  var parts=selKey.split("-");
+  $("daytitle").textContent = MONTHS[+parts[1]-1]+" "+(+parts[2])+", "+parts[0];
+  var list=SC.logRead().filter(function(s){ return SC.dayKey(s.ts)===selKey; })
+    .sort(function(a,b){ return b.ts-a.ts; });
+  if(!list.length){ $("entries").innerHTML='<p class="empty">Nothing logged this day — yet.</p>'; return; }
+  $("entries").innerHTML=list.map(function(s){
+    var t=new Date(s.ts), hh=t.getHours(), mm=("0"+t.getMinutes()).slice(-2);
+    var ap=hh>=12?"pm":"am"; hh=hh%12||12;
+    var noteHtml = s.note
+      ? '<p class="en">“'+escapeHtml(s.note)+'”</p>'
+      : '<button class="addnote" data-id="'+s.id+'">+ add a note</button><div class="notebox" style="display:none"><input class="noteedit" data-id="'+s.id+'" placeholder="How did it feel?"><button class="addnote" data-save="'+s.id+'">save</button></div>';
+    return '<div class="entry"><p class="em"><b>'+escapeHtml(s.module)+'</b> · '+escapeHtml(s.mode||"")+'</p>'+
+      '<p class="et">'+hh+":"+mm+" "+ap+" · "+Math.round(s.minutes||0)+' min</p>'+noteHtml+'</div>';
+  }).join("");
+}
+function escapeHtml(s){ return String(s).replace(/[&<>"']/g, function(c){
+  return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+
+$("days").addEventListener("click", function(e){
+  var b=e.target.closest("button[data-k]"); if(!b) return;
+  selKey=b.dataset.k; renderCal(); renderEntries();
+});
+$("entries").addEventListener("click", function(e){
+  var add=e.target.closest("[data-id].addnote"), save=e.target.closest("[data-save]");
+  if(add && !add.dataset.save){
+    var box=add.nextElementSibling; box.style.display=""; add.style.display="none";
+    box.querySelector("input").focus();
+  }
+  if(save){
+    var inp=document.querySelector('input.noteedit[data-id="'+save.dataset.save+'"]');
+    SC.logNote(save.dataset.save, inp.value.trim());
+    renderEntries();
+  }
+});
+$("entries").addEventListener("keydown", function(e){
+  if(e.key==="Enter" && e.target.classList.contains("noteedit")){
+    SC.logNote(e.target.dataset.id, e.target.value.trim());
+    renderEntries();
+  }
+});
+$("prev").addEventListener("click", function(){ view.setMonth(view.getMonth()-1); renderCal(); });
+$("next").addEventListener("click", function(){ view.setMonth(view.getMonth()+1); renderCal(); });
+$("btn-export").addEventListener("click", function(){
+  var blob=new Blob([JSON.stringify(SC.logRead(),null,2)],{type:"application/json"});
+  var a=document.createElement("a");
+  a.href=URL.createObjectURL(blob); a.download="selfcare-practice-log.json";
+  document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },500);
+});
+
+renderStats(); renderCal(); renderEntries();
+})();
+</script>
+</body>
+</html>
