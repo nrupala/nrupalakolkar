@@ -68,6 +68,7 @@ h1 em{font-style:italic;color:var(--violet)}
 .solo-hint{color:var(--faint);font-size:.82rem;margin-top:.5rem}
 .exlist li{align-items:center}
 /* player */
+#p-move{margin:.2rem auto 1.25rem}
 .pbar{height:6px;background:#241e47;border-radius:999px;overflow:hidden;margin-bottom:1.5rem}
 .pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--violet),var(--gold));border-radius:999px;transition:width .4s ease}
 .phase{font-size:.78rem;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:.4rem}
@@ -115,7 +116,8 @@ h1 em{font-style:italic;color:var(--violet)}
   <section class="screen active" id="screen-home" aria-labelledby="home-title">
     <p class="kicker">Private self-care</p>
     <h1 id="home-title">Full-Body Lymphatic<br><em>an 8-minute gentle flow</em></h1>
-    <p class="lede">Seven standing movements that move fluid from head to toe — breathing, twists, calf pumps, and a finishing bounce. No equipment, no impact. Press start and follow along.</p>
+    <p class="lede">Seven standing movements, head to toe — breathing, twists, calf work, and a finishing bounce. No equipment, no impact. Press start and follow along.</p>
+    <div class="center" style="margin:-.5rem 0 1.5rem"><span data-char-toggle></span></div>
 
     <div class="card">
       <h2>How it works</h2>
@@ -155,7 +157,8 @@ h1 em{font-style:italic;color:var(--violet)}
     <div class="pbar" aria-hidden="true"><i id="pbar-fill"></i></div>
     <p class="count" id="p-count">Exercise 1 of 10</p>
     <p class="phase" id="p-phase">Move gently</p>
-    <div class="move" id="p-move" aria-hidden="true"></div>
+    <div class="center" style="margin-bottom:.6rem"><span data-char-toggle></span></div>
+    <div id="p-move" aria-hidden="true"></div>
     <h2 class="pname" id="p-name"></h2>
     <span class="ppos" id="p-pos"></span>
     <p class="pdetail" id="p-detail"></p>
@@ -180,7 +183,7 @@ h1 em{font-style:italic;color:var(--violet)}
       <div class="done-mark" aria-hidden="true">✓</div>
       <p class="kicker">Well done</p>
       <h1 id="done-title">Routine <em>complete</em></h1>
-      <p class="lede" style="text-align:center;margin-left:auto;margin-right:auto">Ten minutes of gentle movement for your lymphatic system. Consistency matters more than intensity — see you tomorrow.</p>
+      <p class="lede" style="text-align:center;margin-left:auto;margin-right:auto">Eight minutes of gentle movement. Consistency matters more than intensity — see you tomorrow.</p>
       <div class="stats"><span>Sessions this week <b id="done-week">0</b></span></div>
       <button class="btn" id="btn-again">Do it again</button><br>
       <button class="btn ghost" id="btn-home">Back to overview</button>
@@ -189,6 +192,7 @@ h1 em{font-style:italic;color:var(--violet)}
 
 </main>
 <script src="/selfcare/shared/moves.js"></script>
+<script src="/selfcare/shared/demos.js"></script>
 <script>
 (function(){
 "use strict";
@@ -199,19 +203,19 @@ var EXERCISES = [
   detail:"Stand tall. Inhale deeply through your nose, expanding your belly, as you sweep your arms overhead. Exhale slowly as you lower them. Deep breathing with big arm movement is a calming way to begin."},
  {icon:"pf-shrug", move:"neck-roll", name:"Neck Rolls & Shoulder Shrugs", pos:"Standing",
   cue:"Roll the neck, roll the shoulders back",
-  detail:"Gently roll your neck side to side. Then make big backward shoulder rolls — up to your ears, back, and down. Stimulates the lymph nodes in the neck and collarbone area."},
+  detail:"Gently roll your neck side to side. Then make big backward shoulder rolls — up to your ears, back, and down. A gentle warm-up for the neck and shoulders."},
  {icon:"pf-wash", move:"trunk-twist", name:"The Washing Machine", pos:"Standing",
   cue:"Twist gently, arms tap front and back",
-  detail:"Feet shoulder-width apart, knees soft. Twist your torso gently side to side, letting your arms swing and tap your front and back. Wakes up the core fluids."},
+  detail:"Feet shoulder-width apart, knees soft. Twist your torso gently side to side, letting your arms swing and tap your front and back. Wakes up the midsection."},
  {icon:"pf-calf", move:"calf-raise", name:"Calf Raises with Overhead Reach", pos:"Standing",
   cue:"Rise on toes, reach high",
-  detail:"Rise up onto your toes while reaching your arms overhead, then lower with control. Your calves act as a pump, pushing lower-body fluid back up toward the heart."},
+  detail:"Rise up onto your toes while reaching your arms overhead, then lower with control. Gets the calves working with an overhead reach."},
  {icon:"pf-hinge", move:"good-morning", name:"Good Mornings & Thoracic Rotation", pos:"Standing",
   cue:"Hinge, rise, twist",
   detail:"Hinge forward slightly at the hips with a flat back. Rise up and twist your upper spine gently to one side. Return to center, hinge again, and twist to the other side."},
  {icon:"pf-march", move:"knee-arm", name:"Knee Lifts with Opposite Arm Pull-Down", pos:"Standing",
   cue:"March tall, pull the arm down",
-  detail:"March in place, lifting one knee while gently pulling the same-side arm down from overhead. Alternate sides — targets the lymph nodes in the groin and hips."},
+  detail:"March in place, lifting one knee while gently pulling the same-side arm down from overhead. Alternate sides — a gentle march that loosens the hips."},
  {icon:"pf-bounce", move:"bounce", name:"Full-Body Bounce", pos:"Standing",
   cue:"Soft knees, bounce on your heels",
   detail:"Stand with soft knees and gently bounce on your heels, letting your whole body jiggle loosely. An easy, playful finish — end with a few deep breaths."}
@@ -330,6 +334,19 @@ function show(name){
 function announce(msg){ els.announcer.textContent = ""; setTimeout(function(){ els.announcer.textContent = msg; }, 60); }
 function fmt(s){ return Math.floor(s/60) + ":" + ("0"+(s%60)).slice(-2); }
 
+/* Video demonstrator: the mapped clip (looping, muted, playsinline) with the
+   lymphatic overlay; a still for prefers-reduced-motion or the few clips
+   still being generated. Character switches re-render the figure only. */
+function currentFigureMove(){
+  var e = EXERCISES[S.idx];
+  return S.phase === "work" ? e.move
+    : (EXERCISES[S.idx+1] ? EXERCISES[S.idx+1].move : e.move);
+}
+function renderDemo(move){
+  if (window.SCDemos) SCDemos.renderFigure($("p-move"), move);
+  else $("p-move").innerHTML = SCMoves.svg(move);
+}
+
 function progress(){
   if (S.solo) return Math.min(100, (WORK - S.remaining) / WORK * 100);
   var done = 0;
@@ -354,10 +371,7 @@ function render(){
   var key = (S.solo ? "solo:" : "") + S.phase + ":" + S.idx;
   if (key !== S.phaseKey) {
     S.phaseKey = key;
-    $("p-move").innerHTML = SCMoves.svg(isWork ? e.move : (EXERCISES[S.idx+1] ? EXERCISES[S.idx+1].move : e.move));
-    if (window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      var svg = $("p-move").querySelector("svg"); if (svg && svg.pauseAnimations) svg.pauseAnimations();
-    }
+    renderDemo(currentFigureMove());
     speak(phaseSpeech());
   }
   els.count.textContent = S.solo ? "Solo practice" : "Exercise " + (S.idx+1) + " of " + EXERCISES.length;
@@ -514,13 +528,39 @@ $("btn-back").addEventListener("click", function(){
   else startPhase(0, "work");
   S.timerId = setInterval(tick, 200);
 });
-document.addEventListener("visibilitychange", function(){
-  if (document.hidden) hush();
-  if (document.hidden && screens.player.classList.contains("active") && !S.paused) pauseResume();
+/* Wall-clock session: hiding the tab or sleeping the phone never pauses the
+   routine — every tick derives time-left from S.endAt. On hide we only hush
+   voice; on return we re-sync the display, restart the tick, resume audio,
+   re-acquire the wake lock, and nudge the demo clip to keep playing.
+   Consumes PR #36's SC.onReturn/SC.onHide when present, else a local
+   equivalent with the same semantics. */
+function handleHide(){ hush(); }
+function handleReturn(){
+  try { if (audioCtx && audioCtx.state === "suspended") audioCtx.resume(); } catch(e){}
+  if (!screens.player.classList.contains("active")) return;
+  lockScreen();
+  var v = $("p-move").querySelector("video");
+  if (v) { try { var pr = v.play(); if (pr && pr.catch) pr.catch(function(){}); } catch(e){} }
+  if (S.paused) return; /* manual pause stays paused */
+  clearInterval(S.timerId);
+  var left = Math.max(0, Math.ceil((S.endAt - Date.now()) / 1000));
+  if (left <= 0) { advance(); return; }
+  S.remaining = left;
+  render();
+  S.timerId = setInterval(tick, 200);
+}
+if (window.SCDemos) SCDemos.wireLifecycle(handleHide, handleReturn);
+else document.addEventListener("visibilitychange", function(){
+  if (document.hidden) handleHide(); else handleReturn();
 });
 document.addEventListener("keydown", function(e){
   if (!screens.player.classList.contains("active")) return;
   if (e.code === "Space") { e.preventDefault(); pauseResume(); }
+});
+/* Character selector on home + player; mid-routine switches re-render the
+   figure only — timers and the current step are untouched. */
+if (window.SCDemos) SCDemos.wireCharToggles(document, function(){
+  if (screens.player.classList.contains("active")) renderDemo(currentFigureMove());
 });
 refreshStats();
 })();
