@@ -79,7 +79,7 @@ textarea:focus{outline:none;border-color:var(--violet)}
     <a class="backlink" href="/selfcare/">← All routines</a>
     <p class="kicker">Mind · breath</p>
     <h1 id="home-title">Breath<em>work</em></h1>
-    <p class="lede">Follow a guided breathing pattern with the pacer, or sit self-paced with just a timer. Breathe through your nose, keep it easy — never strain.</p>
+    <p class="lede">Follow a guided breathing pattern with the pacer, or sit self-paced with just a timer. Sessions keep wall-clock time — locking your phone won't lose your place. Breathe through your nose, keep it easy — never strain.</p>
 
     <div class="card">
       <h2>Mode</h2>
@@ -103,6 +103,12 @@ textarea:focus{outline:none;border-color:var(--violet)}
     <div class="card">
       <h2>Duration</h2>
       <div class="opts" id="durs" role="group" aria-label="duration"></div>
+    </div>
+
+    <div class="card">
+      <h2>Background sound</h2>
+      <div class="opts" id="bgs" role="group" aria-label="background sound"></div>
+      <p class="patdesc">A soft synthesized tone under your session — something to rest your attention on. Stays on if your screen sleeps.</p>
     </div>
 
     <div class="center">
@@ -161,7 +167,14 @@ var PATTERNS = {
     phases:[["Inhale",4,"in"],["Hold",7,"hold"],["Exhale",8,"out"]]}
 };
 var DURS = [3,5,10,15];
-var mode = "guided", patKey = "box", durMin = 5;
+var BGS = {
+  d174:{name:"174 Hz", sub:"soft drone", kind:"pure", freq:174},
+  d136:{name:"136.1 Hz", sub:"deep drone", kind:"pure", freq:136.1},
+  b6:{name:"Binaural 6 Hz", sub:"carrier 200 Hz", kind:"binaural", carrier:200, beat:6},
+  off:{name:"Off", sub:"silence"}
+};
+var BG_ORDER = ["d174","d136","b6","off"];
+var mode = "guided", patKey = "box", durMin = 5, bgKey = "d174";
 
 function $(id){ return document.getElementById(id); }
 var screens = { home:$("screen-home"), player:$("screen-player"), done:$("screen-done") };
@@ -176,6 +189,15 @@ $("pats").innerHTML = Object.keys(PATTERNS).map(function(k){
 $("durs").innerHTML = DURS.map(function(d){
   return '<button class="opt'+(d===durMin?' on':'')+'" data-d="'+d+'">'+d+' min</button>';
 }).join("");
+$("bgs").innerHTML = BG_ORDER.map(function(k){
+  var b = BGS[k];
+  return '<button class="opt'+(k===bgKey?' on':'')+'" data-k="'+k+'">'+b.name+'<small>'+b.sub+'</small></button>';
+}).join("");
+$("bgs").addEventListener("click", function(e){
+  var b = e.target.closest("button"); if(!b) return;
+  bgKey = b.dataset.k;
+  Array.prototype.forEach.call($("bgs").children, function(x){ x.classList.toggle("on", x===b); });
+});
 function patDesc(){ $("patdesc").textContent = PATTERNS[patKey].desc; }
 patDesc();
 
@@ -205,15 +227,25 @@ var orb = $("orb");
 
 function fmt(s){ return SC.fmtClock(s); }
 
+function bgOpts(){
+  var b = BGS[bgKey];
+  if(b.kind==="pure") return {kind:"pure", freq:b.freq, volume:0.10, fadeIn:10};
+  return {kind:"binaural", carrier:b.carrier, beat:b.beat, volume:0.10, fadeIn:10};
+}
+function bgStart(){ if(bgKey!=="off"){ try{ SC.droneStart(bgOpts()); }catch(e){} } }
+function bgStop(fade){ try{ SC.droneStop(fade==null?4:fade); }catch(e){} }
+
 function start(){
   SC.lock();
   var total = durMin*60;
   T = { total:total, endAt:Date.now()+total*1000, paused:false, mode:mode,
-        startedAt:Date.now(), minuteChime:$("self-chime").checked, lastMinute:0 };
+        startedAt:Date.now(), minuteChime:$("self-chime").checked, lastMinute:0,
+        phaseToken:0, resumePhase:0 };
+  bgStart();
   show("player");
   if(mode==="guided"){
     $("p-sub").textContent = "Guided · " + PATTERNS[patKey].name + " breathing";
-    runPhase(0);
+    runPhase(0, 0);
   } else {
     $("p-sub").textContent = "Self-paced";
     $("phase").textContent = "Breathe easy";
@@ -232,30 +264,42 @@ function tickTotal(){
     if(m > T.lastMinute){ T.lastMinute = m; SC.tick(); }
   }
 }
-/* guided pacer */
-function runPhase(i){
+/* guided pacer — skip lets us re-enter a phase part-way after backgrounding */
+function runPhase(i, skip){
   if(!T || T.paused) return;
-  var ph = PATTERNS[patKey].phases[i % PATTERNS[patKey].phases.length];
+  var token = (T.phaseToken = (T.phaseToken||0)+1);
+  var phs = PATTERNS[patKey].phases;
+  i = ((i % phs.length) + phs.length) % phs.length;
+  T.resumePhase = i;
+  var ph = phs[i];
   var label = ph[0], secs = ph[1], act = ph[2];
+  skip = Math.min(Math.max(0, skip||0), Math.max(0, secs-0.05));
+  var remain = secs - skip;
   $("phase").textContent = label + "…";
-  orb.style.transition = "transform " + secs + "s ease-in-out";
+  /* jump the orb to the interpolated position, then animate the remainder */
+  orb.style.transition = "none";
+  var s0 = act==="in" ? 1+0.55*(skip/secs) : act==="out" ? 1.55-0.55*(skip/secs) : null;
+  if(s0) orb.style.transform = "scale("+s0.toFixed(3)+")";
+  void orb.offsetWidth;
+  orb.style.transition = "transform " + remain + "s ease-in-out";
   if(act==="in") orb.style.transform = "scale(1.55)";
   else if(act==="out") orb.style.transform = "scale(1)";
   /* hold: leave as-is */
-  var phaseEnd = Date.now() + secs*1000;
-  announce(label + ", " + secs + " seconds.");
+  var phaseEnd = Date.now() + remain*1000;
+  announce(label + ", " + Math.max(1, Math.round(remain)) + " seconds.");
   clearInterval(T.phaseTick);
   T.phaseTick = setInterval(function(){
-    if(T.paused) return;
+    if(T.paused || token!==T.phaseToken) return;
     var l = Math.max(0,(phaseEnd-Date.now())/1000);
     $("phasecount").textContent = l > 0.05 ? Math.ceil(l) : "";
   }, 200);
+  clearTimeout(T.phaseTimerId);
   T.phaseTimerId = setTimeout(function(){
     clearInterval(T.phaseTick);
-    if(!T || T.paused) return;
+    if(!T || T.paused || token!==T.phaseToken) return;
     SC.tick();
-    runPhase(i+1);
-  }, secs*1000);
+    runPhase(i+1, 0);
+  }, remain*1000);
 }
 function pause(){
   if(!T) return;
@@ -263,6 +307,8 @@ function pause(){
     T.paused = true;
     T.leftMs = T.endAt - Date.now();
     clearTimeout(T.phaseTimerId); clearInterval(T.phaseTick);
+    T.phaseToken = (T.phaseToken||0)+1;
+    bgStop(1.5);
     $("btn-pause").textContent = "Resume";
     var cs = window.getComputedStyle(orb).transform;
     orb.style.transition = "none"; orb.style.transform = cs;
@@ -270,17 +316,35 @@ function pause(){
   } else {
     T.paused = false;
     T.endAt = Date.now() + T.leftMs;
+    bgStart();
     $("btn-pause").textContent = "Pause";
-    if(T.mode==="guided") runPhase(T.resumePhase != null ? T.resumePhase : 0);
+    if(T.mode==="guided") runPhase(T.resumePhase||0, 0);
     announce("Resumed.");
   }
 }
-/* track phase index for resume */
-var _runPhase = runPhase;
-runPhase = function(i){ T.resumePhase = i; _runPhase(i); };
+/* wall-clock re-sync after the tab was hidden / phone slept */
+function syncSession(){
+  if(!T || T.paused) return;
+  if(!screens.player.classList.contains("active")) return;
+  var leftMs = T.endAt - Date.now();
+  if(leftMs <= 0){ finish(); return; }
+  $("total").textContent = fmt(leftMs/1000) + " remaining";
+  if(T.mode==="guided"){
+    var active = (T.total*1000 - leftMs)/1000; /* elapsed, pauses excluded via endAt */
+    var phs = PATTERNS[patKey].phases;
+    var cycle = 0, k;
+    for(k=0;k<phs.length;k++) cycle += phs[k][1];
+    var pos = active % cycle, acc = 0, idx = 0;
+    while(idx < phs.length && pos >= acc + phs[idx][1]){ acc += phs[idx][1]; idx++; }
+    if(idx >= phs.length){ idx = 0; acc = 0; }
+    clearTimeout(T.phaseTimerId); clearInterval(T.phaseTick);
+    runPhase(idx, pos - acc);
+  }
+}
 
 function cleanup(){
   clearInterval(T.tickId); clearTimeout(T.phaseTimerId); clearInterval(T.phaseTick);
+  bgStop(4);
   SC.unlock();
 }
 function finish(){
@@ -312,9 +376,10 @@ $("btn-save").addEventListener("click", function(){
   $("btn-save").textContent = "Saved ✓";
   SC.chime();
 });
-document.addEventListener("visibilitychange", function(){
-  if(document.hidden && T && !T.paused && screens.player.classList.contains("active")) pause();
-});
+/* Sessions run on wall-clock time — backgrounding/sleep never loses time.
+   Core resumes audio + wake lock; we just re-sync the display and pacer. */
+SC.onReturn(syncSession);
+window.addEventListener("pagehide", function(){ bgStop(0); });
 })();
 </script>
 </body>
