@@ -46,9 +46,10 @@ h1 em{font-style:italic;color:var(--violet)}
 .center{text-align:center}
 /* player */
 .stage{display:flex;flex-direction:column;align-items:center;padding:1rem 0 0.5rem}
-#orb{width:170px;height:170px;border-radius:50%;margin:1.2rem 0;
+.orb-wrap{width:290px;height:290px;max-width:78vw;max-height:78vw;display:flex;align-items:center;justify-content:center;margin:1rem 0 .4rem;flex:none}
+#orb{width:170px;height:170px;max-width:58%;max-height:58%;border-radius:50%;
   background:radial-gradient(circle at 35% 35%, #d9c8ff, var(--violet) 55%, #5b4b9e 100%);
-  box-shadow:0 0 60px rgba(179,157,255,.35);transform:scale(1)}
+  box-shadow:0 0 60px rgba(179,157,255,.35);transform:scale(1);flex:none}
 #phase{font-family:var(--serif);font-size:1.7rem;margin-bottom:.2rem;min-height:2.2rem}
 #phasecount{font-size:2.6rem;font-weight:300;color:var(--violet);font-variant-numeric:tabular-nums}
 #total{color:var(--faint);font-size:.9rem;margin-top:.6rem;font-variant-numeric:tabular-nums}
@@ -69,7 +70,7 @@ textarea:focus{outline:none;border-color:var(--violet)}
 .backlink:hover{color:var(--violet)}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (prefers-reduced-motion:reduce){.screen.active{animation:none}#orb{transition:none!important}}
-@media (max-width:480px){h1{font-size:1.6rem}#orb{width:140px;height:140px}}
+@media (max-width:480px){h1{font-size:1.6rem}.orb-wrap{width:250px;height:250px}#orb{width:140px;height:140px}}
 </style>
 </head>
 <body>
@@ -122,7 +123,7 @@ textarea:focus{outline:none;border-color:var(--violet)}
     <div class="center">
       <p class="kicker" id="p-sub">Guided · Box breathing</p>
       <div class="stage">
-        <div id="orb" aria-hidden="true"></div>
+        <div class="orb-wrap"><div id="orb" aria-hidden="true"></div></div>
         <p id="phase">Get ready…</p>
         <p id="phasecount" aria-hidden="true"></p>
         <p id="total"></p>
