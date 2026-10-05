@@ -1,0 +1,52 @@
+name: Deploy to Cloudflare Workers
+
+# Fix-for-good: every push to main auto-deploys nrupalakolkar-site to production.
+# (The repo never had Git-integration auto-deploy wired up — pushes to main did
+# nothing until this workflow existed.)
+#
+# Requires the CLOUDFLARE_API_TOKEN repo secret (Settings -> Secrets and
+# variables -> Actions). The workflow fails loudly with instructions if it is
+# missing, instead of silently skipping the deploy.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # one-click deploy / re-deploy from the Actions tab
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nrupalakolkar-site-production
+  cancel-in-progress: false # queue deploys, never cancel one mid-flight
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install # no lockfile in repo; npm ci would fail
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Check Cloudflare credentials
+        run: |
+          if [ -z "${{ secrets.CLOUDFLARE_API_TOKEN }}" ]; then
+            echo "::error::CLOUDFLARE_API_TOKEN repo secret is not set. Add it under Settings -> Secrets and variables -> Actions (token permissions are in the PR description)."
+            exit 1
+          fi
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          # Cloudflare account ID (not a secret; shown in every dashboard URL).
+          accountId: 2edd59d09fd816187b47afbb9ea43af1
+          command: deploy
