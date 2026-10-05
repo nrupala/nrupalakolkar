@@ -31,7 +31,7 @@ jobs:
           node-version: "20"
 
       - name: Install dependencies
-        run: npm install # no lockfile in repo; npm ci would fail
+        run: npm ci
 
       - name: Typecheck
         run: npm run typecheck
