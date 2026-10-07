@@ -1,6 +1,6 @@
 # nrupalakolkar.com
 
-Personal site for Nrupal Akolkar, P.Eng. Deployed as a **Cloudflare Worker + Static Assets** — git is the source of truth, and **Cloudflare Workers Builds** runs `wrangler deploy` on every push to `main`.
+Personal site for Nrupal Akolkar, P.Eng. Deployed as a **Cloudflare Worker + Static Assets** — git is the source of truth, and a GitHub Actions workflow (`.github/workflows/deploy.yml`) runs `wrangler deploy` via cloudflare/wrangler-action@v3 on every push to `main`.
 
 Replaces the previous directly-deployed `nrupalakolkar-site` Worker (which embedded the pages as a hex-gzip blob with no repo). Same Worker name, so the git-driven deploy is a clean cutover.
 
@@ -49,9 +49,9 @@ wrangler kv key get  --binding SUBMISSIONS "order:<ref>"
 
 > `nrupalakolkar.com/books` is native to this Worker. The `devinfo.dev/books` and `aimlds.org/books` pages are served by a **separate `ocs-books-preview` Worker** with its own KV-first capture (its `OCS_BOOKS` namespace), not by this repo.
 
-## Deploy — Cloudflare Workers Builds
+## Deploy — GitHub Actions
 
-Deploys are git-driven: **Cloudflare Workers Builds** is connected to this repo and runs `wrangler deploy` on every push to `main`. There is **no** GitHub Actions workflow (`.github/workflows/deploy.yml` does not exist); the Cloudflare API token used for the build is held in the Workers Builds project settings, not in GitHub repo secrets.
+Deploys are git-driven: `.github/workflows/deploy.yml` runs `wrangler deploy` via cloudflare/wrangler-action@v3 on every push to `main` (serialized through a concurrency group; `workflow_dispatch` is available for manual re-deploys). It requires the `CLOUDFLARE_API_TOKEN` repo secret (Settings → Secrets and variables → Actions); the workflow fails loudly with setup instructions if the secret is missing.
 
 One-time setup:
 
