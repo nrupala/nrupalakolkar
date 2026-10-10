@@ -50,3 +50,15 @@ jobs:
           # Cloudflare account ID (not a secret; shown in every dashboard URL).
           accountId: 2edd59d09fd816187b47afbb9ea43af1
           command: deploy
+
+      - name: certify — signed deploy certificate
+        env:
+          DEPLOY_SIGN_TOKEN: ${{ secrets.DEPLOY_SIGN_TOKEN }}
+        run: |
+          if [ -z "${DEPLOY_SIGN_TOKEN:-}" ]; then
+            echo "::error::missing DEPLOY_SIGN_TOKEN — deploys must be signed (see scripts/deploy_signed_client.py)"
+            exit 1
+          fi
+          python3 scripts/deploy_signed_client.py nrupalakolkar-site \
+            --repo "${{ github.repository }}" --commit "${{ github.sha }}" \
+            --surface ci --timeout 420
