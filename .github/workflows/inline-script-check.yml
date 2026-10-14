@@ -1,0 +1,29 @@
+name: Inline script check
+
+# Gate for the 2026-09-26 swallow incident: an escaped <\/script> inside a
+# JS string/template literal is emitted literally, is NOT a script end tag
+# to a browser, and lets the first inline script swallow the rest of the
+# page. Also syntax-checks inline <script> blocks in HTML with node.
+# See scripts/inline_script_check.py.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  inline-script-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Self-test the checker (bad sample must fail, good must pass)
+        run: python3 scripts/inline_script_check.py --self-test
+      - name: Scan repository
+        run: python3 scripts/inline_script_check.py .
