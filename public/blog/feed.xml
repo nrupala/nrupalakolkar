@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-09-28</updated>
+  <updated>2026-10-17</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>The line filter that unstyled my whole site</title>
+    <link href="https://nrupalakolkar.com/blog/line-filter-unstyled-site"/>
+    <id>https://nrupalakolkar.com/blog/line-filter-unstyled-site</id>
+    <updated>2026-10-17</updated>
+    <summary>A fonts removal executed as a line filter deleted every line that mentioned the fonts domains &#8212; and, on compact pages, the inline style blocks that shared those lines. The site served HTTP 200, unstyled, for two days while every check passed. The byte-level diagnosis, the restore-to-proven repair, and the daily probe that now guards the invariant.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>Don&apos;t escape &lt;/script&gt; in a Cloudflare Worker</title>
     <link href="https://nrupalakolkar.com/blog/dont-escape-script-in-workers"/>
