@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-17</updated>
+  <updated>2026-10-18</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>Testing the judge: what my own hands found in Verdict</title>
+    <link href="https://nrupalakolkar.com/blog/testing-the-judge-verdict"/>
+    <id>https://nrupalakolkar.com/blog/testing-the-judge-verdict</id>
+    <updated>2026-10-18</updated>
+    <summary>I tested my own trust product, Verdict, the day it launched — the way a user would, not through a report. It failed three times: a gift-card direction reversed, a reputable parent vouching for an imitator, and surfaces that disagreed. The same-day fix, and the permanent Judgment Differential test family those failures created.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The line filter that unstyled my whole site</title>
     <link href="https://nrupalakolkar.com/blog/line-filter-unstyled-site"/>
