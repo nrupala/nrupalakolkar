@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-18</updated>
+  <updated>2026-10-19</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>Available is not licensed: the second reader that froze part of my training corpus</title>
+    <link href="https://nrupalakolkar.com/blog/available-is-not-licensed"/>
+    <id>https://nrupalakolkar.com/blog/available-is-not-licensed</id>
+    <updated>2026-10-19</updated>
+    <summary>A second, independent licence review of my electrical-engineering training corpus disagreed with my own reading: a Sandia “unlimited release” stamp is not a licence, an open posting is not a grant, and twenty-two SKM guides carry only a bare reproduction notice. All three froze the same day; the rebuild was removal-only, 615 rows to 577 — and the gate that now enforces it ships with this post.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>Testing the judge: what my own hands found in Verdict</title>
     <link href="https://nrupalakolkar.com/blog/testing-the-judge-verdict"/>
