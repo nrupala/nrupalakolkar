@@ -1,0 +1,156 @@
+<!DOCTYPE html><html lang="en" data-theme="dark"><head>
+<script>(function(){try{var t=localStorage.getItem('nrupalakolkar-theme');if(!t&&window.matchMedia&&window.matchMedia('(prefers-color-scheme: light)').matches){t='bright';}document.documentElement.setAttribute('data-theme',t||'dark');}catch(e){document.documentElement.setAttribute('data-theme','dark');}})();</script>
+<link rel="stylesheet" href="/assets/chakra-theme.css">
+<script defer src="/assets/chakra-theme.js"></script><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Nrupal Akolkar — No verification, no accountability: writing down the regime I actually run</title><meta name="description" content="Accountable can only be when it is verifiable. The regime I run on the software my agents build — behaviour observed, proof kept economical, an independent gate holding release authority — the three failure classes it was bought with, its limits stated plainly, and the checklist that ships with this post."><link rel="canonical" href="https://nrupalakolkar.com/blog/no-verification-no-accountability">
+<meta property="og:title" content="No verification, no accountability: writing down the regime I actually run">
+<meta property="og:description" content="Accountable can only be when it is verifiable. The regime I run on the software my agents build — behaviour observed, proof kept economical, an independent gate holding release authority — the three failure classes it was bought with, its limits stated plainly, and the checklist that ships with this post.">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://nrupalakolkar.com/blog/no-verification-no-accountability">
+<meta property="og:site_name" content="Nrupal Akolkar">
+<meta property="og:image" content="https://nrupalakolkar.com/assets/hero-og.png">
+<meta property="article:published_time" content="2026-10-20">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="No verification, no accountability: writing down the regime I actually run">
+<meta name="twitter:description" content="Accountable can only be when it is verifiable. The regime I run on the software my agents build — behaviour observed, proof kept economical, an independent gate holding release authority — the three failure classes it was bought with, its limits stated plainly, and the checklist that ships with this post.">
+<meta name="theme-color" content="#140b28">
+<link rel="icon" type="image/png" sizes="512x512" href="/assets/icon-512.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<body><a href="#main" class="skip-link">Skip to content</a><main class="terminal" id="main"><div class="top-bar" aria-hidden="true"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div><span class="top-bar-title">nrupalakolkar.com — blog</span><div class="chakra-theme-toggle" role="group" aria-label="Site theme"><button type="button" data-set-theme="dark" aria-pressed="true" title="Dark — summit at night" aria-label="Dark theme">☾</button><button type="button" data-set-theme="bright" aria-pressed="false" title="Bright — first light" aria-label="Bright theme">☀</button><button type="button" data-set-theme="night" aria-pressed="false" title="Night — lamplight" aria-label="Night light theme">◐</button></div></div><div class="content"><div class="header"><div class="name"><a href="/">Nrupal Akolkar</a></div><h1 class="book-title">No verification, no accountability: writing down the regime I actually run</h1><div class="byline"><span class="hl">P.Eng.</span> — 24+ years, safety-critical energy systems</div><div class="post-date">2026-10-20 · Knowledge &amp; Advisory</div><div class="tagline">Accountable can only be when it is verifiable. Here is the regime underneath that sentence — three rules, three failure classes, and a checklist that fails any claim resting on a narrative.<span class="cursor"></span></div><div data-dogear data-dogear-scope=".content" data-dogear-select="h1.book-title,h2.section-title,.tagline,.prose" data-dogear-exclude=".dg,.listen-row,.support-block,.more-block,.panels,.refs"></div><script src="/assets/dogear.js"></script></div>
+
+<div class="panels"><aside class="side-panel" aria-label="More from the blog"><div class="panel-title">More from the blog</div><nav class="side-nav" aria-label="Recent posts"><a href="/blog/no-verification-no-accountability" aria-current="page">No verification, no accountability: writing down the regime I actually run <span class="sdesc">-- you are here</span></a><a href="/blog/available-is-not-licensed">Available is not licensed: the second reader that froze part of my training corpus <span class="sdesc">-- 2026-10-19</span></a><a href="/blog/testing-the-judge-verdict">Testing the judge: what my own hands found in Verdict <span class="sdesc">-- 2026-10-18</span></a><a href="/blog/line-filter-unstyled-site">The line filter that unstyled my whole site <span class="sdesc">-- 2026-10-17</span></a><a href="/blog/dont-escape-script-in-workers">Don&rsquo;t escape &lt;/script&gt; in a Cloudflare Worker <span class="sdesc">-- 2026-09-28</span></a><a href="/blog/fixed-axis-timeline">The smoothest scroll animation is the one you delete <span class="sdesc">-- 2026-09-27</span></a><a href="/blog">All posts <span class="sdesc">-- archive</span></a></nav></aside><div class="center-panel"> <h2 class="section-title">The sentence I started from</h2>
+
+<div class="prose">Accountable can only be when it is verifiable.</div>
+
+<div class="prose">That is my sentence. What follows is the regime underneath it — the thinking other builders can use now.</div>
+
+<h2 class="section-title">What accountability is not</h2>
+
+<div class="prose">Accountability is spoken of as a property an AI system has. In my operating experience it is not a property. It is an outcome, and it exists only where a claim about a system can be verified — independently, against the live system, at the level of behaviour and configuration.</div>
+
+<div class="prose">A claim that cannot be verified cannot make anyone accountable. It can only make them confident. I have watched that distinction cost real work, in my own portfolio, more than once.</div>
+
+<div class="prose">The chain runs one way: you cannot prove what you cannot verify; you cannot guarantee what you cannot certify; you cannot certify what is not safe end to end. Break the first link and the rest is language.</div>
+
+<h2 class="section-title">The regime, in three rules</h2>
+
+<div class="prose">I direct a fleet of AI agents that design, build, and operate live software — payment systems, security tooling, subscription services, agent connectors — sold through one company. We built the accountability machinery before the first external sale, deliberately: I wanted it running before revenue gave us reasons to skip it. Three rules carry most of the weight, and each one was bought with a failure.</div>
+
+<div class="prose"><strong>First, “verified” means behaviour observed.</strong> A product is not done because its builder reports it done, its tests pass, or its endpoints return success codes. It is done when the claimed behaviour is exercised end to end: a real purchase completes, the purchased credential performs real work, cancellation kills the credential, and the refund lands. That full cycle ran once, for real money, on one product — and it is the standard the rest are measured against.</div>
+
+<div class="prose"><strong>Second, proof is economical by design.</strong> One full real-money cycle proved the shared payment pattern. Every product since repeats the pattern — live objects read back, configuration read back, entitlement and revocation behaviour-proven — rather than repeating the purchase. Verification that is too expensive does not happen, and verification that does not happen is not accountability.</div>
+
+<div class="prose"><strong>Third, an independent gate holds release authority.</strong> The gate is separate from the builders. It accepts no builder's report as evidence, reads production configuration directly, grades its findings, and requires a one-week release-candidate soak before any batch may be called a release. A verdict I issue myself, on work I also built, would not be a gate. It would be a signature.</div>
+
+<h2 class="section-title">Three failure classes, named</h2>
+
+<div class="prose">The regime described here names three failure classes from my own record, because a regime described only by its successes teaches nothing.</div>
+
+<div class="prose"><strong>Armed but unprovisioned.</strong> In one sweep, three of five billing releases were complete in code, recorded as “landed” — and absent in production configuration. The state was invisible to outside probing and to the builders' own reports. Only the gate, reading production configuration for itself, found it.</div>
+
+<div class="prose"><strong>Proof through the hole.</strong> In the most serious case, a production service trusted a test credential as a fallback. Entitlement events signed with that test credential would have been honoured — and the proof we had already gathered had travelled through that hole. It had to be voided and re-run, thirteen legs, after the cure. The error that placed the credential there was the directing intelligence's own, and it is in the permanent record. A regime that exempts the overseer is theatre.</div>
+
+<div class="prose"><strong>Narrative as evidence.</strong> A bulk operation once reported thousands of items processed while every underlying call was failing. The verified effect was zero. The rule since is short: a report is a claim, and every claim is settled by re-querying the end state.</div>
+
+<h2 class="section-title">What does work</h2>
+
+<div class="prose">Two habits earn their keep. Genuine-permission probes — tests designed to be unreachable unless the real permission exists — separate “wired” from “working” in a way no status page can. And refusals are treated as integrity events: when a team declined to substitute a self-signed test cycle for the payment provider's own, the refusal was recorded as correct. Even a bounced proof email was graded precisely — pipeline proven, delivery not proven — and re-run to a real mailbox rather than rounded up to a pass.</div>
+
+<h2 class="section-title">The limits, stated plainly</h2>
+
+<div class="prose">This is one operator and one portfolio, over months, not an industry sample. Two planned adversarial test benches are specified but not yet built; on October 20 I also filed the incident-response runbook as a draft — explicitly not walked, its tabletop walk set for November 6 — and a first coverage map that counts its own gaps plainly: of 52 mapped rows, 30 proven, 13 specified but not run, and 9 with no coverage. I do not claim the unbuilt parts. A paper about verification that overstated its own evidence would refute itself on its first page.</div>
+
+<div class="prose">That is also why writing it mattered. Knowledge you only hold privately can drift without anyone noticing, including you. Writing it for other practitioners — documenting what an organisation actually does rather than what it declares — forces every claim in it through the same test as a release: can this be verified, and by whom?</div>
+
+<h2 class="section-title">The artifact</h2>
+
+<div class="prose">The script below is that test in small form. Feed it a list of claims about a system — what the evidence is, whether anyone independent of the builder verified it, and whether it was checked against the live system — and it fails every claim that rests on a narrative, on wiring instead of behaviour, or on the builder's own word. Run it before your next release meeting and see which of your “done” items survive it.</div>
+
+<div class="prose"><a href="/blog/no-verification-no-accountability/verifiability_checklist.py" download>Download verifiability_checklist.py</a> &mdash; the test itself:</div> <span class="codeblock">#!/usr/bin/env python3
+&quot;&quot;&quot;Verifiability checklist — is a claim about a system actually accountable?
+
+Usage:
+    python3 verifiability_checklist.py claims.csv
+
+claims.csv — one claim per row, header required:
+    claim,evidence,verified_independently,live_system
+      evidence: one of  behaviour | config-read | narrative | none
+      verified_independently: yes | no   (someone other than the builder)
+      live_system: yes | no              (checked against the live system,
+                                          not a staging copy or a report)
+
+A claim FAILS if any of these hold:
+  - evidence is narrative or none (a report is a claim, not evidence)
+  - evidence is not behaviour (config-read alone proves wiring, not working)
+  - it was not verified independently of whoever built it
+  - it was not checked against the live system
+
+Exit code 0 = every claim is verifiable. 1 = at least one claim is not.
+This is the gate form of one rule: if a claim cannot be verified,
+it is not accountability. It is marketing.
+&quot;&quot;&quot;
+import csv
+import sys
+
+OK_EVIDENCE = {&quot;behaviour&quot;}
+
+
+def main(argv):
+    if len(argv) != 2:
+        print(__doc__)
+        return 2
+    failures = []
+    rows = 0
+    with open(argv[1], newline=&quot;&quot;, encoding=&quot;utf-8&quot;) as fh:
+        for row in csv.DictReader(fh):
+            rows += 1
+            claim = (row.get(&quot;claim&quot;) or &quot;&quot;).strip() or f&quot;row {rows}&quot;
+            evidence = (row.get(&quot;evidence&quot;) or &quot;&quot;).strip().lower()
+            indep = (row.get(&quot;verified_independently&quot;) or &quot;&quot;).strip().lower()
+            live = (row.get(&quot;live_system&quot;) or &quot;&quot;).strip().lower()
+            problems = []
+            if evidence in (&quot;narrative&quot;, &quot;none&quot;, &quot;&quot;):
+                problems.append(f&quot;evidence is &#x27;{evidence or &#x27;missing&#x27;}&#x27;, not behaviour observed&quot;)
+            elif evidence not in OK_EVIDENCE:
+                problems.append(f&quot;evidence &#x27;{evidence}&#x27; proves wiring, not working behaviour&quot;)
+            if indep != &quot;yes&quot;:
+                problems.append(&quot;not verified independently of the builder&quot;)
+            if live != &quot;yes&quot;:
+                problems.append(&quot;not checked against the live system&quot;)
+            if problems:
+                failures.append((claim, problems))
+    for claim, problems in failures:
+        print(f&quot;FAIL  {claim}&quot;)
+        for p in problems:
+            print(f&quot;      - {p}&quot;)
+    print(f&quot;\n{rows} claim(s), {len(failures)} not verifiable.&quot;)
+    return 1 if failures else 0
+
+
+if __name__ == &quot;__main__&quot;:
+    raise SystemExit(main(sys.argv))</span> <div class="prose">And a worked example — a claims file, and the two claims it fails:</div> <span class="codeblock"># claims.csv — one claim per row
+# claim,evidence,verified_independently,live_system
+&quot;Checkout completes and the key works&quot;,behaviour,yes,yes
+&quot;Billing landed&quot;,narrative,no,no
+&quot;Secrets are set&quot;,config-read,yes,yes
+
+python3 verifiability_checklist.py claims.csv
+# FAIL  Billing landed — a narrative is not behaviour observed
+# FAIL  Secrets are set — config-read proves wiring, not working</span>
+
+<div class="prose">If a claim about your system cannot be verified, it is not accountability. It is marketing. I would rather publish the slower sentence — here is what we verified, here is what we did not — and have it still be true in a year.</div> </div><aside class="side-panel" aria-label="Actions"><div class="panel-title">Actions</div><div class="action-stack"><a class="action-btn" href="/?topic=Other#lets-talk">Contact about this article</a><button class="action-btn" type="button" onclick="bookmarkPage()">Bookmark this article</button><button class="action-btn" type="button" onclick="sharePage()">Share</button></div><div class="tfa-note">Bookmark copies the link — then press Ctrl+D (⌘D on Mac).</div></aside></div><div class="support-block"><div class="support-title">Support this work</div><div class="support-cards"><a href="https://paypal.me/nrupalakolkar">Tip via PayPal</a><a href="https://buymeacoffee.com/nrupalakolt">Buy Me a Coffee</a></div></div>
+
+<div class="links-row"><a href="/blog">All posts</a><a href="/">Home</a><a href="/links">All links</a><a href="/consulting">Consulting</a></div>
+
+<div class="more-block"><nav aria-label="More from Nrupal"><div class="more-title">More from Nrupal</div><div class="more-links"><a href="https://aimlds.org">AIMLDS</a><a href="https://onsmartgrid.com">OnSmartGrid</a><a href="https://thinkwithfinance.com">Think with Finance</a><a href="https://nrupalakolkar.com">nrupalakolkar.com</a><a href="https://pipavia.com">Pipavia</a><a href="https://linktary.com">Linktary</a></div><div class="more-follow">Follow: <a href="https://x.com/nrupal_akolkar">X</a> &middot; <a href="https://linkedin.com/in/nrupalakolkar">LinkedIn</a></div><div class="more-site">Site: <a href="/blog/">Blog</a> &middot; <a href="/selected-works">Selected Works</a> &middot; <a href="/credentials">Credentials</a> &middot; <a href="/consulting">Consulting</a> &middot; <a href="/changelog.html">Changelog</a> &middot; <a href="/blog/registry.html">Registry</a> &middot; <a href="/blog/feed.xml"><style>:root{--bg:#0c0c0c;--surface:#141414;--border:#1e1e1e;--green:#00ff88;--green-dim:#00cc6a;--green-bg:rgba(0,255,136,0.06);--cyan:#00d4ff;--amber:#ffb800;--text:#c8c8c8;--text-dim:#8a8a8a;--text-bright:#e8e8e8;--mono:'JetBrains Mono','Cascadia Code','Fira Code',monospace}*{margin:0;padding:0;box-sizing:border-box}body{font-family:var(--mono);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-size:14px;line-height:1.7}.terminal{width:100%;max-width:1760px;margin:0 auto;padding:2rem clamp(1rem,3vw,3rem)}.top-bar{display:flex;align-items:center;gap:.5rem;padding:.75rem 1rem;background:var(--surface);border:1px solid var(--border);border-radius:8px 8px 0 0}.dot{width:12px;height:12px;border-radius:50%}.dot-red{background:#ff5f57}.dot-yellow{background:#febc2e}.dot-green{background:#28c840}.top-bar-title{margin-left:.75rem;color:var(--text-dim);font-size:.75rem}.content{background:var(--surface);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;padding:2rem 1.5rem}.header{margin-bottom:1.5rem}.name{font-size:1.1rem;font-weight:500;color:var(--text-dim);letter-spacing:-.01em}.name a{color:var(--text-dim);text-decoration:none}.name a:hover{color:var(--green)}.book-title{font-size:1.5rem;font-weight:700;color:var(--green);letter-spacing:-.02em;margin-top:.75rem;line-height:1.3}.byline{color:var(--text-dim);font-size:.85rem;margin-top:.4rem}.byline .hl{color:var(--cyan)}.post-date{color:var(--text-dim);font-size:.75rem;margin-top:.5rem}.tagline{color:var(--text);font-size:.85rem;margin-top:1rem;line-height:1.6}.section-title{color:var(--amber);font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin:1.75rem 0 .75rem}.prose{color:var(--text);font-size:.82rem;line-height:1.75;margin-bottom:.9rem;max-width:68ch}.prose a{color:var(--green);text-decoration:none}.prose a:hover{text-decoration:underline}.prose code,.codeblock{font-family:var(--mono)}.prose code{background:#0c0c0c;border:1px solid var(--border);border-radius:3px;padding:.1rem .35rem;font-size:.75rem;color:var(--text-bright)}.codeblock{display:block;background:#0c0c0c;border:1px solid var(--border);border-radius:6px;padding:.9rem 1rem;font-size:.75rem;line-height:1.7;color:var(--text-bright);overflow-x:auto;margin:.5rem 0 1rem;white-space:pre}.codeblock .c{color:var(--text-dim)}.prose ul{margin:.4rem 0 .9rem 1.1rem;font-size:.82rem}.prose li{margin-bottom:.35rem}.support-block{margin-top:2rem;padding:1.1rem 1.2rem;border:1px solid var(--border);border-radius:6px;background:var(--green-bg)}.support-title{color:var(--amber);font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.7rem}.support-cards{display:flex;gap:.6rem;flex-wrap:wrap}.support-cards a{color:var(--text);text-decoration:none;padding:.5rem 1rem;border:1px solid var(--green-dim);border-radius:4px;font-size:.75rem}.support-cards a:hover{background:rgba(0,255,136,.12);color:var(--green)}.links-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1.75rem}.links-row a{color:var(--text);text-decoration:none;padding:.45rem .9rem;border:1px solid var(--border);border-radius:4px;font-size:.75rem;transition:all .2s}.links-row a:hover{border-color:var(--green);color:var(--green)}.footer{margin-top:2rem;padding-top:.75rem;border-top:1px solid var(--border);color:var(--text-dim);font-size:.65rem;display:flex;justify-content:space-between;flex-wrap:wrap;gap:.25rem}.cursor{display:inline-block;width:8px;height:1em;background:var(--green);vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}@keyframes blink{50%{opacity:0}}.more-block{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border)}.more-title{color:var(--amber);font-size:.65rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.6rem}.more-links{display:flex;flex-wrap:wrap;gap:.4rem}.more-links a{color:var(--text);text-decoration:none;padding:.35rem .7rem;border:1px solid var(--border);border-radius:4px;font-size:.7rem}.more-links a:hover{border-color:var(--green);color:var(--green)}.more-follow{margin-top:.6rem;font-size:.7rem;color:var(--text-dim)}.more-site,.more-support{margin-top:.6rem;font-size:.7rem;color:var(--text-dim)}.more-site a,.more-support a{color:var(--cyan);text-decoration:none}.more-follow a{color:var(--cyan);text-decoration:none}@media(max-width:600px){.terminal{padding:1rem .75rem}.content{padding:1.5rem 1rem}.book-title{font-size:1.2rem}}.panels{display:grid;grid-template-columns:260px minmax(0,1fr) 260px;gap:1.5rem;align-items:start;margin:1.25rem 0}.side-panel{border:1px solid var(--border);border-radius:6px;padding:.9rem;background:#101010;position:sticky;top:1rem}.panel-title{color:var(--amber);font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.55rem}.side-nav a{display:block;color:var(--text);text-decoration:none;font-size:.72rem;padding:.4rem 0;border-bottom:1px dashed #222}.side-nav a:last-child{border-bottom:0}.side-nav a:hover{color:var(--green)}.side-nav .sdesc{color:var(--text-dim);font-size:.62rem}.side-nav a[aria-current=page]{color:var(--green)}.tfa-note{margin-top:.7rem;font-size:.6rem;color:var(--text-dim);font-style:italic;line-height:1.55}.refs{margin:.4rem 0 0;padding-left:1.2rem;color:var(--text-dim);font-size:.75rem;line-height:1.7}.refs a{color:var(--green);text-decoration:none}.refs a:hover{text-decoration:underline}.action-stack{margin-bottom:.2rem}.action-btn{display:block;width:100%;box-sizing:border-box;text-align:left;background:transparent;border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:.72rem;padding:.5rem .7rem;border-radius:4px;margin-bottom:.4rem;cursor:pointer;text-decoration:none}.action-btn:hover{border-color:var(--green);color:var(--green)}.toast{position:fixed;left:50%;bottom:1.5rem;transform:translateX(-50%) translateY(1rem);background:#101010;border:1px solid var(--green);color:var(--text);font-family:var(--mono);font-size:.72rem;padding:.6rem 1rem;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s;z-index:50;max-width:90vw;text-align:center}.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}@media(max-width:900px){.panels{grid-template-columns:1fr}.side-panel{position:static}.center-panel{order:-1}}.skip-link{position:absolute;left:-9999px;top:0;background:var(--green);color:#0c0c0c;padding:.6rem 1rem;font-weight:700;z-index:100;border-radius:0 0 4px 0;text-decoration:none}.skip-link:focus-visible{left:0}:focus-visible{outline:2px solid var(--green);outline-offset:2px}@media (prefers-reduced-motion:reduce){.cursor{animation:none!important}.links-row a,.toast{transition:none!important}}</style>RSS</a> &middot; <a href="/partner.html">Partner</a></div><div class="more-support">Support: <a href="https://buymeacoffee.com/nrupalakolt">Buy Me a Coffee</a> &middot; <a href="https://paypal.me/nrupalakolkar">PayPal</a></div></nav></div>
+
+<footer class="footer"><span>© 2026 Nrupal Akolkar</span><span>Owned by Nrupal Akolkar · Built with Muse</span></footer>
+</div></main><div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+function toast(msg){var el=document.getElementById('toast');if(!el)return;el.textContent=msg;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(function(){el.classList.remove('show');},3500);}
+function copyCurrentUrl(done){var ok=function(){if(done)done();};if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(location.href).then(ok,function(){fallbackCopy(ok);});}else{fallbackCopy(ok);}}
+function fallbackCopy(done){var t=document.createElement('textarea');t.value=location.href;t.style.position='fixed';t.style.opacity='0';document.body.appendChild(t);t.select();try{document.execCommand('copy');done();}catch(e){}document.body.removeChild(t);}
+function bookmarkPage(){copyCurrentUrl(function(){var mac=navigator.platform&&navigator.platform.indexOf('Mac')>-1;toast('Link copied \u2014 press '+(mac?'\u2318D':'Ctrl+D')+' to bookmark this article');});}
+function sharePage(){if(navigator.share){navigator.share({title:document.title,url:location.href}).catch(function(){});}else{copyCurrentUrl(function(){toast('Link copied \u2014 paste it anywhere to share');});}}
+</script>
+</body></html>

@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-19</updated>
+  <updated>2026-10-20</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>No verification, no accountability: writing down the regime I actually run</title>
+    <link href="https://nrupalakolkar.com/blog/no-verification-no-accountability"/>
+    <id>https://nrupalakolkar.com/blog/no-verification-no-accountability</id>
+    <updated>2026-10-20</updated>
+    <summary>Accountable can only be when it is verifiable. The regime I run on the software my agents build — behaviour observed, proof kept economical, an independent gate holding release authority — the three failure classes it was bought with, its limits stated plainly, and the checklist that ships with this post.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>Available is not licensed: the second reader that froze part of my training corpus</title>
     <link href="https://nrupalakolkar.com/blog/available-is-not-licensed"/>
