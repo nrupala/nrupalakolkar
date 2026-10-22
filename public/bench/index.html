@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Bench Telemetry — Nrupal Akolkar</title>
+<style>
+:root { --bg:#0c0c0c; --surface:#141414; --border:#2a2a2a; --green:#00ff88; --cyan:#00d4ff; --amber:#ffb800; --red:#ff6b6b; --text:#c8c8c8; --dim:#929292; --bright:#eeeeee; --mono:'JetBrains Mono','Cascadia Code','Fira Code',monospace; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:var(--mono); line-height:1.55; }
+main { width:min(1120px, calc(100% - 32px)); margin:0 auto; padding:40px 0 64px; }
+header { border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:28px; }
+.eyebrow { color:var(--green); text-transform:uppercase; letter-spacing:.12em; font-size:.78rem; }
+h1 { color:var(--bright); font-size:clamp(2rem,5vw,3.4rem); line-height:1.05; margin:.35rem 0 .7rem; }
+h2 { color:var(--bright); border-bottom:1px solid var(--border); padding-bottom:.45rem; margin-top:2.4rem; }
+h3 { color:var(--bright); margin-top:0; }
+a { color:var(--cyan); }
+code { color:var(--green); overflow-wrap:anywhere; }
+.meta, .note { color:var(--dim); }
+.callout { border:1px solid var(--amber); background:rgba(255,184,0,.06); padding:16px 18px; margin:20px 0; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+.card { background:var(--surface); border:1px solid var(--border); padding:16px; }
+.big { display:block; color:var(--bright); font-size:2rem; line-height:1.1; margin:.2rem 0; }
+.status { color:var(--amber); font-weight:700; }
+.ok { color:var(--green); } .warn { color:var(--amber); } .bad { color:var(--red); }
+table { width:100%; border-collapse:collapse; margin:14px 0 22px; font-size:.92rem; }
+th, td { border:1px solid var(--border); padding:9px 10px; text-align:left; vertical-align:top; }
+th { color:var(--bright); background:#1a1a1a; }
+.small { font-size:.88rem; }
+footer { border-top:1px solid var(--border); margin-top:40px; padding-top:18px; color:var(--dim); font-size:.88rem; }
+@media (max-width:640px) { table { font-size:.82rem; } th, td { padding:7px; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Private visibility window · Access-gated</div>
+  <h1>Bench Telemetry</h1>
+  <p>The recorded state of the Wright bench: what ran, what it used, what the experiments show, what it cost, and what is not measured yet.</p>
+  <p class="meta">Generated: 2026-10-22 14:42 MDT (2026-10-22 20:42 UTC)<br>
+  Baseline data as of: 2026-10-22 14:32 MDT<br>
+  Telemetry spec as of: 2026-10-22 14:32 MDT<br>
+  Experiment RUN-LOG as of: 2026-10-22 14:10 MDT</p>
+</header>
+
+<div class="callout"><strong>Read this first:</strong> this page uses records only. A value that has not been measured is labelled <strong>Not yet measured</strong>. It is never replaced with an estimate. Spec only — no daemon, hook, or telemetry writer is built yet.</div>
+
+<section>
+<h2>Bench health</h2>
+<p><strong>Record window:</strong> the daily logs 2026-09-19 → 2026-10-22 (33 files; 2026-09-22 has no log file). The record does not provide a live “running now” feed, so current activity is <strong>Not yet measured</strong>.</p>
+<div class="grid">
+  <article class="card"><h3>Release-gate packs found</h3><span class="big">47</span><p>31 folders contain a verdict file; 16 do not.</p></article>
+  <article class="card"><h3>Blocked verdicts</h3><span class="big bad">7</span><p>Recorded in the baseline’s verdict extraction.</p></article>
+  <article class="card"><h3>Pass with findings</h3><span class="big warn">19</span><p>Clean passes recorded: 5.</p></article>
+  <article class="card"><h3>Recorded escapes</h3><span class="big bad">13</span><p>No post-conversion recurrence is recorded in the ledger window. Escapes nobody caught cannot appear in a self-written ledger; zero later rows is silence, not proof.</p></article>
+</div>
+<h3>What ran</h3>
+<ul>
+  <li>Release-gate evidence exists for 47 run folders in the recorded window.</li>
+  <li>The escape ledger records 13 escapes across 2026-10-15, 2026-10-17, and 2026-10-19.</li>
+  <li>Owner steering recorded as a floor: <strong>≥ 40</strong> resolved approval cards in about 26 hours (2026-10-21 to 2026-10-22). This is a floor, not a weekly series.</li>
+</ul>
+<h3>What is running now</h3>
+<p><strong>Not yet measured.</strong> Telemetry v1 is a baseline and a log specification, not a live writer or dashboard feed.</p>
+<h3>What failed or blocked</h3>
+<ul>
+  <li>7 release-gate verdicts were BLOCKED.</li>
+  <li>19 passed only with findings.</li>
+  <li>One context-overflow event is confirmed; a per-thread series is not measured.</li>
+</ul>
+</section>
+
+<section>
+<h2>Skill usage and local distillations</h2>
+<p>The counts below are <strong>log lines naming a skill</strong>, not true invocation counts. They are a floor with a naming bias. True skill invocation is Not yet measured (register item N2).</p>
+<table><thead><tr><th>Rank</th><th>Custom skill</th><th>Log lines naming it</th></tr></thead><tbody><tr><td>1</td><td><code>local-release-gate</code></td><td>26</td></tr>
+<tr><td>2</td><td><code>security-threat-model</code></td><td>12</td></tr>
+<tr><td>3</td><td><code>enterprise-readiness</code></td><td>12</td></tr>
+<tr><td>4</td><td><code>cf-security-audit</code></td><td>11</td></tr>
+<tr><td>5</td><td><code>local-ee-training-cycle</code></td><td>6</td></tr>
+<tr><td>6</td><td><code>local-vm-self-care</code></td><td>4</td></tr>
+<tr><td>7</td><td><code>local-self-improvement-loop</code></td><td>3</td></tr>
+<tr><td>8</td><td><code>local-planning-with-files</code></td><td>3</td></tr>
+<tr><td>9</td><td><code>local-lessons-to-structure</code></td><td>3</td></tr>
+<tr><td>10</td><td><code>local-delivery-gates</code></td><td>3</td></tr></tbody></table>
+<ul>
+  <li>Skill directories on this VM: <strong>84</strong> total — 30 custom and 54 system.</li>
+  <li><strong>16</strong> of 30 custom skills have zero name-mentions in the counting window. The record cannot separate “never invoked” from “invoked but never named.”</li>
+  <li>The separate 200-skill MyMilo/Switchboard catalogue is a different surface and is not joined into a growth curve.</li>
+</ul>
+<h3>Already distilled to a local form</h3>
+<table><thead><tr><th>Repeated action</th><th>Local form</th><th>Founding record</th></tr></thead><tbody><tr><td>All localhost health checks</td><td><code>~/workspace/.tools/localhost-probe.py — one batched exec</code></td><td>&quot;25+ clicks&quot; approval-card tax, 2026-10-13</td></tr>
+<tr><td>Portfolio enumeration before any portfolio-wide brief</td><td><code>.tools/portfolio-check.py (exit 2 on unmentioned active product)</code></td><td>LetsAskIt omitted from a 7-line brief, 2026-10-14</td></tr>
+<tr><td>Owner profile-fact lookups</td><td><code>.tools/profile-facts.py</code></td><td>Facts marked [TO CONFIRM] that were on record, Gate 5</td></tr>
+<tr><td>SSH known_hosts loss recovery</td><td><code>.tools/restore-known-hosts.sh (byte-identical restore, self-tested)</code></td><td>Entries vanished 10-15, 10-20, repeatedly 10-21</td></tr>
+<tr><td>Date/weekday determination</td><td><code>.tools/check-dates.sh</code></td><td>Standing rule: never from memory</td></tr>
+<tr><td>Deploy-brief wrapper check</td><td><code>.tools/deploy-brief-check.py (exit 2, names missing elements)</code></td><td>Unwrapped deploys, 2026-10-19</td></tr>
+<tr><td>Release-gate mirror sync</td><td><code>.tools/sync-release-gate.sh</code></td><td>Hand-sync stale within a day, 2026-10-15</td></tr>
+<tr><td>Site-integrity watching</td><td><code>watch_poll.py — 197 log lines, the heaviest automation in the record</code></td><td>Hourly watcher, Oct window</td></tr>
+<tr><td>Site-health probe trigger</td><td><code>site-health/trigger.sh — 83 log lines</code></td><td>15-minute probe cron</td></tr>
+<tr><td>Astro day-card production</td><td><code>astro/run-daycard.sh (pinned interpreter)</code></td><td>System python lost swisseph, 2026-10-13</td></tr></tbody></table>
+<h3>Open distillation candidates</h3>
+<ol><li><strong>Nightly self-test re-verification.</strong> Proposed local form: one nightly-selftest runner executing the registered checks against their founding inputs and emitting the verdict table the nightly review currently assembles by hand.</li>
+<li><strong>Tailnet SSH jump procedure.</strong> Proposed local form: fleet-ssh.sh &lt;host-alias&gt; wrapping the verified recipe, refusing on fingerprint mismatch.</li>
+<li><strong>Cron job-body gate carriage.</strong> Proposed local form: cron-body-check.py scanning job bodies for the required gate markers — the deploy-brief-check.py pattern applied to crons.</li>
+<li><strong>Gate-verdict rollup.</strong> Proposed local form: verdict-rollup.py reading runner JSON (and, until the prose packs converge, a mandated first-line verdict) into the M6 series automatically.</li>
+<li><strong>Registry-vs-live drift check.</strong> Proposed local form: a nightly diff of registry status claims against live cron/tool state, flagging mismatches instead of discovering them by rereading.</li></ol>
+</section>
+
+<section>
+<h2>Experiment verdicts</h2>
+<p>An experiment outcome counts only after a dated result entry appears in the swimlane RUN-LOG. Data files alone are not a verdict.</p>
+<div class="grid"><article class='card'><h3>E1 — byte model vs token parent</h3><p><span class='status'>Pre-registered — no result logged yet</span></p><p><strong>Pre-registered pass test:</strong> Bolmo within 2 pts of OLMo on clean AND ≥5 pts ahead on injured. Fail: behind on both arms, OR too slow to batch-score (practical leg).</p></article>
+<article class='card'><h3>E4 — CPU/GPU route probe</h3><p><span class='status'>Pre-registered — no result logged yet; GPU arm deferred in the RUN-LOG</span></p><p><strong>Pre-registered pass test:</strong> precision-matched arms agree within noise; any gap traces to the precision arm, not a device arm. (On a CPU-only venue this tests the precision confound directly; the device arm is the deferred part.)</p></article>
+<article class='card'><h3>E7 — substrate micro-benchmark</h3><p><span class='status'>Pre-registered — no result logged yet</span></p><p><strong>Pre-registered pass test:</strong> arm (iii) beats arm (i) by ≥10 pts with weights untouched.</p></article></div>
+</section>
+
+<section>
+<h2>Costs and bench load</h2>
+<div class="grid">
+  <article class="card"><h3>Money spent</h3><p><span class="status">Not yet measured</span></p><p>The telemetry baseline does not carry a monetary cost series.</p></article>
+  <article class="card"><h3>Tokens and wall time</h3><p><span class="status">Not yet measured</span></p><p>Per-run cost is register item N1 — the baseline calls it the biggest gap.</p></article>
+  <article class="card"><h3>Owner steering</h3><span class="big">≥ 40</span><p>Resolved approval cards in about 26 hours. A floor only; a weekly series is not measured.</p></article>
+  <article class="card"><h3>Harness footprint</h3><p><strong>20</strong> checklist gates</p><p>Checklists: 36,100 chars<br>AGENTS.md: 82,912 chars<br>MEMORY.md: 408,032 chars</p></article>
+</div>
+<p>The log specification sets future caps — not actual costs: rows no larger than 1 KB, raw log growth no more than 5 MB/month, and capture effort no more than 30 seconds per run.</p>
+</section>
+
+<section>
+<h2>NOT-MEASURED register</h2>
+<p>These gaps stay on the page until a record closes them.</p>
+<table><thead><tr><th>#</th><th>Not measured</th><th>Captured going forward by</th></tr></thead><tbody><tr><td>N1</td><td>Per-run cost of the bench itself — tokens, wall time, and owner-minutes per task/run; the improvement loop&#x27;s total cost. The biggest gap.</td><td>Per-run row: wall_ms, tokens_in/out where the runtime exposes them, owner_taps.</td></tr>
+<tr><td>N2</td><td>Skill *invocations* (vs mentions), incl. all 54 system skills</td><td>Per-run row: skills[] recorded at invocation</td></tr>
+<tr><td>N3</td><td>Layer/composition per task (model vs API vs MCP vs script vs syscall)</td><td>Per-run row: layer per action</td></tr>
+<tr><td>N4</td><td>Discrete owner corrections and re-asks per day</td><td>Nightly count from chat record into the rollup, definition fixed in spec</td></tr>
+<tr><td>N5</td><td>Steering load per week (approval cards by class)</td><td>Weekly pull of permission history into the rollup (bounded, one page-set per week)</td></tr>
+<tr><td>N6</td><td>Context-overflow events per thread/week</td><td>Per-run row: context_events + thread id</td></tr>
+<tr><td>N7</td><td>Outcome quality for non-gated work</td><td>Per-run row: outcome + artifact_changed</td></tr>
+<tr><td>N8</td><td>Skill-count time series on one surface</td><td>Weekly dir-count snapshot in the rollup</td></tr>
+<tr><td>N9</td><td>Gate-verdict distribution without heuristics</td><td>Runner JSON / mandated verdict first line (candidate 4, §3)</td></tr>
+<tr><td>N10</td><td>Backlog aging (M5 as a count)</td><td>Backlog field in the weekly rollup, seeded with §1-M5&#x27;s two named items</td></tr></tbody></table>
+<p>The baseline also names three dimensions today’s records cannot answer systematically: <strong>composition</strong> (which layer actually decided a task), <strong>performance cost/duration</strong>, and <strong>organization context state</strong> (what was loaded for a run).</p>
+</section>
+
+<footer>
+<p><strong>Sources:</strong> <code>~/workspace/bench-telemetry/TELEMETRY-BASELINE-2026-10-22.md</code>; <code>~/workspace/bench-telemetry/TELEMETRY-LOG-SPEC.md</code>; <code>~/workspace/byte-swimlane/RUN-LOG.md</code>.</p>
+<p><strong>Refresh:</strong> <code>python3 tools/build-bench-page.py</code> from the site repository. The generator writes <code>public/bench/index.html</code>.</p>
+<p>This page is intentionally static and record-bound. It is not a live dashboard.</p>
+</footer>
+</main>
+</body>
+</html>
