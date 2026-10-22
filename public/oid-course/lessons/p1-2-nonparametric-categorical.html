@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.2 Nonparametric Methods and Categorical Data — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-1.html">Part 1: Statistical Inference and Learning</a> / Lesson 1.2</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 1 · Lesson 1.2 · ~60 min</p>
+<h1>1.2 Nonparametric Methods and Categorical Data</h1>
+<p class="wharton-tag">Built from Wharton STAT 5010: Introduction to Nonparametric Methods and Log-linear Models</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Real engineering data are rarely Gaussian: network latencies are heavy-tailed, sensor errors spike, failure counts are discrete, and A/B test outcomes are clicks versus no-clicks. Nonparametric methods give you tests and estimates that stay valid when the normal model fails — rank tests for comparing two modem firmwares, permutation tests for a rare-event experiment, kernel density estimates for characterizing interference. Categorical methods (loglinear and logit models) handle the other half of engineering data: pass/fail counts, fault types by supplier, user responses. Together they are the toolkit for "the model is wrong, but I still need an honest answer."</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Apply rank tests (Wilcoxon signed-rank and rank-sum, Kruskal-Wallis) and permutation tests when Gaussian assumptions fail, and state what their validity requires.</li>
+<li>Construct kernel density estimates and kernel regressions, and explain the bandwidth bias-variance tradeoff.</li>
+<li>Fit loglinear and logit models to contingency tables, test conditional independence, and interpret odds ratios.</li>
+<li>Recognize when a smoothing/additive model is a better description than a parametric regression.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Rank tests: inference without a distribution</h3>
+<p>When residuals are skewed, heavy-tailed, or contaminated, t-tests and F-tests can mislead — their exactness relied on Gaussianity. Rank tests replace the data by their <em>ranks</em> and exploit the fact that, under the null, all rank assignments are equally likely.</p>
+<p>The <strong>Wilcoxon rank-sum test</strong> (two independent samples): pool the observations, rank them, and sum the ranks of one group. Under H₀ of identical distributions, the rank sum has a known distribution (exactly enumerable, normal for large n). Its power is excellent: for normal data it has about 95.5% of the t-test's efficiency, and for heavy-tailed data it can be far more powerful. The <strong>Wilcoxon signed-rank test</strong> handles paired data (before/after on the same boards): rank the absolute differences and weight by sign. <strong>Kruskal-Wallis</strong> extends rank-sum to k groups (the nonparametric ANOVA), comparing mean ranks across groups against a χ² reference. Friedman's test is the paired/blocked analogue.</p>
+<p>Efficiency note: the <strong>Hodges-Lehmann estimator</strong> — the median of pairwise averages (one-sample) or pairwise differences (two-sample) — is the natural point estimate accompanying these tests, with an exact distribution-free confidence interval obtained by inverting the rank test. When you report "median latency differs by 6 ms (95% CI 2–11 ms)" from a Wilcoxon analysis, the Hodges-Lehmann estimate with its inverted interval is the principled way to get that number, not a t-interval on the medians.</p>
+<p><strong>U-statistics</strong> generalize this idea: many rank statistics (including Wilcoxon's) are U-statistics — averages of a kernel over subsamples — and Hoeffding's decomposition gives their asymptotic normality for free. The practical upshot: rank tests inherit clean large-sample theory, so "nonparametric" never means "no theory."</p>
+<h3>Permutation tests: exact under exchangeability</h3>
+<p>The most honest small-sample tool in statistics. Suppose you want to test whether firmware A and B differ in mean packet loss. Compute the observed difference of means. Now shuffle the group labels randomly thousands of times, recomputing the difference each time — under H₀ (no group effect) the labels are arbitrary, so the shuffled differences form the exact null distribution (<strong>exchangeability</strong>). The p-value is the fraction of shuffles beating the observed statistic. No normality, no variance assumptions — validity needs only exchangeability under the null. Permutation tests adapt to any test statistic (means, medians, correlations), making them ideal for weird engineering metrics. Their limitation: they test the sharp null of no difference at all; for confidence intervals you need the permutation distribution inverted or a bootstrap.</p>
+<h3>Kernel smoothing: density and regression</h3>
+<p>A <strong>kernel density estimate</strong> places a smooth bump (the kernel, usually Gaussian) at each observation and averages: f̂(x) = (1/nh) Σ K((x − X_i)/h). The <strong>bandwidth</strong> h controls the bias-variance tradeoff: too small h gives a spiky, high-variance estimate; too large h oversmooths and hides real structure (multimodality in interference power, for example). Bandwidth selection by cross-validation or plug-in rules automates the choice but always deserves a visual sanity check — plot several bandwidths.</p>
+<p><strong>Nadaraya-Watson kernel regression</strong> estimates E[Y|X = x] by locally weighting nearby observations: m̂(x) = Σ K((x − X_i)/h) Y_i / Σ K((x − X_i)/h). <strong>Local polynomial</strong> regression extends this to fit local lines or quadratics (better at boundaries). <strong>Smoothing splines</strong> solve a penalized problem: minimize Σ(y_i − m(x_i))² + λ∫(m″)², balancing fit against roughness with penalty λ. These are the ancestors of GAMs (lesson 1.6): when you don't trust a linear or polynomial form, let the data draw the curve — then check it against physics.</p>
+<h3>Choosing the smoothing parameter honestly</h3>
+<p>Bandwidth and penalty selection deserve the same discipline as model selection in regression. <strong>Cross-validation</strong> for KDE and kernel regression minimizes estimated integrated squared error; <strong>plug-in rules</strong> (Silverman's rule of thumb, h ≈ 1.06σn^{−1/5}) are fast starting points but assume near-normality — they oversmooth multimodal data, exactly where you most want the modes. For smoothing splines, <strong>generalized cross-validation (GCV)</strong> approximates leave-one-out error cheaply. Whatever the selector, overlay fits at 0.5×, 1×, and 2× the chosen value: if the scientific conclusion (two interferers vs. one) changes across that range, the data don't resolve it and you must say so rather than present one bandwidth's answer.</p>
+<h3>Loglinear and logit models for categorical data</h3>
+<p>Engineering counts — defect types by production line, error codes by firmware version, survey responses — live in <strong>contingency tables</strong>. Loglinear models describe the expected cell counts: log μ_ijk = λ + λ_i^A + λ_j^B + λ_k^C + (interaction terms). The <em>model of independence</em> drops interactions; comparing it to the saturated model with a likelihood-ratio (deviance) χ² test is the principled way to ask "are these variables associated?" Adding selected two-way terms encodes <em>conditional independence</em> structure — factor A relates to B only through C.</p>
+<p><strong>Logit models</strong> model a binary outcome: log[p/(1−p)] = x'β, so e^{β_j} is the <strong>odds ratio</strong> for predictor j — "failure odds are 2.3× higher on supplier B's capacitors." Report odds ratios with confidence intervals, not raw χ² statistics: a tiny p-value with OR = 1.05 is a non-event in engineering terms. For ordered categories (satisfaction ratings) use cumulative logit; for multiple nominal outcomes, multinomial logit. These models are fit by maximum likelihood and are the categorical face of generalized linear models (lesson 1.6).</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Comparing two routing algorithms with heavy-tailed latency</h3><p>Ten trials each of routing algorithms P and Q give median latencies 41 ms and 47 ms, but Q's distribution has huge outliers (a few 2-second stalls). A t-test on the means gives p = 0.18 — the outliers inflate the standard error and mask the difference. The Wilcoxon rank-sum test (ranks ignore the outlier magnitudes) gives p = 0.011: typical (median) latency genuinely differs. Engineering call: report medians and the rank test for "typical performance," plus tail quantiles separately for the stall problem — one test statistic can't serve both questions.</p></div>
+<div class="example"><h3>Example 2: Permutation test for a rare-event experiment</h3><p>Two antenna prototypes each tested on 30 field units; prototype A has 1 drop-out, B has 6. The normal approximation is absurd (counts of 1 and 6). A permutation test: shuffle the 30 labels, recompute the difference in drop-out counts 10,000 times. Only 4.1% of shuffles give a difference ≥ 5, so p ≈ 0.041 — weak but real evidence A is better. In code:</p>
+<pre><code>import numpy as np
+y = np.array([0]*29 + [1]*1 + [0]*24 + [1]*6)  # 1 = drop-out
+lab = np.array([0]*30 + [1]*30)
+obs = y[lab==1].mean() - y[lab==0].mean()
+sims = [y[np.random.permutation(60)[:30]].mean() -
+        y[np.random.permutation(60)[30:]].mean() for _ in range(10000)]
+p = np.mean(np.abs(sims) >= abs(obs))
+</code></pre></div>
+<div class="example"><h3>Example 3: Bandwidth choice in characterizing interference power</h3><p>Spectrum-sensing measurements of interference power (dBm) over an hour produce a histogram that looks bimodal — possibly two interferers. KDE with h = 0.2 dBm shows five spurious spikes (noise chasing); h = 5 dBm merges everything into one blob (structure lost); h = 1.2 dBm (chosen by cross-validation) cleanly resolves two modes at −78 and −64 dBm, matching the known two-source setup. Lesson: the bandwidth is a modeling decision with a bias-variance tradeoff, and the honest workflow shows a few bandwidths side by side rather than presenting one "true" density.</p></div>
+<div class="example"><h3>Example 4: Logit model for board failures by supplier and temperature</h3><p>2,000 boards, binary outcome failed (1/0), predictors: capacitor supplier (A/B/C) and operating temperature bin (low/high). A logit fit gives: supplier B vs A, OR = 2.3 (95% CI 1.4–3.8); high temperature, OR = 3.1 (2.0–4.9); interaction term near zero (p = 0.6) — effects are multiplicative and independent. A loglinear analysis of the supplier × temperature × outcome table confirms: dropping the supplier–temperature interaction changes deviance by 1.2 on 2 df (no association between supplier and temperature assignment — the experiment was balanced). Engineering action: derate temperature <em>and</em> switch suppliers, since the logit shows both contribute independently; an OR of 2.3 means failure odds more than double on supplier B — a number a design review can act on, unlike a χ² statistic.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li><strong>Rank tests</strong> (Wilcoxon rank-sum/signed-rank, Kruskal-Wallis, Friedman) need no distributional assumptions; they are ~95% efficient vs. the t-test under normality and often better under heavy tails.</li>
+<li><strong>Permutation tests</strong> are exact under exchangeability for any test statistic — the default honest tool for small samples and weird metrics; they test the sharp null.</li>
+<li><strong>KDE/regression:</strong> f̂(x) = (1/nh)ΣK((x−X_i)/h); bandwidth h trades bias against variance — always inspect several bandwidths.</li>
+<li><strong>Nadaraya-Watson, local polynomials, smoothing splines</strong> estimate E[Y|X] without a parametric form; λ or h chosen by cross-validation.</li>
+<li><strong>Loglinear models</strong> encode association and conditional-independence structure in contingency tables via likelihood-ratio (deviance) χ² tests.</li>
+<li><strong>Logit models</strong> give odds ratios e^{β_j} — report them with confidence intervals; tiny p-values with OR ≈ 1 are engineering non-events.</li>
+<li>Nonparametric and categorical methods answer "the model is wrong but I still need an honest answer" — they are complements to, not replacements for, parametric modeling.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Why is the Wilcoxon rank-sum test more powerful than the t-test for heavy-tailed latency data, yet slightly less efficient for exactly normal data?
+<details><summary>Answer</summary><p>Ranks discard the magnitudes of extreme values, so a few huge outliers cannot inflate the statistic's noise; the t-test's variance estimate is corrupted by them. Under exact normality the discarded magnitude information is mildly useful, costing about 4.5% asymptotic efficiency.</p></details></li>
+<li>What assumption does a permutation test need, and when would shuffling group labels be invalid?
+<details><summary>Answer</summary><p>Exchangeability of the observations under the null — the joint distribution must be unchanged by permuting labels. It fails if observations are dependent (e.g., time series with autocorrelation) or if groups have different distributions under the null in ways the test statistic doesn't handle (e.g., testing means when variances differ wildly can distort type-I error).</p></details></li>
+<li>Your KDE of packet-size distribution shows three modes with h = 0.5 and one mode with h = 8. Which do you trust, and what do you do next?
+<details><summary>Answer</summary><p>Neither blindly — small h may be fitting noise, large h may be oversmoothing. Choose h by cross-validation, then check against domain knowledge (e.g., known MTU sizes at 1500, 576 bytes suggest real modes) and overlay several bandwidths before concluding.</p></details></li>
+<li>A χ² test of firmware version × crash type gives p &lt; 0.001, but all odds ratios are between 0.9 and 1.15. What is your engineering conclusion?
+<details><summary>Answer</summary><p>Statistical significance with negligible effect size — with a huge sample even trivial associations are significant. The odds ratios say crash odds barely move with firmware version; treat it as a non-finding and spend effort on factors with large ORs.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://coursesintouch.apps.upenn.edu/cpr/jsp/fast.do?webService=syll&t=202510&c=STAT5010401">STAT 5010 syllabus (Wei Wang section, 2025)</a> — the actual course outline: rank tests, kernel/spline smoothing, GLMs, GAMs.</li>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-notes/">MIT OCW 18.650 lecture notes</a> — nonparametric and categorical topics in Rigollet's notes.</li>
+<li><a href="https://hbiostat.org/rmsc/">Frank Harrell's Regression Modeling Strategies notes</a> — smoothing, splines, and ordinal/logit modeling strategy.</li>
+<li>M. Hollander, D. A. Wolfe &amp; E. Chicken, <em>Nonparametric Statistical Methods</em> — the standard reference for rank tests and U-statistics.</li>
+<li>A. Agresti, <em>An Introduction to Categorical Data Analysis</em> — loglinear and logit models with worked contingency-table analyses.</li>
+<li>J. Kloke &amp; J. W. McKean, <em>Nonparametric Statistical Methods Using R</em> — rank methods with code you can run.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p1-1-regression-anova.html">← 1.1 Applied Regression and ANOVA</a><a class="next" href="p1-3-estimation-theory.html">1.3 Estimation Theory: Sufficiency, UMVUE, MLE →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

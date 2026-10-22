@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7.5 Dynamic Programming and Stochastic Control — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-7.html">Part 7: Operations, Stochastic Models, and Optimization</a> / Lesson 7.5</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 7 · Lesson 7.5 · ~75 min</p>
+<h1>7.5 Dynamic Programming and Stochastic Control</h1>
+<p class="wharton-tag">Built from Wharton OIDD 9340: Dynamic Programming and Stochastic Models</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Dynamic programming is the mathematics of sequential decisions under uncertainty — and it is also the mathematics underneath reinforcement learning, optimal power management, adaptive routing, and inventory control. Bellman's principle, contraction mappings, and structured policies are one coherent story: write the Bellman equation, prove the value function has structure, and read off the optimal policy's form before you ever compute. Lesson 7.7 will show that Q-learning is literally stochastic approximation applied to the Bellman equation you learn here.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Formulate a sequential decision problem as a Bellman equation: states, actions, transitions, costs, horizon.</li>
+<li>Write the finite-horizon, discounted, stochastic-shortest-path, and average-cost optimality equations.</li>
+<li>Prove value-iteration convergence via the Banach fixed-point theorem applied to the Bellman operator.</li>
+<li>Explain how K-convexity yields (s, S) optimality and how lattice methods yield monotone policies.</li>
+<li>Compare value iteration, policy iteration, LP formulations, and approximate DP, including bandits and the Gittins index.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Bellman's principle of optimality</h3>
+<p>A Markov decision process has states s ∈ S, actions a ∈ A(s), transition probabilities P(s'|s,a), and one-step cost c(s,a). <strong>Bellman's principle</strong>: an optimal policy has the property that, whatever the initial state and decision, the remaining decisions are optimal for the state resulting from the first decision. This yields the optimality equations. <strong>Finite horizon</strong> (backward induction): V_t(s) = min_a [c(s,a) + E[V_{t+1}(s')|s,a]], V_T given. <strong>Discounted infinite horizon</strong> (β &lt; 1): V(s) = min_a [c(s,a) + βE[V(s')|s,a]]. <strong>Stochastic shortest path</strong>: undiscounted with an absorbing zero-cost goal state, valid under proper policies. <strong>Average cost</strong>: g + h(s) = min_a [c(s,a) + E[h(s')|s,a]], where g is the optimal gain and h the bias — the right criterion for systems that run forever, like server farms and networks.</p>
+<p>The discipline the course drills: <em>state the state space, action space, transition law, and cost structure before touching any algorithm</em>. Most failed DP formulations are failed state definitions — a state must be sufficient for the future, i.e., Markovian.</p>
+<h3>Contraction mappings: why value iteration converges</h3>
+<p>Define the <strong>Bellman operator</strong> (TV)(s) = min_a [c(s,a) + βE[V(s')|s,a]]. For discounted problems, T is a <strong>contraction</strong> in the sup norm: ‖TV − TW‖_∞ ≤ β‖V − W‖_∞. The <strong>Banach fixed-point theorem</strong> then gives everything at once: T has a unique fixed point V* (the optimal value function), and value iteration V_{k+1} = TV_k converges to V* geometrically at rate β from any start, with error bound ‖V_k − V*‖ ≤ β^k‖V_0 − V*‖. Policy iteration — alternate policy evaluation (solve linear equations) with policy improvement (greedy w.r.t. current V) — converges in finitely many steps for finite MDPs and typically far faster in practice. The <strong>LP formulation</strong> of discounted MDPs (maximize Σ α_s V(s) s.t. V(s) ≤ c(s,a) + βE[V|s,a]) shows DP and linear programming are dual views of the same object — a bridge to Lesson 7.6.</p>
+<h3>Structured policies: prove the form, then compute</h3>
+<p>The deepest part of OIDD 9340: optimal policies often have simple structure, and you can <em>prove</em> it. The exemplar is <strong>Scarf's K-convexity</strong> (1960): for the inventory DP with fixed order cost K, if the one-period cost is convex and the value function is K-convex — meaning f(x) ≤ ... precisely, f(θx + (1−θ)y) ≤ θf(x) + (1−θ)f(y) + θK in the relevant one-sided form — then K-convexity propagates through the Bellman recursion, and the minimizer of a K-convex function has the (s, S) form: order up to S iff inventory ≤ s. So (s, S) optimality is not an assumption — it is a theorem about shape preservation.</p>
+<p>The general machinery is <strong>lattice programming</strong> (Topkis): if the DP's objective is submodular/supermodular in (state, action), the argmin is monotone in the state — yielding threshold and base-stock policies across inventory, queueing control, and replacement problems. <strong>Multimodularity</strong> extends this to multiple dimensions. The research strategy: hunt for structure before computing, because a structural result (base-stock, threshold, index policy) both explains and tames the problem.</p>
+<h3>Algorithms, approximation, and bandits</h3>
+<p>Exact methods (value/policy iteration, LP) die at large state spaces — the <strong>curse of dimensionality</strong>. <strong>Approximate DP / neuro-DP</strong> (Bertsekas Vol. II; Powell): approximate V with basis functions, fitted value iteration, temporal differences, and rollout policies. <strong>Q-learning</strong> (covered rigorously in Lesson 7.7) is stochastic approximation of the Bellman operator. <strong>Multi-armed bandits</strong> are the canonical exploration problem: the <strong>Gittins index</strong> (1979) reduces the Bayesian bandit to computing one index per arm and always playing the highest — an index policy proved optimal by an interchange argument, and the ancestor of UCB-style algorithms.</p>
+<h3>Average cost, Blackwell optimality, and the vanishing discount</h3>
+<p>For systems that run indefinitely — networks, server farms, power grids — discounting future costs at β &lt; 1 is a modeling choice, not physics. The <strong>average-cost</strong> criterion minimizes long-run cost per stage g, with the Bellman equation g + h(s) = min_a[c(s,a) + E h(s')]. The standard route to it is the <strong>vanishing-discount approach</strong>: solve the discounted problem for β_n ↑ 1 and take limits; under recurrence conditions, (1−β)V_β(s) → g and V_β(s) − V_β(s_0) → h(s). A policy optimal for all β close enough to 1 is <strong>Blackwell optimal</strong> — the strongest infinite-horizon criterion, implying average-cost optimality. Practically: if your discounted solution is insensitive to β near 1, you have found the average-cost policy; if it flaps, your problem's long-run behavior genuinely depends on the horizon, and you should say so rather than pretend.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Value iteration for a tiny inventory MDP</h3>
+<pre><code>import numpy as np
+S, Amax, beta = 6, 4, 0.9          # inventory states 0..5, order up to 4
+demand = [0,1,2]; pd = [0.25,0.5,0.25]
+h, p, c = 1.0, 5.0, 2.0            # holding, shortage, order cost (no fixed K)
+V = np.zeros(S)
+for _ in range(200):
+    Vn = np.zeros(S)
+    for s in range(S):
+        best = np.inf
+        for a in range(Amax+1-s):
+            exp = sum(pd[d]*(h*max(s+a-d,0)+p*max(d-s-a,0)+V[min(max(s+a-d,0),S-1)]) for d in demand)
+            best = min(best, c*a + beta*exp)
+        Vn[s] = best
+    V = Vn
+S_star = int(np.argmax([-(c*a + beta*sum(pd[d]*(h*max(a-d,0)+p*max(d-a,0)) for d in demand)) for a in range(Amax+1)]))
+print("V:", V.round(2), " approx base-stock S:", S_star)
+# Without fixed K, the greedy policy is base-stock: order up to S every period.</code></pre></div>
+<div class="example"><h3>Example 2: (s, S) emerges when K &gt; 0</h3>
+<p>Add a fixed order cost K = 8 to Example 1's DP. Re-running value iteration, the optimal policy is no longer "order up to S always": from the computed policy table you read off s ≈ 1, S ≈ 4 — order 3–4 units only when inventory is 0 or 1, otherwise order nothing. The fixed cost makes small top-up orders uneconomical, batching replenishment exactly as Scarf's K-convexity theorem predicts. The structure was <em>derived</em>, not assumed.</p></div>
+<div class="example"><h3>Example 3: Server power management as stochastic DP</h3>
+<p>A server is idle or busy; when idle you may keep it awake (power cost 1/slot, zero wakeup delay) or sleep it (cost 0.1/slot, but a wakeup costs 5 and takes effect next slot). Jobs arrive as Bernoulli(0.3). States: (idle/busy) × (awake/asleep). The average-cost Bellman equation g + h(s) = min_a[c(s,a) + E h(s')] yields a <strong>threshold policy</strong>: sleep only if the expected idle run is long enough — a monotone policy provable by submodularity of the DP operator in (idle-time, action). This is the same mathematics as (s, S), applied to power instead of inventory.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Bellman's principle yields four optimality equations: finite horizon, discounted (β&lt;1), stochastic shortest path, average cost (g + h).</li>
+<li>The Bellman operator T is a β-contraction in sup norm; Banach's theorem gives a unique V* and geometric convergence of value iteration.</li>
+<li>Policy iteration converges finitely for finite MDPs and is usually faster; the LP formulation max ΣV s.t. V ≤ TV exposes DP–LP duality.</li>
+<li>State the full MDP tuple (states, actions, transitions, costs) before any algorithm — a non-Markovian state is the most common formulation error.</li>
+<li>K-convexity propagates through the inventory Bellman recursion ⇒ (s, S) optimality (Scarf 1960): the structured-policy exemplar.</li>
+<li>Topkis lattice methods (submodularity/supermodularity, multimodularity) prove monotone/threshold optimal policies across control problems.</li>
+<li>Curse of dimensionality ⇒ approximate DP, rollout, temporal differences; bandits ⇒ Gittins index policies for exploration.</li>
+<li>Average-cost DP (g + h equation) is the right criterion for perpetually running systems: networks, server farms, power grids.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Write the discounted Bellman optimality equation and explain what each term means.<details><summary>Answer</summary><p>V(s) = min_a [c(s,a) + β E[V(s') | s,a]]. c(s,a) is the immediate cost of action a in state s; βE[V(s')] is the discounted expected optimal future cost from the random next state. Minimizing over a balances immediate vs. future cost.</p></details></li>
+<li>Why does the contraction property fail for undiscounted (β = 1) infinite-horizon problems, and what replaces it?<details><summary>Answer</summary><p>With β = 1, T need not be a contraction — value iteration may not converge and V* may be infinite. The stochastic-shortest-path framework (proper policies reaching an absorbing goal) or the average-cost formulation (g + h equation) replaces it.</p></details></li>
+<li>What does K-convexity buy you in the inventory DP?<details><summary>Answer</summary><p>K-convexity of the value function is preserved by the Bellman recursion, and the minimizer of a K-convex function has (s, S) form: there exist s ≤ S with "order up to S iff x ≤ s". Hence (s, S) policies are provably optimal with fixed order cost K.</p></details></li>
+<li>Your DP state is "last 3 demands". Is it Markovian? What could go wrong?<details><summary>Answer</summary><p>Only if the demand process's future depends on the past solely through the last 3 values (e.g., a 3rd-order Markov demand). If demand has longer memory or the cost depends on older history, the state is insufficient: the Bellman recursion optimizes the wrong problem and the "optimal" policy is suboptimal.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://ocw.mit.edu/courses/6-231-dynamic-programming-and-stochastic-control-fall-2015/resources/mit6_231f15_notes_short/">MIT OCW 6.231 lecture notes (Bertsekas)</a> — full notes + videos: finite/infinite horizon, stochastic shortest path, average cost, ADP.</li>
+<li><a href="https://ocw.mit.edu/courses/6-231-dynamic-programming-and-stochastic-control-fall-2015/download/">MIT OCW 6.231 full course download</a> — complete materials for the closest open analogue of OIDD 9340.</li>
+<li><a href="https://gwern.net/doc/www/web.mit.edu/e10de22213403f908886e9e84d44b36b3dfe5388.html">Bertsekas, <em>Dynamic Programming and Optimal Control</em> (book page mirror)</a> — Vols. I &amp; II; Vol. II covers approximate DP.</li>
+<li><a href="https://julia.quantecon.org/dynamic_programming/discrete_dp.html">QuantEcon: discrete dynamic programming (Julia)</a> — hands-on value/policy iteration with code.</li>
+<li>Puterman, <em>Markov Decision Processes</em> [name only] — the rigorous MDP reference: contraction, policy iteration, average cost.</li>
+<li>Scarf, "The optimality of (s, S) policies in the dynamic inventory problem" (1960) [name only] — the K-convexity structured-policy proof.</li>
+<li>Gittins, "Bandit processes and dynamic allocation indices," <em>JRSS-B</em> 41(2), 1979 [name only] — the Gittins index theorem.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p7-4-stochastic-processes.html">← 7.4 Stochastic Processes</a><a class="next" href="p7-6-optimization.html">7.6 Optimization Foundations →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

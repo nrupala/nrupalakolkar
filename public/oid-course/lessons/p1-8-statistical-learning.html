@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.8 Statistical Learning and Data Mining — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-1.html">Part 1: Statistical Inference and Learning</a> / Lesson 1.8</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 1 · Lesson 1.8 · ~75 min</p>
+<h1>1.8 Statistical Learning and Data Mining</h1>
+<p class="wharton-tag">Built from Wharton STAT 5710: Modern Data Mining</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>This is the lesson the whole part has been building toward: the statistical foundations of machine learning. Everything from lessons 1.1–1.7 reappears — bias-variance is Stein's tradeoff, cross-validation is honest model selection, trees and forests are adaptive nonparametrics, SVMs are regularized function estimation, neural nets are the ultimate flexible model. For an AI/EE engineer this is home territory made rigorous: you'll learn why random forests are a strong default for tabular telemetry, why boosting wins competitions but needs tuning, what PCA actually guarantees, and why Breiman's "two cultures" distinction should govern every analysis you design.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Decompose expected prediction error into bias², variance, and irreducible noise, and use the decomposition to choose model complexity.</li>
+<li>Design honest validation: k-fold CV, nested CV, holdout sets, and multiplicity guards when many models are tried.</li>
+<li>Compare trees, bagging, random forests, and boosting — when each wins and what each costs.</li>
+<li>Explain SVMs/kernel methods and neural networks as function approximators with regularization.</li>
+<li>Use PCA/SVD for dimension reduction and k-means/hierarchical clustering for exploration, with proper validation.</li>
+<li>Apply Breiman's two-cultures framing to decide whether an analysis serves prediction or explanation.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Bias-variance and honest validation</h3>
+<p>For a fitted model f̂ predicting y = f(x) + ε, expected squared error at x decomposes: <strong>E[(y − f̂(x))²] = Bias(f̂(x))² + Var(f̂(x)) + σ²</strong> — squared bias (systematic error from a too-rigid model), variance (sensitivity to the training sample, from a too-flexible model), and irreducible noise. Complexity dials the tradeoff: simple models underfit (high bias), flexible models overfit (high variance). Regularization — ridge, lasso, early stopping, tree depth limits — is the deliberate purchase of bias to cut variance, profitable whenever variance dominates (Stein's phenomenon, lesson 1.4, was the first instance).</p>
+<p><strong>Cross-validation</strong> estimates out-of-sample error honestly: split into k folds, train on k−1, test on the held-out fold, average. Use <strong>nested CV</strong> when tuning is involved — inner loop picks hyperparameters, outer loop evaluates — because reporting the tuning error as final performance is optimistic (the "CV tuning bias"). Keep a <strong>held-out test set</strong> touched exactly once for the final number. When many models are tried, apply multiplicity guards (<strong>α-investing</strong>, Foster-Stine; Bonferroni-style corrections) so the "best" model isn't just the luckiest (Chatfield's warning on model uncertainty). The cardinal sin of data mining: selecting on the test set — test data used for any decision is validation data, and you need a new test set.</p>
+<h3>Trees, forests, boosting</h3>
+<p><strong>CART</strong> (Breiman et al.) recursively splits predictors to minimize impurity (Gini/MSE), producing interpretable if/else rules — but single trees are high-variance: tiny data changes regrow the tree. <strong>Bagging</strong> averages trees over bootstrap samples, cutting variance while keeping low bias. <strong>Random forests</strong> (Breiman 2001) add random feature subsets at each split, decorrelating the trees so averaging helps more — the strong default for tabular data: minimal tuning, robust to outliers and monotonic transforms, with <strong>out-of-bag (OOB) error</strong> as a free CV estimate. Report OOB or CV error, never training error.</p>
+<p><strong>Boosting</strong> (AdaBoost, gradient boosting, XGBoost) builds trees sequentially, each correcting its predecessors' residuals — bias reduction rather than variance reduction. It often beats forests on structured data but needs careful tuning (learning rate, depth, iterations) and early stopping; unregularized boosting overfits. Practical rule: start with a random forest (strong baseline, hard to break), try gradient boosting when you can afford tuning and CV, and compare on nested-CV error — not on training or single-split validation.</p>
+<h3>SVMs, kernels, neural networks</h3>
+<p><strong>Support vector machines</strong> (Cortes-Vapnik) find the maximum-margin separator; with <strong>kernels</strong> K(x, x') = ⟨φ(x), φ(x')⟩ they separate in an implicit high-dimensional feature space without computing φ — the kernel trick. The RBF kernel fits smooth nonlinear boundaries; the regularization parameter C trades margin width against violations (another bias-variance dial). SVMs shine on moderate-size, high-dimensional problems (text, spectra) — <strong>scale features first</strong>, since kernels depend on distances. They've been partly eclipsed by forests/boosting on tabular data and nets on unstructured data, but remain the cleanest embodiment of regularized function estimation.</p>
+<p><strong>Neural networks</strong> compose parameterized nonlinearities; the universal-approximation theorems say one hidden layer can approximate any continuous function — but say nothing about learnability or generalization, which come from architecture, SGD dynamics, and implicit regularization. For an engineer: MLPs for tabular data (often losing to boosting), CNNs for spatial/spectral signals, RNNs/transformers for sequences. The statistical view keeps you honest: a net is a high-variance function class that needs big data, regularization (weight decay = ridge, dropout ≈ bagging), and honest validation — the same bias-variance story as everything else in this lesson, with more parameters.</p>
+<p>Two engineering-flavored cautions. First, <strong>text mining via PCA</strong>: log streams and trouble tickets become TF-IDF vectors, SVD compresses them, and the leading components separate failure modes — Stine's course does exactly this. But rare, critical error strings live in the <em>tail</em> components PCA discards; pair the compression with keyword alerting so the one-in-a-million fault signature isn't smoothed away. Second, <strong>leakage</strong>: any preprocessing that touches the test set (imputation, PCA, feature selection on all the data) leaks information and inflates performance — fit every preprocessing step inside the CV folds.</p>
+<h3>PCA, clustering, and the two cultures</h3>
+<p><strong>PCA/SVD</strong>: the top-k principal components give the best rank-k approximation of the data matrix (Eckart-Young) — optimal linear compression. Use the <strong>scree plot</strong> to choose k, keep components you can defend/interpret, and remember PCA is variance-seeking, not signal-seeking: the top component can be dominated by a nuisance (temperature drift in sensor arrays). For text, <strong>vector-space models</strong> (TF-IDF, embeddings) plus SVD/PCA power text mining — Stine's course mines text exactly this way.</p>
+<p><strong>Clustering</strong> (k-means, hierarchical) is <strong>exploratory</strong>: there is no ground truth, so validate against held-out data or domain labels, and present cluster <em>profiles</em> (what characterizes each group) rather than a bare dendrogram. k-means assumes spherical clusters — check.</p>
+<p><strong>Breiman's "two cultures" (2001)</strong>: the <em>data-modeling culture</em> assumes a stochastic model (lessons 1.1–1.7) and seeks interpretable truth; the <em>algorithmic-modeling culture</em> treats the mechanism as unknown and optimizes predictive accuracy. <strong>Declare which culture your analysis serves before you start</strong> — it decides the workflow (inference vs. validation), the metrics (p-values vs. CV error), and what counts as evidence. A predictive model is not a causal explanation (lesson: don't read "feature importance" as "cause"), and an explanatory model is not necessarily a good predictor.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Bias-variance in choosing polynomial degree for a calibration curve</h3><p>Thermistor calibration, n = 60: degree-1 fit has training MSE 4.1, 10-fold CV MSE 4.3 (high bias — misses curvature); degree-9 has training MSE 0.8 but CV MSE 6.2 (high variance — chases noise); degree-3 gives CV MSE 2.1, the minimum. The U-shaped CV curve <em>is</em> the bias-variance tradeoff made visible. A degree-9 polynomial would look brilliant in the lab notebook (training error!) and fail in the field — this is why every lesson-1.6 penalized method tunes by CV, and why you never report training error as performance.</p></div>
+<div class="example"><h3>Example 2: Random forest vs. boosting for drive-failure prediction</h3><p>Same SSD telemetry as lesson 1.6 (180 features, 400 drives). Random forest (500 trees, default mtry): OOB AUC 0.905 — a two-line strong baseline. Gradient boosting with tuned depth/learning-rate via <em>nested</em> CV: outer-fold AUC 0.918 — genuinely better, but the inner/outer gap reveals tuning optimism of 0.02 that a naive single CV would have hidden. Deployment decision: ship the forest (simpler, robust, nearly as good) and keep boosting in the lab until the gap justifies the complexity. Feature importance (permutation-based, not Gini) flags reallocated sectors and temperature — reported as <em>predictive</em> signals, not causes.</p>
+<pre><code>from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import cross_val_score
+rf = RandomForestClassifier(n_estimators=500, oob_score=True, random_state=0)
+rf.fit(X, y)
+print("OOB AUC:", rf.oob_score_)   # free validation estimate
+</code></pre></div>
+<div class="example"><h3>Example 3: PCA denoises a 64-antenna array</h3><p>Channel measurements from a 64-antenna massive-MIMO array: 64×64 covariance, but the scree plot shows 6 dominant components capturing 97% of variance — the physical channel has ~6 significant paths. Projecting onto the top 6 PCs before beamforming cuts noise dimension 10× with negligible signal loss (Eckart-Young optimality), and the discarded components' variance matches the thermal-noise floor — a physics cross-check that the kept subspace is signal. Warning honored: the top PC initially tracked a drifting LO (nuisance), removed by demeaning per sweep before PCA.</p></div>
+<div class="example"><h3>Example 4: Clustering cell-tower alarm logs — exploratory, validated</h3><p>k-means (k = 5) on alarm-count vectors from 2,000 cell towers suggests clusters like "power-related," "backhaul flapping," "noisy neighbor." Validation: (a) split-half stability — clusters reappear on each half (adjusted Rand 0.72); (b) domain check — the "power" cluster correlates with utility-outage records the model never saw. Presented as cluster <em>profiles</em> (top distinguishing alarms per cluster) to the NOC team, explicitly labeled exploratory — the clusters generate hypotheses for targeted investigation, not conclusions. Two-cultures note: this is algorithmic/exploratory work; causal claims about what <em>causes</em> outages would need the data-modeling culture's tools (designed experiments or causal inference).</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li><strong>Bias-variance:</strong> E[error] = bias² + variance + σ² — complexity trades one against the other; regularization buys bias to cut variance.</li>
+<li><strong>Honest validation:</strong> k-fold CV for comparison, <em>nested</em> CV when tuning, a once-touched holdout for the final number; never select on the test set; guard multiplicity (α-investing).</li>
+<li><strong>Random forests:</strong> bagging + random splits = strong tabular default with free OOB error; <strong>boosting</strong> reduces bias sequentially, often wins with tuning, needs early stopping.</li>
+<li><strong>SVMs/kernels:</strong> max-margin + kernel trick for nonlinear boundaries on moderate data — scale features first; C is the bias-variance dial.</li>
+<li><strong>Neural nets:</strong> universal approximators whose generalization comes from architecture, SGD, and regularization (weight decay, dropout) — same bias-variance story, more parameters.</li>
+<li><strong>PCA</strong> gives the optimal rank-k approximation (Eckart-Young) but seeks variance, not signal; <strong>clustering</strong> is exploratory — validate on held-out data and present profiles.</li>
+<li><strong>Two cultures:</strong> declare prediction vs. explanation up front — it decides workflow, metrics, and what counts as evidence; feature importance ≠ causation.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Training error keeps falling as you add trees to a boosting ensemble, but validation error starts rising. What is happening, and what do you do?
+<details><summary>Answer</summary><p>Overfitting: variance is growing faster than bias is shrinking. Stop early — pick the iteration minimizing validation error (early stopping) — and/or lower the learning rate and add subsampling/regularization.</p></details></li>
+<li>Why is nested cross-validation needed when you tune hyperparameters, and what goes wrong without it?
+<details><summary>Answer</summary><p>Tuning selects the hyperparameters that look best on the validation folds, so that validation error is optimistic (selection bias). Nested CV evaluates the <em>whole tuning procedure</em> on outer folds the tuner never saw, giving an unbiased performance estimate.</p></details></li>
+<li>Your random forest's top "important" feature is strongly predictive of failure. Can you tell engineering to redesign around it? Why or why not?
+<details><summary>Answer</summary><p>No — importance is predictive, not causal (two cultures). The feature may be a downstream symptom of the true cause, or confounded. Redesign decisions need causal evidence: experiments, or causal-inference methods — not feature importance.</p></details></li>
+<li>PCA's first component of your sensor array explains 60% of variance but tracks ambient temperature, which you don't care about. What went wrong and how do you fix it?
+<details><summary>Answer</summary><p>PCA seeks variance, not signal — the nuisance dominates. Regress out (or demean per condition) the temperature effect first, then PCA the residuals; or use a supervised/contrastive variant. Always inspect what components actually represent.</p></details></li>
+<li>When would you prefer an SVM with an RBF kernel over a random forest?
+<details><summary>Answer</summary><p>Moderate sample size with high-dimensional, distance-meaningful features (spectra, text embeddings) where smooth nonlinear boundaries help and forests' axis-aligned splits are inefficient — after scaling features. On large tabular data, forests/boosting usually win.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://www.statlearning.com/">An Introduction to Statistical Learning</a> — free book + Python/R labs: the backbone text for this lesson's methods.</li>
+<li><a href="http://www-stat.wharton.upenn.edu/~stine/mich/syllabus.pdf">Robert Stine's data-mining syllabus and lectures</a> — Wharton's own topic-by-topic guide to modern data mining.</li>
+<li><a href="http://stat.wharton.upenn.edu/~stine/mich/DM_syllabus_14.pdf">Stine's data-mining syllabus (reading list)</a> — the published reading list behind STAT 5710.</li>
+<li>T. Hastie, R. Tibshirani &amp; J. Friedman, <em>The Elements of Statistical Learning</em> — the advanced companion, free online. [name only — look up by title]</li>
+<li>L. Breiman, "Statistical Modeling: The Two Cultures" (<em>Statistical Science</em>, 2001) — the framing paper for prediction vs. explanation.</li>
+<li>Tibshirani, "Regression Shrinkage and Selection via the Lasso" (<em>JRSS-B</em>, 1996) — the lasso paper.</li>
+<li>Breiman, "Random Forests" (<em>Machine Learning</em>, 2001) — the random-forest paper.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p1-7-bayesian.html">← 1.7 Bayesian Theory and Computation</a><a class="next" href="p2-1-applied-econometrics-1.html">2.1 Applied Econometrics I →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

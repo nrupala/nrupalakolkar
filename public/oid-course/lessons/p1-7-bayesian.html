@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.7 Bayesian Theory and Computation — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-1.html">Part 1: Statistical Inference and Learning</a> / Lesson 1.7</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 1 · Lesson 1.7 · ~75 min</p>
+<h1>1.7 Bayesian Theory and Computation</h1>
+<p class="wharton-tag">Built from Wharton STAT 9270: Bayesian Statistical Theory and Methods</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Engineers are Bayesians by instinct: you combine a prior (the datasheet spec, last year's field data) with new measurements to update your beliefs — that's Kalman filtering, sensor fusion, and every "prior + likelihood" calculation you've done. Bayesian theory makes this principled: hierarchical models borrow strength across devices, MCMC lets you fit models no optimizer can touch, and posterior predictive checks tell you when the model is lying. It's also the foundation of modern probabilistic ML — Gaussian processes, Bayesian neural nets, variational inference. The price is computation and the responsibility of choosing priors honestly, which is what this lesson is about.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Apply Bayes' theorem with conjugate families and justify prior choices (conjugate, Jeffreys, weakly informative).</li>
+<li>State the Bernstein-von Mises theorem and name cases where it fails.</li>
+<li>Build hierarchical models with partial pooling and interpret the shrinkage.</li>
+<li>Run MCMC (Gibbs, Metropolis-Hastings, HMC/NUTS), diagnose convergence with R̂ and ESS, and fit models in Stan.</li>
+<li>Compare models with Bayes factors, WAIC, and LOO-CV, and validate with posterior predictive checks.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Priors, conjugacy, and what they mean</h3>
+<p><strong>Bayes' theorem:</strong> p(θ|y) ∝ p(y|θ)·p(θ) — posterior ∝ likelihood × prior. <strong>Conjugate</strong> priors keep the posterior in the same family as the prior: Beta-Binomial (defect rates), Gamma-Poisson (failure rates), Normal-Normal (means with known variance), Dirichlet-Multinomial (error-type proportions). Conjugacy gives closed forms — e.g., y ~ Binomial(n, θ), θ ~ Beta(a, b) → θ|y ~ Beta(a + y, b + n − y) — and builds intuition: the prior contributes "a + b pseudo-observations."</p>
+<p>Prior choice is a modeling decision, not a technicality. <strong>Jeffreys/reference priors</strong> p(θ) ∝ √I(θ) are invariant to reparameterization — the "objective" default. <strong>Weakly informative priors</strong> (e.g., N(0, 10) on a standardized scale) regularize without dominating: they rule out absurd values and stabilize computation while letting the data speak. <strong>Hierarchical priors</strong> let groups share a common distribution. Always run a <strong>prior-sensitivity check</strong>: if the engineering conclusion flips under plausible alternative priors, the data aren't carrying the conclusion — say so.</p>
+<p>A concrete engineering prior workflow: start with <strong>prior predictive checks</strong> — simulate data from the prior alone and ask "could the real system produce this?" If your N(0, 100) prior on a standardized effect routinely generates defect rates above 50%, it is not weakly informative, it is wrong. Tighten until the prior predictive distribution covers plausible-but-not-absurd outcomes, then fit.</p>
+<h3>Bernstein-von Mises and hierarchical modeling</h3>
+<p>The <strong>Bernstein-von Mises theorem</strong>: in regular parametric models with enough data, the posterior approaches N(θ̂_MLE, I(θ₀)⁻¹/n) regardless of the (reasonable) prior — Bayesian credible sets and frequentist confidence intervals agree asymptotically. This is why Bayesians and frequentists stop arguing at large n. It <strong>fails</strong> in irregular models (support depending on θ), infinite-dimensional problems (nonparametric Bayes without care), and high-dimensional settings where p grows with n — exactly where prior choice matters most.</p>
+<p><strong>Hierarchical models</strong> are the Bayesian home of partial pooling: y_ij ~ N(θ_i, σ²), θ_i ~ N(μ, τ²), with hyperpriors on μ, τ. The posterior mean of θ_i is a weighted average of the group data and the grand mean — shrinkage proportional to uncertainty, the Bayesian face of James-Stein and empirical Bayes (lessons 1.4–1.5). For engineers this is the natural model of "many similar units": sensor biases, board offsets, cell-tower throughputs. <strong>Mixture models</strong> (e.g., two failure modes) and <strong>hidden Markov / dynamic linear models</strong> (Kalman filter as the exact posterior under linear-Gaussian dynamics) extend the hierarchy through time and latent structure.</p>
+<h3>MCMC: Gibbs, Metropolis-Hastings, HMC/NUTS</h3>
+<p>Most posteriors have no closed form — sample them. <strong>Gibbs sampling</strong> cycles through full conditionals p(θ_j|θ_{−j}, y); easy when conditionals are standard (conjugate hierarchies), slow when parameters correlate. <strong>Metropolis-Hastings</strong> proposes θ* ~ q(·|θ) and accepts with probability min(1, [p(θ*|y)q(θ|θ*)]/[p(θ|y)q(θ*|θ)]) — universal but needs tuned proposals; random-walk MH collapses in high dimensions.</p>
+<p><strong>Hamiltonian Monte Carlo (HMC)</strong> uses the posterior's gradient to simulate Hamiltonian dynamics, gliding along contours instead of random-walking — efficient in hundreds of dimensions. <strong>NUTS</strong> (Hoffman-Gelman 2014) auto-tunes the trajectory length; it is the engine of <strong>Stan</strong>, where you declare `data`, `parameters`, `model` blocks and get NUTS sampling plus diagnostics for free. Gradients mean the model must be differentiable in its parameters — discrete unknowns (like mixture component labels) can't be sampled by HMC directly and must be marginalized out analytically, a standard Stan idiom worth learning early. Convergence discipline: run ≥4 chains from <strong>dispersed starting points</strong>; require <strong>R̂ &lt; 1.01</strong> (chains agree) and <strong>large effective sample sizes</strong> (ESS) for every reported quantity; if diagnostics fail, run longer or reparameterize (non-centered parameterization for hierarchies) — never explain away a bad R̂.</p>
+<p><strong>Data augmentation</strong> (Tanner-Wong) is the Bayesian complement to EM: introduce latent variables that make the complete-data posterior tractable, then Gibbs-sample (latent | parameters, data) and (parameters | latent, data) alternately. Mixture component labels, censored failure times, and probit utilities are all handled this way — whenever lesson 1.3's EM applies to a likelihood, augmentation applies to the posterior. The monotone-likelihood guarantee becomes monotone improvement in posterior exploration: each augmentation step can only make the conditionals easier, never harder.</p>
+<h3>Model checking and comparison</h3>
+<p><strong>Posterior predictive checks:</strong> simulate replicated datasets y_rep from the posterior predictive, compare test statistics T(y_rep) with T(y_obs) — systematic misfit (e.g., model never reproduces the observed tail of latencies) means the model is wrong, not the data. For comparison: <strong>Bayes factors</strong> (marginal-likelihood ratios) suit sharp hypothesis tests but are fragile under vague priors; <strong>WAIC</strong> and <strong>leave-one-out CV (LOO)</strong> estimate out-of-sample predictive accuracy — prefer LOO (via Pareto-smoothed importance sampling, with its own diagnostics) when prediction is the goal. <strong>Variational inference</strong> (Blei et al. 2017) trades MCMC's exactness for speed, optimizing a tractable approximation — the right call for large-scale ML, with the caveat that VI typically underestimates posterior uncertainty. <strong>Bayesian nonparametrics</strong> (Dirichlet process with stick-breaking construction) and <strong>Gaussian processes</strong> (Rasmussen-Williams) extend the framework to infinite-dimensional unknowns — priors over functions, the foundation of surrogate modeling in Bayesian optimization.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Conjugate updating of a defect rate</h3><p>Prior belief from last year's line: defect rate θ ~ Beta(2, 98) (mean 2%, worth 100 pseudo-observations). New run: 3 defects in 500 boards. Posterior: Beta(2+3, 98+497) = Beta(5, 595), mean 0.83%, 95% credible interval (0.3%, 1.6%). The prior pulled the raw 0.6% rate upward — with only 3 events, the prior contributes meaningfully, which is correct: you shouldn't abandon a year of history on 500 boards. Prior-sensitivity: a flat Beta(1,1) prior would give mean 0.8%, interval (0.2%, 1.7%) — the conclusion "well under the 2% spec" is robust; report both.</p></div>
+<div class="example"><h3>Example 2: Hierarchical model of access-point throughput</h3><p>Thirty office access points, each speed-tested 6 times: y_ij ~ N(θ_i, σ²), θ_i ~ N(μ, τ²). Stan fit (4 chains, 2000 iterations): R̂ = 1.00 everywhere, min ESS 1800. Posterior means θ̂_i shrink the raw AP means toward the building average — the AP with the single worst test (a microwave was running) gets pulled from 41 Mbps back to 63 Mbps, while consistently slow APs stay slow. The facilities team upgrades the truly-bad APs instead of chasing noise. Posterior predictive check: replicated datasets reproduce the observed spread of AP means — no misfit. This is partial pooling doing exactly what lesson 1.5's empirical Bayes promised, now with full uncertainty quantification.</p>
+<pre><code>data { int N; int J; vector[N] y; array[N] int ap; }
+parameters { vector[J] theta; real mu; real&lt;lower=0&gt; tau; real&lt;lower=0&gt; sigma; }
+model {
+  theta ~ normal(mu, tau);
+  y ~ normal(theta[ap], sigma);
+  mu ~ normal(0, 100); tau ~ normal(0, 50); sigma ~ normal(0, 50);
+}
+</code></pre></div>
+<div class="example"><h3>Example 3: Diagnosing a failed MCMC run</h3><p>Fitting a hierarchical model of battery capacity fade across 200 cells, the centered parameterization gives R̂ = 1.35 for τ and ESS = 40 — chains stuck in different regions (funnel geometry: small τ forces θ_i near μ, creating a narrow neck the sampler can't traverse). Fix: non-centered parameterization θ_i = μ + τ·z_i with z_i ~ N(0,1) — the geometry becomes a friendly cylinder. Refit: R̂ = 1.00, ESS &gt; 2000. Lesson: a bad R̂ is a modeling signal, not a sampling nuisance — reparameterize, don't just run longer (though running longer is the right first check).</p></div>
+<div class="example"><h3>Example 4: LOO-CV chooses between two latency models</h3><p>Two models of server latency: lognormal vs. gamma GLM. PSIS-LOO gives elpd_diff = −34 (SE 12) favoring lognormal — a real predictive difference. Posterior predictive check of the winner: replicated 99th percentiles bracket the observed 99th percentile; the gamma model's replicates systematically undershoot the tail. Decision: ship the lognormal for capacity planning, since the tail is where SLOs live. Note the workflow order — check fit absolutely (predictive checks) before comparing relatively (LOO): the "better" of two bad models is still bad.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li><strong>Posterior ∝ likelihood × prior;</strong> conjugate families (Beta-Binomial, Gamma-Poisson, Normal-Normal) give closed forms and "pseudo-observation" intuition.</li>
+<li><strong>Prior choice matters:</strong> Jeffreys/reference for invariance, weakly informative for stable regularization, hierarchical for borrowing strength — and always run prior-sensitivity checks.</li>
+<li><strong>Bernstein-von Mises:</strong> posteriors become N(θ̂_MLE, I⁻¹/n) asymptotically — credible and confidence intervals agree at large n; fails for irregular, infinite-dimensional, and high-dimensional problems.</li>
+<li><strong>Hierarchical models</strong> partially pool: group estimates shrink toward the grand mean in proportion to their uncertainty (Bayes' James-Stein).</li>
+<li><strong>MCMC:</strong> Gibbs for conjugate conditionals, Metropolis-Hastings universally, HMC/NUTS (Stan) for high dimensions. Demand R̂ &lt; 1.01 and large ESS from ≥4 dispersed chains.</li>
+<li><strong>Validate then compare:</strong> posterior predictive checks for absolute fit; Bayes factors for sharp tests; WAIC/LOO for predictive comparison (prefer LOO).</li>
+<li><strong>VI</strong> trades exactness for speed (understates uncertainty); <strong>GPs and Dirichlet processes</strong> put priors on functions — the probabilistic-ML toolkit.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>With y ~ Binomial(n, θ) and θ ~ Beta(a, b), derive the posterior and explain the "pseudo-observation" reading.
+<details><summary>Answer</summary><p>Posterior ∝ θ^y(1−θ)^{n−y}·θ^{a−1}(1−θ)^{b−1} = θ^{a+y−1}(1−θ)^{b+n−y−1}, i.e., Beta(a+y, b+n−y). The prior acts like a+b extra trials with a successes — its influence wanes as n grows.</p></details></li>
+<li>Your Stan fit reports R̂ = 1.22 for one parameter and ESS = 60. What do you do?
+<details><summary>Answer</summary><p>Do not trust any summary involving that parameter. First try running longer with more chains; if R̂ stays high, suspect geometry (e.g., a funnel) and reparameterize — e.g., non-centered form for hierarchies. Never average over non-mixing chains.</p></details></li>
+<li>Why might Bernstein-von Mises fail for a high-dimensional neural network posterior?
+<details><summary>Answer</summary><p>BvM needs fixed dimension with n → ∞ and regularity; neural nets have p growing with n, non-identifiable parameters (symmetries), and singular geometry — the posterior need not be asymptotically Gaussian or prior-independent.</p></details></li>
+<li>When would you choose LOO-CV over a Bayes factor for model comparison?
+<details><summary>Answer</summary><p>When prediction is the goal: LOO estimates out-of-sample predictive accuracy directly and is robust to prior choice, while Bayes factors test sharp hypotheses and can be hypersensitive to vague priors on the tested parameters.</p></details></li>
+<li>Explain how a hierarchical model "borrows strength" in one concrete engineering sentence.
+<details><summary>Answer</summary><p>Thirty access points each tested six times: the hierarchical posterior estimates each AP's throughput as a precision-weighted compromise between its own six tests and the building-wide average, so noisy APs get stabilized by the fleet while well-measured ones stand on their own data.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://www.coursera.org/learn/bayesianstatistics">Coursera: Bayesian Statistics: From Concept to Data Analysis</a> — video instruction from concepts through data analysis.</li>
+<li><a href="https://sta360-fa24.github.io/syllabus.html">Duke STA 360 Bayesian methods syllabus</a> — public schedule sequencing priors, MCMC, hierarchical modeling.</li>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-videos/">MIT OCW 18.650 lectures 17–18</a> — Bayesian statistics within Rigollet's course.</li>
+<li>Andrew Gelman et al., <em>Bayesian Data Analysis</em>, 3rd ed. — the canonical applied-Bayesian text: hierarchies, computation, model checking.</li>
+<li>Christian Robert &amp; George Casella, <em>Monte Carlo Statistical Methods</em> — MCMC theory and algorithms.</li>
+<li>Peter Hoff, <em>A First Course in Bayesian Statistical Methods</em> — gentler entry with the same core ideas.</li>
+<li>Rasmussen &amp; Williams, <em>Gaussian Processes for Machine Learning</em> — free online; the GP reference. [name only — look up by title]</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p1-6-modern-regression.html">← 1.6 Modern Regression: Penalization, GLMs, GAMs</a><a class="next" href="p1-8-statistical-learning.html">1.8 Statistical Learning and Data Mining →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

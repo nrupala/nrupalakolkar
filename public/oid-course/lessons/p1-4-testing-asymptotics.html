@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.4 Testing, Asymptotics, and Decision Theory — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-1.html">Part 1: Statistical Inference and Learning</a> / Lesson 1.4</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 1 · Lesson 1.4 · ~75 min</p>
+<h1>1.4 Testing, Asymptotics, and Decision Theory</h1>
+<p class="wharton-tag">Built from Wharton STAT 5160: Advanced Statistical Inference II</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>"Is the new chip faster?" "Does this model beat the baseline?" "Is the channel idle?" — these are hypothesis tests, and testing theory tells you which test is actually best rather than merely conventional. Asymptotics explain why your estimators behave like Gaussians at scale (and when they don't — contiguity and LAN describe what happens under small, local alternatives, the regime of "barely detectable signals" in communications and anomaly detection). Decision theory unifies estimation and testing as choices under loss, and delivers a shock: in three or more dimensions, the obvious estimator is inadmissible — Stein's phenomenon, which is why shrinkage powers modern ML and signal processing. This lesson is the mathematical conscience of every A/B test and detector you will build.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Construct the most powerful test from the Neyman-Pearson lemma and extend to UMP/UMPU tests.</li>
+<li>Use likelihood-ratio, Wald, and score tests with their asymptotic χ² equivalence, and invert tests to form confidence sets.</li>
+<li>Explain contiguity and local asymptotic normality (LAN) and what they imply for local power.</li>
+<li>Define admissibility, minimaxity, and Bayes rules, and explain Stein's phenomenon and the James-Stein estimator.</li>
+<li>Use the bootstrap correctly: when it is consistent, and when it fails.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>The Neyman-Pearson lemma and optimal tests</h3>
+<p>Test H₀: θ = θ₀ against H₁: θ = θ₁ (both <em>simple</em>). The <strong>Neyman-Pearson lemma</strong> says the most powerful test at level α rejects for large values of the likelihood ratio Λ(x) = f(x;θ₁)/f(x;θ₀) — equivalently, rejects when Λ &gt; k, with k chosen so P₀(Λ &gt; k) = α (randomizing on the boundary if needed). No other level-α test has higher power. Proof sketch: for any competing test φ, ∫(φ_NP − φ)(f₁ − k f₀) ≥ 0 rearranges to power(φ_NP) − power(φ) ≥ k(α − size(φ)) ≥ 0.</p>
+<p>For <em>composite</em> alternatives, a <strong>UMP</strong> (uniformly most powerful) test beats every level-α test at every alternative — rare, but it exists for one-sided tests in monotone-likelihood-ratio families (e.g., H₀: μ ≤ 0 vs H₁: μ &gt; 0 for normal data: reject for large X̄). When no UMP test exists (two-sided alternatives), restrict to <strong>unbiased</strong> tests (power ≥ α everywhere) and seek <strong>UMPU</strong> tests — e.g., the usual two-sided t-test is UMPU. The practical trinity for regular parametric models is <strong>likelihood-ratio, Wald, and score (LM) tests</strong>: LR = 2[ℓ(θ̂) − ℓ(θ₀)], Wald = (θ̂ − θ₀)'I(θ̂)(θ̂ − θ₀), score = S(θ₀)'I(θ₀)⁻¹S(θ₀). All three are asymptotically χ²_q under H₀ (q = dim restriction) and asymptotically equivalent — choose by computational cost: score needs only the null fit, Wald only the alternative fit, LR needs both. <strong>Duality:</strong> inverting a level-α acceptance region gives a 1−α confidence set, and vice versa — tests and intervals are the same object viewed two ways.</p>
+<p>A useful refinement for composite nulls: when nuisance parameters are present, replace them by their constrained MLEs (profile likelihood) — the <strong>profile likelihood-ratio test</strong> retains the χ² limit under regularity. And when the null sits on a <strong>boundary</strong> of the parameter space (testing whether a variance component is zero), the limit is a <em>mixture</em> of chi-squares (e.g., ½χ²₀ + ½χ²₁), not the naive χ² — using the naive reference over-rejects. Boundary problems are common in engineering (is this extra noise source really present?), so check whether H₀ is interior before quoting χ² p-values.</p>
+<h3>Asymptotics: contiguity and LAN</h3>
+<p>Fixed alternatives are too easy asymptotically (power → 1); the interesting regime is <strong>local alternatives</strong> θ_n = θ₀ + h/√n, where power stays nontrivial. Two sequences of measures P_n, Q_n are <strong>contiguous</strong> if Q_n(A_n) → 0 whenever P_n(A_n) → 0 — they remain mutually "close"; under contiguity, convergence in distribution under P_n transfers to Q_n with a changed limit. <strong>Local asymptotic normality (LAN)</strong> says the log-likelihood ratio under θ₀ + h/√n behaves like a Gaussian shift experiment: log(dP_{θ₀+h/√n}/dP_{θ₀}) = h'Δ_n − ½h'I(θ₀)h + o_p(1), with Δ_n → N(0, I(θ₀)). Consequence: asymptotically, <em>every</em> regular parametric problem looks like estimating a normal mean with known covariance — the <strong>Hájek-Le Cam convolution theorem</strong> then says any regular estimator's limit law is N(0, I⁻¹) convolved with independent noise, so the MLE (pure N(0, I⁻¹)) is asymptotically optimal. This is the deep reason "everything is asymptotically normal and the MLE is efficient." <strong>Hodges' estimator</strong> warns against overclaiming: a superefficient estimator can beat the MLE at isolated points, but only on a Lebesgue-null set, at the cost of erratic behavior nearby.</p>
+<h3>Decision theory: risk, admissibility, minimax</h3>
+<p>Decision theory frames inference as choosing a decision rule δ to minimize <strong>risk</strong> R(θ, δ) = E_θ[L(θ, δ(X))] for a loss L. An estimator δ is <strong>inadmissible</strong> if some δ' has R(θ, δ') ≤ R(θ, δ) for all θ with strict inequality somewhere — inadmissible rules should never be used. A <strong>Bayes rule</strong> minimizes average risk under a prior π; a <strong>minimax</strong> rule minimizes the worst-case risk sup_θ R(θ, δ). Bayes rules (under reasonable priors) are admissible, and minimax rules are "safest" when you distrust priors.</p>
+<p><strong>Stein's phenomenon (1956)</strong> is the thunderclap: for X ~ N(θ, I_p) with p ≥ 3, under squared-error loss, the MLE δ(X) = X is <em>inadmissible</em>. The <strong>James-Stein estimator</strong> δ_JS(X) = (1 − (p−2)/‖X‖²)X dominates it — shrinking toward zero (or any target) strictly reduces total risk. Intuition: in high dimensions, the data overfit the noise in every coordinate simultaneously; shrinkage trades a little bias for a large variance reduction. This is not a curiosity — it is the founding idea of ridge regression, empirical Bayes, and half of modern ML regularization. Lesson 1.5 develops the decision-theoretic foundations; lesson 1.6 makes shrinkage practical.</p>
+<h3>The bootstrap, done right</h3>
+<p>Efron's <strong>bootstrap</strong>: resample n observations with replacement from the data, recompute your statistic, repeat B times; the resample distribution approximates the sampling distribution. <strong>Consistent</strong> when the statistic is smooth (a differentiable functional of the empirical distribution) — then bootstrap confidence intervals and standard errors are asymptotically valid, often more accurate than normal approximations (second-order correctness for studentized statistics). It <strong>fails</strong> for nonsmooth statistics: the sample maximum, the LASSO-selected coefficients, or parameters at boundaries (Bickel-Freedman). Diagnostics: increase B until intervals stabilize; if the bootstrap distribution looks bizarre (discrete, multimodal), suspect nonsmoothness and switch to subsampling (m-out-of-n bootstrap) or exact methods. The <strong>jackknife</strong> (leave-one-out) is the older, cheaper cousin — good for bias and variance estimates of smooth statistics.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Neyman-Pearson detector for a known signal</h3><p>Radar: observe X = s + N (signal present) or X = N (absent), N ~ N(0, σ²I_n), s known. Likelihood ratio Λ = exp(s'X/σ² − ‖s‖²/2σ²); reject H₀ for large s'X — the <strong>matched filter</strong>: correlate the observation with the known signal. Threshold k set from the false-alarm constraint P₀(s'X &gt; k) = α gives k = σ‖s‖z_{1−α}. Detection probability: Φ(‖s‖/σ − z_{1−α}) — the entire ROC curve of the optimal detector in one formula. This is Neyman-Pearson in engineering dress, and it is why "correlate against the template" is optimal for known signals in white Gaussian noise.</p></div>
+<div class="example"><h3>Example 2: LR vs. Wald vs. score for a logistic coefficient</h3><p>Testing whether transmit power affects packet-drop probability in a logistic model: H₀: β_power = 0. Score test: fit only the intercept model, compute the score — one cheap fit. Wald: fit the full model, check (β̂/SE)². LR: fit both, take 2Δℓ. With n = 500, the three give χ²₁ statistics 6.31, 6.45, 6.38 (p ≈ 0.012) — asymptotically equivalent, as theory promises. With n = 30 and rare drops, they disagree (Hauck-Donner effect can make Wald misbehave); then trust LR. Rule of thumb: score for screening many hypotheses cheaply (genomics-style), LR for the final reported p-value.</p></div>
+<div class="example"><h3>Example 3: James-Stein shrinkage for 40 sensor biases</h3><p>Forty temperature sensors each calibrated once: X_i ~ N(θ_i, 1), want all 40 biases θ_i. The MLE reports each raw reading. James-Stein shrinks toward the grand mean: θ̂_i^{JS} = x̄ + (1 − 38/Σ(x_i − x̄)²)(x_i − x̄). Simulated total squared error: MLE 41.2, JS 27.6 — a 33% risk reduction, <em>guaranteed</em> in expectation for p ≥ 3 regardless of the true θ. The paradox: each sensor's estimate borrows from unrelated sensors and still wins on total error. In practice this is empirical Bayes / multilevel modeling (lesson 1.7): partial pooling is Stein's phenomenon operationalized, and it is why hierarchical models dominate small-area and sensor-fusion estimation.</p>
+<pre><code>import numpy as np
+X = np.random.normal(theta_true, 1)          # 40 noisy sensor readings
+xbar = X.mean(); S = ((X - xbar)**2).sum()
+shrink = max(0, 1 - (len(X)-3)/S)            # positive-part James-Stein
+theta_js = xbar + shrink*(X - xbar)
+</code></pre></div>
+<div class="example"><h3>Example 4: Bootstrap confidence interval for a 99th-percentile latency</h3><p>SLO: "99th percentile latency &lt; 200 ms." From n = 5,000 request latencies, p̂_99 = 187 ms. Normal approximations for quantiles are shaky; bootstrap: resample 5,000 latencies with replacement 10,000 times, take the 99th percentile each time; the 2.5th/97.5th percentiles of the bootstrap distribution give (179, 196) ms — comfortably under the SLO. Percentile bootstrap is fine here (quantiles are smooth functionals at interior points with enough data); increase B to 20,000 and confirm the interval barely moves before reporting.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li><strong>Neyman-Pearson:</strong> for simple vs. simple, reject for large likelihood ratio — the most powerful test; the matched filter is its engineering incarnation.</li>
+<li><strong>UMP/UMPU:</strong> one-sided MLR problems get UMP tests; two-sided problems get UMPU (the t-test's optimality claim).</li>
+<li><strong>LR/Wald/score:</strong> asymptotically χ² and equivalent in regular models — pick by which fits are cheapest; invert tests to get confidence sets (duality).</li>
+<li><strong>LAN + Hájek-Le Cam:</strong> locally, every regular problem is a Gaussian shift experiment; the MLE's N(0, I⁻¹) limit is asymptotically unbeatable among regular estimators.</li>
+<li><strong>Stein's phenomenon:</strong> for p ≥ 3 normal means, X is inadmissible — James-Stein shrinkage (1 − (p−2)/‖X‖²)X strictly dominates under squared error.</li>
+<li><strong>Bayes/minimax/admissibility:</strong> Bayes rules are (essentially) admissible; minimax guards the worst case; never use an inadmissible rule.</li>
+<li><strong>Bootstrap:</strong> consistent for smooth statistics (second-order accurate when studentized); fails for maxima, LASSO, boundaries — stabilize B and sanity-check the resample distribution.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>State the Neyman-Pearson lemma. Why does the optimal test reject for <em>large</em> values of the likelihood ratio f₁/f₀?
+<details><summary>Answer</summary><p>Among all level-α tests of simple H₀ vs simple H₁, the likelihood-ratio test maximizes power. Large f₁/f₀ means the data are much more likely under H₁ than H₀ — rejecting there concentrates the α rejection budget where the evidence against H₀ is strongest.</p></details></li>
+<li>Why do LR, Wald, and score tests agree asymptotically, and when might you prefer the score test?
+<details><summary>Answer</summary><p>All three are quadratic forms in asymptotically normal quantities (θ̂ − θ₀ or the score), converging to the same χ² limit under H₀. Prefer the score test when fitting the alternative is expensive — e.g., screening thousands of candidate predictors, since it needs only the null fit.</p></details></li>
+<li>Explain in one paragraph why the James-Stein estimator can beat the MLE simultaneously for all 40 sensors.
+<details><summary>Answer</summary><p>Total squared error sums over coordinates; shrinking each X_i slightly toward the mean introduces small bias per coordinate but cuts variance in all 40 at once. For p ≥ 3 the variance savings provably outweigh the bias cost for every θ — the risk difference is (p−2)²E[1/‖X‖²] &gt; 0 in favor of shrinkage.</p></details></li>
+<li>Give two situations where the bootstrap is inconsistent, and a remedy for each.
+<details><summary>Answer</summary><p>(1) Nonsmooth statistics like the sample maximum or LASSO estimates — remedy: m-out-of-n subsampling. (2) Parameters at boundaries or heavy tails with infinite variance — remedy: subsampling, or parametric bootstrap from a fitted tail model.</p></details></li>
+<li>What does contiguity buy you that fixed-alternative asymptotics don't?
+<details><summary>Answer</summary><p>Under fixed alternatives power → 1 trivially, so all tests look perfect. Contiguity keeps local alternatives θ₀ + h/√n in play with nontrivial limiting power, letting you compare tests' local power and prove efficiency claims like Hájek-Le Cam.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-notes/">MIT OCW 18.650 lecture notes</a> — asymptotics, MLE, bootstrap, and testing derivations.</li>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-videos/">MIT OCW 18.650 lecture videos</a> — lectures on large-sample inference.</li>
+<li><a href="https://www.cmu.edu/dietrich/statistics-datascience/people/faculty/larry-wasserman.html">Larry Wasserman (CMU) teaching materials</a> — asymptotic statistics notes including contiguity.</li>
+<li>A. W. van der Vaart, <em>Asymptotic Statistics</em> — the canonical text for contiguity, LAN, and Hájek-Le Cam.</li>
+<li>Lehmann &amp; Casella, <em>Theory of Point Estimation</em> — decision theory, admissibility, Stein estimation.</li>
+<li>George Casella &amp; Roger Berger, <em>Statistical Inference</em>, Ch. 10 — large-sample tests (LR/Wald/score).</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p1-3-estimation-theory.html">← 1.3 Estimation Theory: Sufficiency, UMVUE, MLE</a><a class="next" href="p1-5-theory-of-statistics.html">1.5 Theory of Statistics →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

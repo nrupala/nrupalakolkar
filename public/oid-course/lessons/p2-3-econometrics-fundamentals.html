@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.3 Econometrics Fundamentals — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-2.html">Part 2: Econometrics and Causal Inference</a> / Lesson 2.3</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 2 · Lesson 2.3 · ~75 min</p>
+<h1>2.3 Econometrics Fundamentals</h1>
+<p class="wharton-tag">Built from Wharton ECON 7300: Econometrics I: Fundamentals</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>The previous lessons gave you working estimators. This lesson gives you the theory that explains <em>why</em> they work — and a unified framework that covers every estimator you will ever invent. The conditional expectation is the best possible predictor; the linear projection is the best linear one; confusing them is the root of most misinterpreted regressions. Extremum-estimator theory then shows that OLS, MLE, nonlinear least squares, and GMM are all the same animal: maximize (or minimize) a sample criterion, and consistency plus asymptotic normality follow from two ingredients — uniform convergence and identification. Once you own this machinery, you can design an estimator for any new problem your systems throw at you and know exactly what to prove about it.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Distinguish the conditional expectation function from the linear projection and explain when OLS recovers each.</li>
+<li>State and apply the two-step logic of extremum-estimator asymptotics: uniform convergence plus identification gives consistency; a Taylor expansion of the first-order condition gives normality.</li>
+<li>Derive MLE estimators for probit, logit, Tobit, and count models, and state their asymptotic properties.</li>
+<li>Use the information-matrix equality to connect the Hessian, the score variance, and the asymptotic variance of MLE.</li>
+<li>Explain the delta method and Slutsky's theorem as tools for turning estimator asymptotics into inference on functions of parameters.</li>
+</ul></section>
+<section><h2>Core content</h2>
+
+<h3>Conditional expectation vs. linear projection</h3>
+<p>The conditional expectation function (CEF), E[y<sub>i</sub>|x<sub>i</sub>], is the minimum-mean-squared-error predictor of y given x among <em>all</em> functions of x: for any function g, E[(y − E[y|x])<sup>2</sup>] ≤ E[(y − g(x))<sup>2</sup>]. It has the projection properties you would expect — E[(y − E[y|x]) · h(x)] = 0 for any h, and the law of iterated expectations E[E[y|x]] = E[y]. The linear projection is the MMSE predictor among <em>linear</em> functions: L(y|x) = x′β with β = E[xx′]<sup>−1</sup>E[xy]. Write y = x′β + e; the projection error satisfies E[x<sub>i</sub>e<sub>i</sub>] = 0 by construction — uncorrelatedness is a property of the projection, not an assumption about the world. This distinction is the deep one: when the CEF is linear, OLS estimates the CEF; when it is not, OLS estimates the best linear approximation to the CEF. Most applied regressions are of the second kind, and that is fine — but then β is a summary of the CEF, not a structural parameter, and nonlinearities you care about (threshold effects in server overload, saturation in adoption) need explicit modeling. A testable implication: if E[y|x] is truly linear, then E[e|x] = 0 and any function of x should be insignificant when added to the regression — the logic behind RESET-type specification tests.</p>
+
+<h3>Extremum estimators: one theory for everything</h3>
+<p>An extremum estimator maximizes a sample objective: θ̂ = argmax<sub>θ∈Θ</sub> Q<sub>n</sub>(θ), where Q<sub>n</sub>(θ) = (1/n)Σ<sub>i</sub> q(w<sub>i</sub>, θ) for data w<sub>i</sub>. OLS minimizes Σe<sub>i</sub><sup>2</sup>; MLE maximizes the log-likelihood; nonlinear least squares and GMM fit the same template. Newey and McFadden (1994) gave the canonical two-step asymptotic theory. <b>Step 1 — consistency:</b> if Q<sub>n</sub>(θ) converges <em>uniformly</em> to a nonrandom limit Q<sub>0</sub>(θ) (uniform law of large numbers), and θ<sub>0</sub> is the <em>unique</em> maximizer of Q<sub>0</sub> (identification — the population criterion has a single peak at the truth), then θ̂ →<sub>p</sub> θ<sub>0</sub>. Uniformity matters because θ̂ is random: pointwise convergence at each fixed θ does not control the criterion at the random maximizer. <b>Step 2 — asymptotic normality:</b> expand the first-order condition. Assuming interior θ<sub>0</sub> and differentiability, 0 = ∇Q<sub>n</sub>(θ̂) ≈ ∇Q<sub>n</sub>(θ<sub>0</sub>) + ∇<sup>2</sup>Q<sub>n</sub>(θ<sub>0</sub>)(θ̂ − θ<sub>0</sub>), so √n(θ̂ − θ<sub>0</sub>) ≈ [−∇<sup>2</sup>Q<sub>n</sub>(θ<sub>0</sub>)]<sup>−1</sup> √n∇Q<sub>n</sub>(θ<sub>0</sub>). The score term √n∇Q<sub>n</sub>(θ<sub>0</sub>) is asymptotically normal by the CLT (it has mean zero at the truth), and the Hessian converges to H<sub>0</sub> = ∇<sup>2</sup>Q<sub>0</sub>(θ<sub>0</sub>), giving √n(θ̂ − θ<sub>0</sub>) →<sub>d</sub> N(0, H<sub>0</sub><sup>−1</sup>Ω<sub>0</sub>H<sub>0</sub><sup>−1</sup>), another sandwich: Hessian bread, score-variance filling. Every estimator's asymptotics is a special case — learn this once, apply it forever.</p>
+
+<h3>MLE for nonlinear models</h3>
+<p>Maximum likelihood chooses θ̂ to maximize Σ<sub>i</sub> log f(y<sub>i</sub>|x<sub>i</sub>; θ). Under correct specification and regularity, MLE is consistent and asymptotically efficient — it attains the Cramér–Rao bound — with √n(θ̂ − θ<sub>0</sub>) →<sub>d</sub> N(0, I(θ<sub>0</sub>)<sup>−1</sup>), where I(θ) is the Fisher information. The information-matrix equality is the elegant simplification: under correct specification, the expected Hessian equals minus the variance of the score, E[∇<sup>2</sup>ℓ] = −E[∇ℓ∇ℓ′], so the sandwich collapses to a single matrix — this is why MLE standard errors need only the Hessian (or the outer product of gradients). But misspecification breaks the equality: with the wrong distribution, MLE converges to the pseudo-true value minimizing Kullback–Leibler divergence, and valid standard errors need the full sandwich (this is quasi-MLE, QMLE — e.g., Poisson regression consistently estimates a log-linear CEF even when counts aren't Poisson, provided the mean is right and you use robust SEs).</p>
+<p><b>Probit and logit</b> (binary y<sub>i</sub> ∈ {0,1}): P(y<sub>i</sub>=1|x<sub>i</sub>) = F(x<sub>i</sub>′β) with F = Φ (probit) or F = Λ (logit). Log-likelihood Σ<sub>i</sub> [y<sub>i</sub> log F<sub>i</sub> + (1−y<sub>i</sub>) log(1−F<sub>i</sub>)] — globally concave for both links, so Newton–Raphson converges reliably. Coefficients are in latent-index units; scale differs by a factor ≈ 1.6 between probit and logit (logit variance π<sup>2</sup>/3 vs. probit variance 1), so don't compare raw magnitudes across models — compare marginal effects or predicted probabilities.</p>
+<p><b>Tobit</b> (censored y<sub>i</sub> = max(0, y<sub>i</sub>*), y<sub>i</sub>* = x<sub>i</sub>′β + ε<sub>i</sub>, ε<sub>i</sub> ∼ N(0,σ<sup>2</sup>)): the likelihood mixes a discrete mass at zero (Φ(−x<sub>i</sub>′β/σ)) with a normal density for positive observations. OLS on the positive observations alone is biased (selection on the outcome); OLS on all observations including zeros is attenuated. Tobit is the correct MLE — but it is fragile: unlike OLS, Tobit is inconsistent under heteroskedasticity or non-normality, because the censoring correction depends on the full distributional shape. Know this fragility before deploying it on, say, censored latency measurements.</p>
+<p><b>Count models</b>: Poisson regression sets E[y<sub>i</sub>|x<sub>i</sub>] = exp(x<sub>i</sub>′β) with log-likelihood Σ<sub>i</sub> [y<sub>i</sub>x<sub>i</sub>′β − exp(x<sub>i</sub>′β) − log(y<sub>i</sub>!)]. Poisson imposes equidispersion (mean = variance); network event counts are usually overdispersed, so the negative binomial (a Poisson–gamma mixture) adds a dispersion parameter. As noted, Poisson QMLE with robust SEs stays consistent for the conditional mean under misspecification — a remarkably useful robustness result for modeling request counts, failure counts, or packet arrivals.</p>
+
+<h3>Asymptotic toolkit: delta method and Slutsky</h3>
+<p>Two workhorses convert estimator asymptotics into inference on anything you compute from estimates. <b>Slutsky's theorem:</b> if A<sub>n</sub> →<sub>d</sub> A and B<sub>n</sub> →<sub>p</sub> b (constant), then A<sub>n</sub> + B<sub>n</sub> →<sub>d</sub> A + b, A<sub>n</sub>B<sub>n</sub> →<sub>d</sub> bA, and so on — it lets you replace estimated nuisance quantities (like Q̂<sup>−1</sup>) with their probability limits inside asymptotic distributions. <b>The delta method:</b> if √n(θ̂ − θ<sub>0</sub>) →<sub>d</sub> N(0, V) and g is continuously differentiable at θ<sub>0</sub>, then √n(g(θ̂) − g(θ<sub>0</sub>)) →<sub>d</sub> N(0, ∇g′V∇g). This is how you get standard errors for elasticities, marginal effects, ratios of coefficients, optimal thresholds — anything that is a smooth function of estimated parameters. The proof is a one-line Taylor expansion, and it is the single most-used asymptotic result in applied work. When g is not differentiable (e.g., a maximum over estimated quantities), the delta method fails and the bootstrap is the fallback.</p>
+
+<h3>Classical trinity of tests</h3>
+<p>Wald, likelihood ratio (LR), and score (LM) tests are asymptotically equivalent under the null but differ in what they estimate. Wald tests H<sub>0</sub>: Rβ = r using only the unrestricted estimate: (Rβ̂ − r)′[RVar̂R′]<sup>−1</sup>(Rβ̂ − r) ∼ χ<sup>2</sup>. LR compares maximized log-likelihoods, 2(ℓ<sub>u</sub> − ℓ<sub>r</sub>) ∼ χ<sup>2</sup>, requiring both models. The score (Lagrange multiplier) test uses only the restricted estimate, checking whether the score at the restricted optimum is near zero — attractive when the unrestricted model is hard to fit. In finite samples they can disagree; the ordering Wald ≥ LR ≥ Score often holds, so when tests conflict, report all three and investigate.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: CEF vs. linear projection in server overload</h3>
+<p>True relationship: latency E[y|x] = 2 + 0.1x for load x &lt; 80, but E[y|x] = 2 + 0.1x + 0.05(x−80)<sup>2</sup> above 80 (queuing nonlinearity). OLS of y on x estimates the best linear approximation — a single slope averaging the flat and steep regions, systematically underpredicting latency at high load, exactly where capacity planning matters. Adding a quadratic term or a spline lets the estimated CEF bend; a RESET test (adding ŷ<sup>2</sup>, ŷ<sup>3</sup> to the regression) rejects linearity with p &lt; 0.001. Takeaway: OLS always gives you the linear projection; checking whether the CEF is actually linear is a specification question you must ask.</p>
+</div>
+<div class="example"><h3>Example 2: Probit for link failure, with marginal effects via the delta method</h3>
+<p>You model link failure (1/0) on temperature and utilization with probit on 2,000 link-days: β̂<sub>temp</sub> = 0.21 (SE 0.04). The average marginal effect is (1/n)Σ φ(x<sub>i</sub>′β̂)·0.21 = 0.032 — each extra °C raises failure probability by 3.2 points on average. The standard error of this AME comes from the delta method: the AME is a smooth function g(β̂) of the coefficients, so Var̂(AME) = ∇g′Var̂(β̂)∇g:</p>
+<pre><code>import statsmodels.api as sm
+probit = sm.Probit(failed, sm.add_constant(X)).fit()
+mfx = probit.get_margeff()   # delta-method SEs computed internally
+print(mfx.summary())</code></pre>
+<p>Takeaway: never report probit coefficients as effect sizes; the delta method turns them into interpretable marginal effects with honest standard errors.</p>
+</div>
+<div class="example"><h3>Example 3: Poisson QMLE for API request counts</h3>
+<p>You model per-minute API requests from each of 500 clients as exp(x<sub>i</sub>′β). The Poisson MLE fits, but a dispersion test shows variance ≈ 4× mean — the Poisson distribution is wrong. You keep the Poisson point estimates (QMLE: consistent for the conditional mean as long as the mean is correctly specified) but switch to robust sandwich standard errors, which roughly double. Alternatively you fit a negative binomial for efficiency. Takeaway: for count data, Poisson QMLE + robust SEs is the robust default; the negative binomial buys efficiency if you trust the variance model.</p>
+</div>
+<div class="example"><h3>Example 4: Tobit's fragility on censored latency data</h3>
+<p>Latency measurements are censored at a 30-second timeout: you observe y = min(true latency, 30). A Tobit model gives β̂ on a config change of −2.1 s. But a heteroskedasticity test rejects homoskedasticity (timeout behavior differs by region), and Tobit is inconsistent under heteroskedasticity. You switch to censored quantile regression (median), which stays consistent, and the estimated median effect is −1.4 s — the Tobit number was partly an artifact of misspecification. Takeaway: Tobit's likelihood correction is powerful but brittle; check distributional assumptions or use robust alternatives.</p>
+</div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>The CEF E[y|x] is the best predictor among all functions; the linear projection is the best among linear functions. OLS estimates the projection — which equals the CEF only if the CEF is linear.</li>
+<li>Extremum-estimator recipe (Newey–McFadden): consistency from uniform convergence + unique population maximizer (identification); asymptotic normality from a Taylor expansion of the first-order condition, giving the sandwich H<sub>0</sub><sup>−1</sup>Ω<sub>0</sub>H<sub>0</sub><sup>−1</sup>.</li>
+<li>MLE is consistent and asymptotically efficient under correct specification; the information-matrix equality collapses the sandwich to I(θ<sub>0</sub>)<sup>−1</sup>. Under misspecification, use QMLE with sandwich standard errors.</li>
+<li>Probit/logit have globally concave log-likelihoods; report average marginal effects, not latent-index coefficients. Tobit handles censoring via a mixed discrete-continuous likelihood but is fragile to heteroskedasticity and non-normality.</li>
+<li>Poisson regression consistently estimates a log-linear conditional mean even when counts aren't Poisson (with robust SEs); the negative binomial adds a dispersion parameter.</li>
+<li>Delta method: √n(g(θ̂) − g(θ<sub>0</sub>)) →<sub>d</sub> N(0, ∇g′V∇g) — the route from parameter estimates to standard errors for any smooth transformation. Slutsky's theorem lets estimated quantities be replaced by their limits.</li>
+<li>Wald, LR, and score tests are asymptotically equivalent; they differ in whether they need the unrestricted, both, or only the restricted model.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>The true CEF is quadratic but you fit a linear OLS. What does your slope estimate?
+<details><summary>Answer</summary><p>The best linear approximation to the quadratic CEF — a variance-weighted average of the local slopes. It is not "wrong," but it is a summary, not the structural relationship; predictions will be systematically off at the extremes.</p></details></li>
+<li>Why does extremum-estimator consistency require <em>uniform</em> convergence of the sample criterion, not just pointwise?
+<details><summary>Answer</summary><p>Because the maximizer θ̂ is random: pointwise convergence controls Q<sub>n</sub>(θ) at each fixed θ, but we need the criterion to be close to its limit at the random point θ̂ itself. Uniform convergence over Θ guarantees this.</p></details></li>
+<li>Your probit coefficient on x is 0.5 and your colleague's logit coefficient is 0.8 on the same data. Who found the bigger effect?
+<details><summary>Answer</summary><p>Neither conclusion follows from raw coefficients — probit and logit use different latent scales (factor ≈ 1.6). Compare average marginal effects or predicted probabilities instead.</p></details></li>
+<li>You want a standard error for the ratio of two regression coefficients. Which tool do you reach for?
+<details><summary>Answer</summary><p>The delta method: the ratio is a smooth function of the estimated coefficients, so its asymptotic variance is ∇g′Var̂(β̂)∇g. (If the denominator could be near zero, the delta approximation is poor — consider Fieller-type or bootstrap intervals.)</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://economics.sas.upenn.edu/sites/default/files/penncourse/2025c_econ7300_adusumili.pdf">ECON 7300 syllabus, Fall 2025 (Adusumilli &amp; Cheng)</a> — the actual first-year PhD syllabus with the verified reading list and course outline this lesson follows.</li>
+<li>Fumio Hayashi, <em>Econometrics</em> [name only] — the classic text for extremum estimators, GMM, and MLE asymptotics; Chapters 7–8 cover this lesson's core.</li>
+<li>Newey &amp; McFadden (1994), "Large Sample Estimation and Hypothesis Testing," <em>Handbook of Econometrics</em>, Vol. IV [name only] — the definitive reference for extremum-estimator asymptotic theory.</li>
+<li>Casella &amp; Berger, <em>Statistical Inference</em> [name only] — named on the ECON 7300 syllabus; likelihood theory, information inequality, and asymptotic evaluations.</li>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-videos/">MIT OCW 18.650 lecture videos (Rigollet)</a> — MLE asymptotics, delta method, and large-sample theory with full derivations.</li>
+<li><a href="https://www.cmu.edu/dietrich/statistics-datascience/people/faculty/larry-wasserman.html">Larry Wasserman's CMU teaching page</a> — lecture notes on asymptotic statistics including M-estimation theory.</li>
+<li><a href="https://ocw.mit.edu/courses/14-310x-data-analysis-for-social-scientists-spring-2023/download/">MIT OCW 14.310x Data Analysis for Social Scientists</a> — applied probit/logit and nonlinear-model lectures.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p2-2-applied-econometrics-2.html">← 2.2 Applied Econometrics II</a><a class="next" href="p2-4-gmm-panels.html">2.4 GMM, M-Estimation, and Panel Methods →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

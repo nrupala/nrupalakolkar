@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.2 Applied Econometrics II — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-2.html">Part 2: Econometrics and Causal Inference</a> / Lesson 2.2</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 2 · Lesson 2.2 · ~60 min</p>
+<h1>2.2 Applied Econometrics II</h1>
+<p class="wharton-tag">Built from Wharton STAT 5210: Applied Econometrics II</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Last lesson introduced the instrument as an idea; this lesson turns it into a working estimator. You will learn two-stage least squares — the workhorse of applied microeconomics — plus the discipline of checking whether your instrument is strong enough to trust. Then we move to the data structure you most often actually have: repeated observations on the same units — servers over weeks, users over months, links over days. Panel methods let you strip out all time-invariant confounders with fixed effects, but only if you cluster your standard errors correctly and handle the dynamics of lagged outcomes. Finally, a first look at discrete choice, the foundation of modeling clicks, adoptions, and purchases.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Implement two-stage least squares and interpret the first stage, reduced form, and 2SLS estimate.</li>
+<li>Diagnose weak instruments with the first-stage F statistic and explain the bias and size distortion they cause.</li>
+<li>Choose between fixed and random effects, apply the Hausman test, and cluster standard errors correctly on panel data.</li>
+<li>Estimate dynamic panels with Arellano–Bond GMM and explain Nickell bias.</li>
+<li>Set up binary and multinomial discrete-choice models (probit, logit, conditional logit) and interpret marginal effects.</li>
+</ul></section>
+<section><h2>Core content</h2>
+
+<h3>Two-stage least squares</h3>
+<p>With multiple instruments Z (n×l) and one or more endogenous regressors X<sub>2</sub>, the model is y = X<sub>1</sub>β<sub>1</sub> + X<sub>2</sub>β<sub>2</sub> + ε, where X<sub>1</sub> are included exogenous controls and Z contains X<sub>1</sub> plus excluded instruments. Two-stage least squares proceeds exactly as named. First stage: regress each endogenous regressor on all instruments, X<sub>2</sub> = ZΠ + V, and form the fitted values X̂<sub>2</sub> = P<sub>Z</sub>X<sub>2</sub>, where P<sub>Z</sub> = Z(Z′Z)<sup>−1</sup>Z′ is the projection onto the instruments. Second stage: regress y on X<sub>1</sub> and X̂<sub>2</sub>. The estimator is β̂<sub>2SLS</sub> = (X′P<sub>Z</sub>X)<sup>−1</sup>X′P<sub>Z</sub>y, where X = [X<sub>1</sub>, X<sub>2</sub>]. The intuition carries over from simple IV: the first stage isolates the variation in the endogenous regressors explained by the instruments, and the second stage uses only that exogenous variation. The 2SLS estimator is consistent under the two instrument conditions and asymptotically normal with a sandwich variance built from the 2SLS residuals — note that the correct residuals are y − Xβ̂<sub>2SLS</sub> (using actual X, not X̂), a classic implementation pitfall when doing 2SLS "by hand."</p>
+<p>Always report three objects, not one: the first stage (does the instrument actually move the regressor? — relevance, with the F statistic on the excluded instruments), the reduced form (does the instrument move the outcome? — the intent-to-treat regression y on Z), and the 2SLS estimate itself (the ratio of the two). The reduced form deserves emphasis: if the instrument does not move the outcome, no exclusion-robust causal story can rescue a significant 2SLS coefficient. Angrist and Krueger (1991) is the exemplar — they report quarter-of-birth effects on schooling (first stage) and on earnings (reduced form) before forming the IV ratio.</p>
+
+<h3>Weak instruments</h3>
+<p>An instrument is weak when its correlation with the endogenous regressor is small — the first stage has little explanatory power. The danger is twofold. First, 2SLS is biased toward OLS in finite samples, and the bias grows as instruments weaken: with completely irrelevant instruments, 2SLS is centered near the OLS estimate you were trying to escape. Formally, the relative bias of 2SLS toward OLS is approximately 1/F where F is the first-stage F statistic on the excluded instruments. Second, the usual asymptotic approximations fail: t-tests reject a true null far more than 5% of the time, and confidence intervals are too narrow and mis-centered. The practical rule from Stock and Yogo: F &lt; 10 is the danger zone (a first-stage F of 10 corresponds to at most about 10% relative bias and roughly 15% size distortion for a nominal 5% test).</p>
+<p>What to do about weak instruments: (1) find stronger instruments — no estimator rescues a hopeless first stage; (2) use estimators more robust to weakness, notably LIML (limited information maximum likelihood) or Fuller's modified LIML, which have smaller median bias than 2SLS under weakness; (3) use weak-instrument-robust inference such as the Anderson–Rubin test, which tests β = β<sub>0</sub> via the reduced form and remains valid regardless of instrument strength. For an engineer, weakness is common: your randomized experiment moved the treatment, but compliance was low (few treated units actually adopted), so the "encouragement" instrument barely shifts the endogenous adoption variable. Report the first-stage F prominently; it is the single number that tells the reader whether to trust the IV at all.</p>
+
+<h3>Panel data: fixed effects vs. random effects</h3>
+<p>Panel data observe units i = 1, …, n over time t = 1, …, T: y<sub>it</sub> = x<sub>it</sub>′β + α<sub>i</sub> + ε<sub>it</sub>, where α<sub>i</sub> is an unobserved unit effect — the server's intrinsic quality, the user's baseline engagement, the link's permanent capacity. If α<sub>i</sub> correlates with x<sub>it</sub> (better servers get more traffic), pooled OLS is inconsistent. The fixed-effects (within) estimator eliminates α<sub>i</sub> by demeaning each unit: regress ỹ<sub>it</sub> = y<sub>it</sub> − ȳ<sub>i</sub> on x̃<sub>it</sub> = x<sub>it</sub> − x̄<sub>i</sub>. Since α<sub>i</sub> is time-invariant, it differences out exactly, and the estimator is consistent for β even when α<sub>i</sub> correlates arbitrarily with x<sub>it</sub> — this is the great virtue of fixed effects: every time-invariant confounder, observed or not, is controlled. The price: you cannot estimate coefficients on time-invariant regressors (they difference out too), and identification comes only from within-unit variation over time.</p>
+<p>The random-effects estimator instead treats α<sub>i</sub> as uncorrelated with x<sub>it</sub> and uses feasible GLS, a matrix-weighted average of the within and between estimators. It is more efficient when its assumption holds — but inconsistent when it fails, while fixed effects remain consistent either way. The Hausman (1978) test formalizes the choice: under the null that α<sub>i</sub> is uncorrelated with x<sub>it</sub>, both FE and RE are consistent (RE efficient); under the alternative, only FE is consistent. The test statistic compares the two estimates, (β̂<sub>FE</sub> − β̂<sub>RE</sub>)′[Var̂(β̂<sub>FE</sub>) − Var̂(β̂<sub>RE</sub>)]<sup>−1</sup>(β̂<sub>FE</sub> − β̂<sub>RE</sub>), which is χ<sup>2</sup> under the null. A large gap rejects RE. But heed the skill's warning: use the Hausman test as a check, not the whole argument — the substantive question is whether unobserved unit characteristics plausibly correlate with your regressors, and the answer is usually yes in engineering systems (provisioning, placement, and traffic are all correlated with hardware quality).</p>
+
+<h3>Clustered standard errors</h3>
+<p>The defining feature of panel data is dependence within units over time — and standard errors must respect it. Clustering generalizes the White sandwich: instead of summing over individual observations, sum over clusters g = 1, …, G: Var̂(β̂) = (X′X)<sup>−1</sup>(Σ<sub>g</sub> X<sub>g</sub>′e<sub>g</sub>e<sub>g</sub>′X<sub>g</sub>)(X′X)<sup>−1</sup>, where each cluster's score vector X<sub>g</sub>′e<sub>g</sub> captures arbitrary within-cluster correlation. Cluster at the unit level for standard panels (servers, users, links). Cluster at the level of treatment assignment when it differs — if a configuration change rolls out per datacenter, cluster by datacenter, not by server. Count your clusters: asymptotics run in G, the number of clusters, not in n. With few clusters (fewer than ~30–50), clustered standard errors are unreliable and results are fragile — use wild cluster bootstrap or collapse to cluster-level analysis. The cardinal sin is running panel regressions with default OLS standard errors; with positive within-unit correlation, they can understate true uncertainty by an order of magnitude.</p>
+
+<h3>Dynamic panels and Arellano–Bond</h3>
+<p>Many outcomes are persistent: today's latency depends on yesterday's. The dynamic panel y<sub>it</sub> = ρy<sub>i,t−1</sub> + x<sub>it</sub>′β + α<sub>i</sub> + ε<sub>it</sub> creates a problem the within transformation cannot fix: demeaning makes the lagged dependent variable correlated with the demeaned error for every t, because ȳ<sub>i</sub> contains ε<sub>i,t−1</sub>. This Nickell bias is of order 1/T — it vanishes only as T grows, and with short panels (T = 5–10, typical) it severely biases ρ downward. Arellano and Bond (1991) solved it with GMM on the first-differenced equation: Δy<sub>it</sub> = ρΔy<sub>i,t−1</sub> + Δx<sub>it</sub>′β + Δε<sub>it</sub>, which eliminates α<sub>i</sub>, and then instruments Δy<sub>i,t−1</sub> with lagged levels y<sub>i,t−2</sub>, y<sub>i,t−3</sub>, … — valid instruments because levels dated t−2 and earlier are uncorrelated with Δε<sub>it</sub> = ε<sub>it</sub> − ε<sub>i,t−1</sub> under serially uncorrelated ε<sub>it</sub>. Stack all available lags as instruments and estimate by GMM. Two diagnostics are mandatory: a test for second-order serial correlation in the differenced residuals (AR(2) in differences; first-order correlation is expected by construction, second-order invalidates the instruments) and the Sargan/Hansen overidentification test. Watch instrument proliferation: with many time periods the instrument count explodes, overfitting the endogenous regressors — collapse the instrument set or limit lag depth.</p>
+
+<h3>Discrete choice: a first look</h3>
+<p>Engineers constantly model choices: a user clicks or not, adopts a feature or not, chooses among pricing tiers. The latent-variable formulation is y<sub>i</sub>* = x<sub>i</sub>′β + ε<sub>i</sub>, observe y<sub>i</sub> = 1{y<sub>i</sub>* &gt; 0}. If ε<sub>i</sub> is standard normal: probit, P(y=1|x) = Φ(x′β). If ε<sub>i</sub> is logistic: logit, P(y=1|x) = Λ(x′β) = 1/(1 + e<sup>−x′β</sup>). Both are estimated by maximum likelihood (details in Lesson 2.3); coefficients are in latent-index units, so report marginal effects — ∂P(y=1|x)/∂x<sub>j</sub> — averaged over the sample, since the effect of x<sub>j</sub> depends on where x sits (effects are largest near probability one-half). For multinomial choice among J alternatives, McFadden's conditional logit models P(choose j) = e<sup>x<sub>ij</sub>′β</sup>/Σ<sub>k</sub> e<sup>x<sub>ik</sub>′β</sup>, where attributes x<sub>ij</sub> vary across alternatives — e.g., each pricing tier's cost and features. Its key property, independence of irrelevant alternatives (IIA), says relative odds of two options don't change when a third is added — implausible when alternatives are close substitutes (the red-bus/blue-bus problem), which motivates nested and mixed logit in Lesson 2.5.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: 2SLS for the effect of a cache rollout with partial compliance</h3>
+<p>Your team rolls out a larger cache to a random half of edge servers (instrument z = 1 if assigned), but some assigned servers fail to apply the config and some control servers pick it up early (endogenous actual cache size x). Over 400 servers you estimate: first stage x̂ = 0.10 + 0.55z (F = 68 on the excluded instrument — strong), reduced form ŷ = 12.4 − 2.2z ms latency, so β̂<sub>2SLS</sub> = −2.2/0.55 = −4.0 ms per unit of cache actually deployed. Code:</p>
+<pre><code>from linearmodels.iv import IV2SLS
+res = IV2SLS.from_formula('latency ~ 1 + [cache_size ~ assigned]',
+                          data=df).fit(cov_type='robust')
+print(res.summary)          # 2SLS, first stage, F-stat all reported</code></pre>
+<p>Naive OLS of latency on actual cache size gave −6.5 ms — biased, because the servers that picked up the config early were the well-maintained ones. Takeaway: always show first stage, reduced form, and 2SLS; the ratio structure makes the estimate transparent.</p>
+</div>
+<div class="example"><h3>Example 2: Weak instrument warning in a pricing experiment</h3>
+<p>You instrument actual subscription price paid (endogenous — discounts target price-sensitive users) with a randomized discount-code email sent to 10,000 users. Only 3% of recipients use the code, so the first-stage F is 4.2 — deep in the weak zone. 2SLS gives a price elasticity of −1.8, suspiciously close to the OLS estimate of −1.6. This is exactly the bias-toward-OLS pathology. You switch to LIML, which gives −2.4, and report an Anderson–Rubin confidence interval (−4.1, −0.9), which is valid under weakness. Takeaway: with F &lt; 10, don't trust 2SLS standard errors; report LIML and weak-robust intervals.</p>
+</div>
+<div class="example"><h3>Example 3: Fixed effects and clustering in a link-upgrade study</h3>
+<p>You observe 150 backbone links monthly for 24 months; some get a capacity upgrade at staggered dates. You regress log throughput on an upgrade indicator with link fixed effects (absorbing permanent link quality, which correlates with upgrade priority) and month fixed effects (absorbing common shocks). Crucially, you cluster standard errors by link:</p>
+<pre><code>from linearmodels.panel import PanelOLS
+mod = PanelOLS.from_formula(
+    'log_thrpt ~ upgrade + EntityEffects + TimeEffects', data=df.set_index(['link','month']))
+print(mod.fit(cov_type='clustered', cluster_entity=True).summary)</code></pre>
+<p>The upgrade coefficient is 0.18 (about 20% throughput gain) with a clustered SE of 0.05. With naive OLS SEs the SE would have been 0.012 — the within-link autocorrelation over 24 months means you have far fewer effective observations than 3,600. The Hausman test rejects random effects (p &lt; 0.001), confirming upgrade timing correlates with unobserved link quality. Takeaway: fixed effects buy consistency; clustering buys honest inference.</p>
+</div>
+<div class="example"><h3>Example 4: Conditional logit for tier choice</h3>
+<p>A cloud provider offers three compute tiers (standard, memory-optimized, GPU) with per-hour prices varying by region and month — 50,000 customer-months of choices. A conditional logit on price and cores gives a price coefficient of −0.9: each $1/hr increase multiplies the odds of choosing that tier by e<sup>−0.9</sup> ≈ 0.41, holding alternatives fixed. But IIA is suspect: memory-optimized and standard are closer substitutes than either is to GPU. You flag this and plan a nested logit (Lesson 2.5). Takeaway: conditional logit is the starting point for choice data; its IIA property is the first thing to scrutinize.</p>
+</div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>2SLS = regress endogenous regressors on all instruments (first stage), then y on the fitted values; β̂<sub>2SLS</sub> = (X′P<sub>Z</sub>X)<sup>−1</sup>X′P<sub>Z</sub>y; always report first stage, reduced form, and 2SLS.</li>
+<li>Weak instruments (first-stage F &lt; 10) bias 2SLS toward OLS and wreck test sizes; use LIML/Fuller and Anderson–Rubin robust inference.</li>
+<li>Fixed effects (within transformation) eliminate all time-invariant confounders and stay consistent when random effects fail; the Hausman test compares the two but judgment leads.</li>
+<li>Cluster standard errors at the unit (or treatment-assignment) level on panel data; asymptotics run in the number of clusters G, and few clusters mean fragile results.</li>
+<li>Nickell bias (order 1/T) afflicts dynamic panels; Arellano–Bond differences the model and instruments with lagged levels via GMM — check AR(2) and the overidentification test.</li>
+<li>Probit/logit model binary choices via a latent index; report average marginal effects, not raw coefficients. Conditional logit extends to multinomial choice but imposes IIA.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Your first-stage F on the excluded instruments is 120. A colleague worries about weak instruments. Are they right?
+<details><summary>Answer</summary><p>No — F = 120 is far above the Stock–Yogo danger zone (F &lt; 10). Weak-instrument bias and size distortion are negligible here; standard 2SLS inference is fine.</p></details></li>
+<li>Why can't fixed effects estimate the coefficient on a server's hardware generation (constant over the panel)?
+<details><summary>Answer</summary><p>The within transformation subtracts each unit's time mean; a time-invariant regressor becomes identically zero after demeaning, so its coefficient is unidentified. This is the price of controlling for all time-invariant confounders.</p></details></li>
+<li>You cluster by server but the treatment was randomized at the datacenter level. What's wrong?
+<details><summary>Answer</summary><p>Clustering must be at (or above) the level of treatment assignment: servers within a datacenter share the treatment shock, so their errors correlate through the design. Cluster by datacenter instead.</p></details></li>
+<li>In a dynamic panel with T = 6, you run fixed effects including the lagged dependent variable. What bias do you face?
+<details><summary>Answer</summary><p>Nickell bias of order 1/T ≈ 1/6 — the demeaned lagged dependent variable correlates with the demeaned error, biasing the autoregressive coefficient downward. Use Arellano–Bond GMM instead.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://ocw.mit.edu/courses/14-310x-data-analysis-for-social-scientists-spring-2023/download/">MIT OCW 14.310x Data Analysis for Social Scientists</a> — IV/2SLS lectures and panel-data materials; the open analogue for the STAT 5210 applied sequence.</li>
+<li>Jeffrey Wooldridge, <em>Econometric Analysis of Cross Section and Panel Data</em> [name only] — the canonical reference for 2SLS, weak instruments, fixed/random effects, clustered SEs, and discrete choice; matches this syllabus chapter by chapter.</li>
+<li>Cameron &amp; Trivedi, <em>Microeconometrics: Methods and Applications</em> [name only] — applied companion with extensive panel and discrete-choice worked examples.</li>
+<li>Arellano &amp; Bond (1991), "Some Tests of Specification for Panel Data," <em>Review of Economic Studies</em> [name only] — the dynamic-panel GMM paper; read the moment-condition construction.</li>
+<li>Hausman (1978), "Specification Tests in Econometrics," <em>Econometrica</em> [name only] — the original specification test behind the FE-vs-RE choice.</li>
+<li>Bruce Hansen, <em>Econometrics</em> [name only] — free text with clear treatments of 2SLS asymptotics and weak-instrument diagnostics.</li>
+<li><a href="https://hbiostat.org/rmsc/intro.html">Frank Harrell's Regression Modeling Strategies notes</a> — excellent on binary-outcome modeling, marginal effects, and why coefficients on the logit scale mislead.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p2-1-applied-econometrics-1.html">← 2.1 Applied Econometrics I</a><a class="next" href="p2-3-econometrics-fundamentals.html">2.3 Econometrics Fundamentals →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7.1 Operations Management Core — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-7.html">Part 7: Operations, Stochastic Models, and Optimization</a> / Lesson 7.1</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 7 · Lesson 7.1 · ~60 min</p>
+<h1>7.1 Operations Management Core</h1>
+<p class="wharton-tag">Built from Wharton OIDD 9400: Operations Management</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Every compute cluster, network link, and hardware supply chain is a <em>process</em>: work arrives, flows through constrained resources, waits in queues, and leaves. Operations management is the science of matching supply with demand under cost and capacity constraints — and its core models (Little's law, the newsvendor, EOQ, base-stock policies) are directly the models you need to provision GPU fleets, size network buffers, batch training jobs, and plan hardware capacity. The math is identical; only the vocabulary changes.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Apply process-analysis fundamentals — bottleneck, utilization, throughput, Little's law — to compute and network systems.</li>
+<li>Derive and apply the newsvendor critical-fractile solution, including underage/overage cost framing.</li>
+<li>Derive the EOQ formula and explain how batching trades setup against holding cost.</li>
+<li>State when base-stock policies are optimal in stochastic inventory systems and what breaks them.</li>
+<li>Translate capacity-planning decisions for compute systems into operations models.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Process analysis: the three fundamentals</h3>
+<p>A process is a sequence of resources that transforms inputs into outputs. Three quantities describe any stable process. The <strong>flow rate</strong> (throughput) R is units completed per unit time. The <strong>flow time</strong> T is the average time a unit spends in the process. The <strong>inventory</strong> I is the average number of units in the process. They are linked by <strong>Little's law</strong>: I = R × T, proved by a sample-path argument with essentially no assumptions — it holds for a factory, a packet queue, or a GPU job scheduler. We will prove it properly in Lesson 7.8; for now, treat it as a consistency check you must be able to apply everywhere.</p>
+<p>The second fundamental is the <strong>bottleneck</strong>: throughput of a process can never exceed the capacity of its slowest resource. If a packet pipeline can parse 10M packets/s but encrypt only 6M packets/s, throughput is 6M packets/s, and every improvement elsewhere is wasted. <strong>Utilization</strong> u = R / capacity measures how close a resource is to its limit; flow time explodes as utilization approaches 1 (the Kingman approximation for a G/G/1 queue makes this quantitative: waiting ≈ (ρ/(1−ρ)) × (variability terms)). The engineering moral: running servers at 95% utilization looks efficient but converts all variability into latency.</p>
+<h3>The newsvendor model: capacity under uncertainty</h3>
+<p>The <strong>newsvendor problem</strong> is the canonical single-period decision under uncertainty. You choose an order quantity Q before observing random demand D (CDF F). Each unit costs c, sells for p &gt; c, and leftovers salvage at s &lt; c. Expected profit is E[p·min(Q,D) + s·max(Q−D,0)] − cQ. Marginal analysis gives the <strong>critical-fractile theorem</strong>:</p>
+<p>The optimal Q* satisfies F(Q*) = Cu / (Cu + Co), where the <strong>underage cost</strong> Cu = p − c (profit lost per unit of shortage) and the <strong>overage cost</strong> Co = c − s (loss per unit of excess). Intuition: increase Q by one unit; with probability 1−F(Q) you sell it (gain Cu), with probability F(Q) you scrap it (lose Co). Stop when the marginal gain equals the marginal loss. This single result is the seed of all of inventory theory: every base-stock policy in Lesson 7.2 is a multi-period newsvendor in disguise.</p>
+<p>Read it as a capacity rule for engineers: provisioning N inference servers for uncertain load, with per-server cost c, revenue p per served request-batch, and sunk cost of idle servers s, you want the Cu/(Cu+Co) quantile of the load distribution — <em>not</em> the mean. The ratio encodes your risk posture: cheap capacity and expensive outages push Q* toward the tail.</p>
+<h3>The EOQ model: deterministic batching</h3>
+<p>The <strong>economic order quantity (EOQ)</strong> is the deterministic counterpart. Demand arrives at a known constant rate d; each order incurs a fixed setup cost K; holding inventory costs h per unit per time. With order quantity Q, you order d/Q times per unit time, average inventory is Q/2, so average cost per time is C(Q) = Kd/Q + hQ/2. Minimizing by calculus gives Q* = √(2Kd/h) — the famous <strong>square-root formula</strong>: optimal batch size grows with the square root of demand and setup cost. The proof is a one-line derivative, but the structure is everywhere: checkpoint a training run how often? Trade the fixed cost of a checkpoint write against the expected lost work since the last one — that is EOQ with a stochastic twist. Extensions cover finite production rate (EPQ), planned backorders, and quantity discounts.</p>
+<h3>Base-stock policies: the dynamic newsvendor</h3>
+<p>In a multi-period backorder system with convex holding/shortage costs and zero fixed order cost, the optimal policy is <strong>base-stock</strong>: each period, order up to a target level S, i.e., order (S − inventory position)⁺. The dynamic program's value function stays convex, and the optimal S is a newsvendor-type quantile of lead-time demand. This is the workhorse of real inventory systems and the entry point to the Clark–Scarf multi-echelon theory of the next lesson. Add a fixed ordering cost K per order, however, and base-stock breaks: now you order in batches, producing an <strong>(s, S) policy</strong> — order up to S only when inventory falls to s or below. Scarf's K-convexity proof of (s,S) optimality (Lesson 7.5) is the canonical example of a <em>structured policy</em> in dynamic programming.</p>
+<h3>Risk pooling: the square-root law</h3>
+<p>Centralizing inventory across locations exploits <strong>risk pooling</strong>: if n identical locations face independent demands with standard deviation σ each, pooled safety stock scales as σ√n rather than nσ — the <strong>square-root law</strong>. Consolidating GPU spares from 16 edge sites into 4 regional depots cuts safety stock roughly in half at the same service level. <strong>Postponement</strong> pushes this further: delay product differentiation (assemble-to-order, or in compute terms, keep capacity generic and configure late) so that uncertain demand is pooled across variants for as long as possible. Component commonality in hardware design is postponement made physical.</p>
+<h3>Operations strategy for compute systems</h3>
+<p>Operations strategy asks which capabilities a process must deliver: cost, quality, speed, flexibility. For a compute platform, translate: reserved vs. spot capacity is the newsvendor's Q* decision; autoscaling policies are base-stock rules where "inventory" is warm servers and "demand" is request rate; job batching is EOQ; the bottleneck analysis tells you which stage of your serving pipeline to scale first. The vocabulary of OM — variability pooling, safety stock, lead time — maps onto tail latency, spare capacity, and cold-start delay. Every lesson in this part makes that mapping concrete.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Newsvendor capacity for inference servers</h3>
+<p>An inference service faces uncertain hourly request-batches. A server-hour costs c = $2, earns p = $10 in value when utilized, and idle servers salvage s = $0 (sunk). Demand D is normal with mean 100, std 25 batches. Cu = 8, Co = 2, critical fractile = 8/10 = 0.8, so Q* = F⁻¹(0.8) ≈ 100 + 0.842×25 ≈ 121 servers.</p>
+<pre><code>from scipy.stats import norm
+mu, sigma = 100, 25
+Cu, Co = 8, 2
+Q_star = norm.ppf(Cu/(Cu+Co), mu, sigma)
+print(Q_star)  # ~121.05
+# Sanity check: expected profit at Q* vs mean-ordering
+import numpy as np
+D = np.random.normal(mu, sigma, 200000)
+def profit(Q): return np.mean(10*np.minimum(Q,D) - 2*Q)
+print(profit(121), profit(100))</code></pre>
+<p>Ordering the mean (100) looks natural but leaves money on the table because underage is 4× costlier than overage.</p></div>
+<div class="example"><h3>Example 2: Bottleneck in a packet-serving pipeline</h3>
+<p>A NIC pipeline has three stages: parse (12M pkt/s), classify (8M pkt/s), encrypt (5M pkt/s). Bottleneck = encrypt at 5M pkt/s, so throughput R = 5M pkt/s regardless of the other stages. If arrival rate λ = 4.5M pkt/s, bottleneck utilization u = 0.9. By Little's law, if average packets in the encrypt stage (queue + service) is 45, mean time in stage = 45 / 4.5M = 10 μs. Upgrading parse to 20M pkt/s changes nothing; the only lever is the bottleneck.</p></div>
+<div class="example"><h3>Example 3: EOQ for model checkpointing</h3>
+<p>Training proceeds at d = 1000 steps/hour. Each checkpoint write costs K = 0.5 "step-equivalents" of I/O stall; recomputing a lost step costs h = 1 per step per... reframe: expected rework per hour with checkpoint interval Q steps is Q/2 steps lost per failure; with one failure per 50 hours, cost per hour ≈ (0.5 × 1000/Q) + (Q/2)×(1/50)×1. Minimizing: Q* = √(2×0.5×1000/(1/50)) = √(50000) ≈ 224 steps. Checkpoint every ~13 minutes.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Little's law (I = R × T) holds for essentially any stable process — use it as a consistency check on every system you model.</li>
+<li>The bottleneck resource caps throughput; utilization near 1 converts variability into latency (Kingman approximation).</li>
+<li>Newsvendor critical fractile: F(Q*) = Cu/(Cu+Co). Order a quantile of demand, not the mean, weighted by the underage/overage cost ratio.</li>
+<li>EOQ: Q* = √(2Kd/h) — optimal batch size balances setup cost against holding cost with a square-root law.</li>
+<li>Base-stock policies are optimal for backorder systems with convex costs and no fixed order cost; they are dynamic newsvendors.</li>
+<li>A fixed ordering cost K breaks base-stock and yields (s, S) policies — the canonical structured policy, proved via K-convexity.</li>
+<li>Compute capacity planning is newsvendor/EOQ/base-stock in disguise: servers, checkpoints, and autoscaling all fit these models.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>A link can forward 10 Gb/s; encrypted throughput is 6 Gb/s. Arrivals are 5 Gb/s. What is the bottleneck, its utilization, and what happens if arrivals rise to 7 Gb/s?<details><summary>Answer</summary><p>Bottleneck: encryption at 6 Gb/s; utilization u = 5/6 ≈ 0.83. At 7 Gb/s arrivals exceed bottleneck capacity — the system is unstable: queues grow without bound and packets must be dropped or shed upstream.</p></details></li>
+<li>Underage cost Cu = $9, overage cost Co = $1, demand uniform on [0, 100]. What is Q*?<details><summary>Answer</summary><p>F(Q*) = 9/10 = 0.9; for Uniform[0,100], Q* = 90. The 9:1 cost ratio pushes the order far above the mean of 50.</p></details></li>
+<li>Why does a fixed ordering cost K destroy the optimality of base-stock policies?<details><summary>Answer</summary><p>Base-stock orders every period to top up to S, incurring K each time. With fixed costs it pays to batch: wait until inventory is low, then order a large amount. The optimal form becomes (s, S): order up to S only when inventory position falls to s or below.</p></details></li>
+<li>A training job checkpoints every Q steps at fixed cost K per checkpoint, with failure rate λ per step and rework cost per step. What happens to optimal Q when the failure rate doubles?<details><summary>Answer</summary><p>This is EOQ with holding-like cost proportional to λ: Q* ∝ 1/√λ, so Q* falls by a factor of √2 ≈ 1.41. Checkpoint ~41% more often.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://www.classcentral.com/course/coursera-wharton-operations-372">Wharton Online: Introduction to Operations Management (Christian Terwiesch)</a> — applied OM survey; good for process analysis and the newsvendor intuition.</li>
+<li><a href="https://www.coursera.org/programs/university-of-colorado-learning-program-e0g2m/learn/wharton-operations-analytics?specialization=business-analytics">Wharton Online: Operations Analytics (Gans, Savin, Veeraraghavan)</a> — data-driven OM; queueing and simulation applications.</li>
+<li><a href="https://www.gerard-cachon.com/research">Gérard Cachon's research page</a> — full texts of the canonical newsvendor and supply-chain coordination papers.</li>
+<li><a href="https://apps.wharton.upenn.edu/syllabi/?course=OIDD9400">Wharton syllabi listing for OIDD 9400</a> — past section listings for the doctoral OM course.</li>
+<li><a href="https://oid.wharton.upenn.edu/programs/phd/course-descriptions/">Wharton OID PhD course descriptions</a> — official descriptions for OIDD 9400 and the rest of the sequence.</li>
+<li><a href="https://oid.wharton.upenn.edu/?p=263">OM/OR qualifying exam coverage</a> — what the qualifying exam draws from OIDD 9300, 9310, and 9400.</li>
+<li>Cachon &amp; Terwiesch, <em>Matching Supply with Demand</em> [name only] — the standard OM text by the OID faculty; newsvendor, EOQ, and process analysis chapters.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p6-6-information-theory.html">← 6.6 Information Theory for Engineers</a><a class="next" href="p7-2-supply-chains.html">7.2 Supply Chains and Distribution →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

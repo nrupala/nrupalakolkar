@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.5 Theory of Statistics — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-1.html">Part 1: Statistical Inference and Learning</a> / Lesson 1.5</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 1 · Lesson 1.5 · ~75 min</p>
+<h1>1.5 Theory of Statistics</h1>
+<p class="wharton-tag">Built from Wharton STAT 9710: Theory of Statistics</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>This is where the linear model grows up. The Gaussian linear model is the exact theory behind every regression you've run — why the t-tests were valid, why sums of squares split the way they do — and this lesson extends it to the situations engineers actually face: choosing among models (and paying the price of having chosen), shrinkage estimators that beat least squares, random effects for grouped data (boards within batches, users within cells), and the generalized linear models that handle binary and count outcomes. If lesson 1.1 taught you to fit the model, this one teaches you what the fitting costs and when to distrust it.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>State Cochran's theorem and derive the distribution theory of the Gaussian linear model (t, F, χ²).</li>
+<li>Compare model-selection criteria (Cp, AIC, BIC) and explain the post-selection inference problem.</li>
+<li>Explain Stein/empirical-Bayes shrinkage in the Gaussian linear model and when it beats OLS.</li>
+<li>Distinguish fixed, random, and mixed effects, and describe empirical-Bayes estimation of random effects.</li>
+<li>Write a GLM in exponential-family form and describe how IRLS fits it.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Distribution theory of the Gaussian linear model</h3>
+<p>Assume y ~ N(Xβ, σ²I) with X n×p of full rank. Then β̂ = (X'X)⁻¹X'y ~ N(β, σ²(X'X)⁻¹), e = (I−H)y ~ N(0, σ²(I−H)), and β̂ is independent of s² = e'e/(n−p). The engine is <strong>Cochran's theorem</strong>: if y ~ N(μ, σ²I) and y'y = Σ Q_i with Q_i = y'A_i y quadratic forms, A_i idempotent summing to I, then the Q_i/σ² are independent χ² with rank(A_i) df. Apply it to the ANOVA split y'y = ŷ'ŷ + e'e (after centering): the model and error sums of squares are independent chi-squares — this is why the F-statistic F = (SSR/q)/(SSE/(n−p)) is exactly F-distributed under H₀, and why t_j = β̂_j/se(β̂_j) is exactly t_{n−p}. Every p-value in your regression output is a corollary of Cochran's theorem. It also gives exact <strong>pivots</strong> for confidence regions: the ellipsoid {β : (β − β̂)'X'X(β − β̂) ≤ p s² F_{p,n−p}(α)} covers β with exact probability 1−α.</p>
+<p><strong>Basu's theorem</strong> ties the pieces together: a complete sufficient statistic is independent of every <strong>ancillary</strong> statistic (one whose distribution doesn't depend on θ). In the Gaussian linear model, β̂ (function of complete sufficient statistics) is independent of s²'s direction-free counterpart — the formal reason the t-statistic's numerator and denominator are independent. Ancillarity also motivates <strong>conditional inference</strong>: condition on ancillary statistics (like the observed information) to get inferences relevant to the data at hand rather than to hypothetical repetitions — the philosophical root of preferring observed over expected information (lesson 1.3).</p>
+<h3>Model selection and its consequences</h3>
+<p>Choosing predictors by fit alone overfits: R² never decreases when you add variables. <strong>Mallows' Cp</strong> = SSE_p/s² − n + 2p estimates predictive risk for subset models — pick the subset minimizing Cp. <strong>AIC</strong> = −2ℓ̂ + 2p estimates Kullback-Leibler divergence to truth (prediction goal); <strong>BIC</strong> = −2ℓ̂ + p log n approximates the Bayes factor (consistent model selection — recovers the true model as n → ∞ if it's among the candidates). Match criterion to goal: AIC for prediction, BIC for identifying the "true" sparse model.</p>
+<p>The sting: <strong>post-selection inference is fragile</strong> (Leeb &amp; Pötscher). The t-statistics you quote after choosing the model by AIC were computed as if the model were fixed in advance — but the data chose the model, so the sampling distribution is distorted: naive p-values are too small, intervals too narrow. Honest options: <strong>sample splitting</strong> (select on half, infer on the other), <strong>selective inference</strong> (condition on the selection event — the truncated-Gaussian adjustments), or avoid selection entirely via shrinkage/averaging. Never report post-AIC p-values at face value in an engineering report.</p>
+<h3>Shrinkage, random effects, empirical Bayes</h3>
+<p>In the Gaussian linear model, Stein's phenomenon (lesson 1.4) says least squares is inadmissible for p ≥ 3. <strong>Ridge regression</strong> β̂_ridge = (X'X + λI)⁻¹X'y is the linear-model face of shrinkage: it trades bias for variance and dominates OLS in MSE over a wide range of λ. The Bayesian view: ridge is the posterior mean under a N(0, τ²I) prior — shrinkage is what priors <em>do</em>.</p>
+<p><strong>Random effects</strong> model grouped structure: y_ij = x_ij'β + u_i + ε_ij with u_i ~ N(0, σ_u²) — e.g., boards i within manufacturing batches, measurements j within boards. Fixed effects estimate each group's intercept separately (costly, noisy for small groups); random effects <em>partially pool</em>: the <strong>BLUP</strong> (best linear unbiased predictor) û_i shrinks the group mean toward the grand mean in proportion to its uncertainty — exactly James-Stein in disguise. <strong>Empirical Bayes</strong> (Efron-Morris) estimates the prior variance σ_u² from the data, then shrinks: no subjective prior needed, yet you harvest the Stein risk reduction. For an engineer with 200 sensors each calibrated a few times, partial pooling is strictly better than per-sensor MLE.</p>
+<p><strong>Minimaxity</strong> sharpens the picture: in the Gaussian sequence model, the minimax risk over ℓ₂-balls is attained (up to constants) by thresholding estimators — <strong>Donoho-Johnstone wavelet thresholding</strong> adapts to unknown smoothness and is asymptotically minimax over Besov bodies. For engineers this is the theory behind wavelet denoising of signals: keep coefficients above a threshold, kill the rest, and you are within a log factor of the best any estimator could do. Shrinkage is not a hack; in the Gaussian world it is essentially optimal.</p>
+<h3>Generalized linear models</h3>
+<p>Responses need not be Gaussian: bit errors are binary, defect counts are Poisson. <strong>GLMs</strong> keep the linear predictor η = Xβ but pass it through a <strong>link</strong> g(μ) = η, with y from an <strong>exponential family</strong> f(y;θ,φ) = exp{[yθ − b(θ)]/a(φ) + c(y,φ)}: logistic regression (binomial/logit), Poisson regression (log link), gamma regression. Fitting is by <strong>IRLS</strong> — iteratively reweighted least squares: each step solves a weighted linear regression with working responses and weights from the current fit, converging to the MLE. The deviance (likelihood-ratio vs. the saturated model) generalizes SSE, with asymptotic χ² — ANOVA's decomposition survives in deviance form. <strong>Quasi-likelihood</strong> handles the common engineering case where the variance function is right (Var ∝ μ) but the full distribution is not: estimate β from the mean-variance relation alone, with sandwich standard errors.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Exact F-test for adding temperature to a calibration model</h3><p>Pressure-sensor model: voltage ~ pressure (reduced) vs. voltage ~ pressure + temperature (full), n = 60. SSE_red = 41.2 (58 df), SSE_full = 33.8 (57 df). F = ((41.2−33.8)/1)/(33.8/57) = 12.47 on (1,57) df, p ≈ 0.0008 — exact under Gaussian errors by Cochran's theorem, no asymptotics needed. The 95% confidence ellipsoid for (β_pressure, β_temp) jointly uses F_{2,57}. Contrast with lesson 1.4's asymptotic χ²: here n is moderate and Gaussianity is plausible, so the exact F is preferred — use exact theory when you have it, asymptotics when you must.</p></div>
+<div class="example"><h3>Example 2: AIC vs. BIC disagree on polynomial degree</h3><p>Fitting thermistor resistance vs. temperature, n = 200: AIC prefers degree 5, BIC prefers degree 3. Both are "right" for their goals — AIC minimizes estimated prediction error (keeps the wiggles that help interpolation), BIC seeks the parsimonious true model. For a calibration curve shipped in firmware (prediction goal), follow AIC; for a physics paper claiming the functional form, BIC. Then the honest step: report that selection happened. Naive t-tests on the degree-5 coefficients overstate significance; split the data (select degree on half, fit CIs on the other) or quote selective-inference intervals.</p></div>
+<div class="example"><h3>Example 3: Empirical-Bayes shrinkage of 50 board-level offsets</h3><p>Fifty boards, each measured 4 times for DC offset: y_ij = θ_i + ε_ij, ε ~ N(0, σ²). Per-board MLE θ̂_i = ȳ_i has total risk 50·σ²/4. Empirical Bayes: estimate between-board variance τ̂² from the spread of the ȳ_i, then θ̂_i^{EB} = w_i ȳ_i + (1−w_i)ȳ with w_i = τ̂²/(τ̂² + σ²/4). Boards with noisy means (small n_i, large σ²) shrink hard toward the grand mean; precisely measured boards barely move. Expected total risk drops ~30% — the Efron-Morris result. In manufacturing test, this means fewer false "bad board" flags: extreme readings from under-sampled boards get pulled back automatically.</p>
+<pre><code>import numpy as np
+ybar = board_means          # 50 per-board means, each of 4 measurements
+s2 = within_var/4
+tau2 = max(0, np.var(ybar, ddof=1) - s2)   # method-of-moments EB estimate
+w = tau2/(tau2 + s2)
+theta_eb = w*ybar + (1-w)*ybar.mean()     # partially pooled estimates
+</code></pre></div>
+<div class="example"><h3>Example 4: Poisson GLM for soft-error counts</h3><p>SRAM soft errors counted per chip across voltage levels: counts y_i ~ Poisson(μ_i), log μ_i = β_0 + β_1·voltage_i + log(exposure_i) (offset for chip-hours). IRLS converges in 6 iterations; β̂_1 = −1.9 per volt (higher voltage, fewer upsets — larger critical charge). Deviance = 88.4 on 76 df — ratio 1.16, mild overdispersion; refit with quasi-Poisson (Var = φμ, φ̂ = 1.16) and SEs inflate by √1.16. The deviance-based χ² test of β_1 = 0 gives p &lt; 10⁻⁶. This is ANOVA logic (compare deviances) transplanted to counts — the same decomposition instinct, new distribution.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li><strong>Cochran's theorem:</strong> independent χ² decomposition of y'y — the source of every exact t, F, and χ² in Gaussian linear models.</li>
+<li><strong>Model selection:</strong> Cp/AIC target prediction error; BIC targets the true model (consistent). Match the criterion to the goal.</li>
+<li><strong>Post-selection inference is distorted:</strong> naive p-values after AIC/BIC selection are invalid — use sample splitting or selective inference.</li>
+<li><strong>Ridge/shrinkage</strong> dominates OLS in MSE; it is the posterior mean under a Gaussian prior — Stein's phenomenon in the linear model.</li>
+<li><strong>Random effects + BLUP + empirical Bayes:</strong> partial pooling across groups (boards, sensors, batches) strictly reduces total risk vs. per-group MLE.</li>
+<li><strong>GLMs:</strong> exponential family + link function, fit by IRLS; deviance generalizes SSE with asymptotic χ²; quasi-likelihood when only the variance function is trusted.</li>
+<li>Prefer exact Gaussian theory when its assumptions hold; reach for asymptotics (lesson 1.4) when they don't.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>What does Cochran's theorem give you that the CLT does not, in a Gaussian linear model?
+<details><summary>Answer</summary><p>Exact finite-sample distributions: β̂ ~ N, SSE/σ² ~ χ², and their independence — hence exact t and F tests at any n. The CLT only gives asymptotic approximations and says nothing about independence of β̂ and s².</p></details></li>
+<li>AIC picks 8 predictors, BIC picks 4, from n = 150. Which do you report to (a) a team deploying a predictor, (b) a researcher asking which effects are real?
+<details><summary>Answer</summary><p>(a) AIC's 8 — prediction error is the deployment metric. (b) BIC's 4 — consistent selection targets the true sparse set. In both cases, disclose the selection step and avoid naive post-selection p-values.</p></details></li>
+<li>Why is the BLUP of a random effect a shrinkage estimator, and what does it shrink toward?
+<details><summary>Answer</summary><p>The BLUP û_i = [σ_u²/(σ_u² + σ²/n_i)](ȳ_i − x̄'β) shrinks the group deviation toward zero (i.e., the group mean toward the overall mean), with shrinkage factor driven by the group's sample size and noise — small noisy groups shrink most. It is James-Stein/empirical-Bayes in linear-model form.</p></details></li>
+<li>Your Poisson GLM shows deviance/df = 3.2. What do you do?
+<details><summary>Answer</summary><p>Substantial overdispersion — the Poisson variance assumption fails. Switch to quasi-Poisson (or negative binomial), which keeps the coefficient estimates but inflates standard errors by √φ̂, and investigate the source (unmodeled heterogeneity, e.g., chip-to-chip variation).</p></details></li>
+<li>Name one cost of model selection that Cp/AIC/BIC themselves do not fix.
+<details><summary>Answer</summary><p>Post-selection inference distortion: the criteria pick a model, but subsequent p-values and intervals computed as if the model were pre-specified are overconfident. Fix with sample splitting or selective-inference adjustments.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-videos/">MIT OCW 18.650 lecture videos</a> — lectures 13–16 on regression theory.</li>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-notes/">MIT OCW 18.650 lecture notes</a> — Gaussian linear model derivations.</li>
+<li><a href="http://assets.cambridge.org/97811084/98029/frontmatter/9781108498029_frontmatter.pdf">Martin Wainwright, <em>High-Dimensional Statistics</em> (frontmatter)</a> — modern minimax view of the linear model.</li>
+<li>C. R. Rao, <em>Linear Statistical Inference and Its Applications</em> — classical linear-model theory including Cochran's theorem.</li>
+<li>McCullagh &amp; Nelder, <em>Generalized Linear Models</em> — the canonical GLM text: exponential families, IRLS, deviance.</li>
+<li>A. C. Christensen, <em>Plane Answers to Complex Questions</em> — geometric treatment of the Gaussian linear model.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p1-4-testing-asymptotics.html">← 1.4 Testing, Asymptotics, and Decision Theory</a><a class="next" href="p1-6-modern-regression.html">1.6 Modern Regression: Penalization, GLMs, GAMs →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

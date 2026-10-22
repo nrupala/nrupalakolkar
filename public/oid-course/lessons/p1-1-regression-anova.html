@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.1 Applied Regression and ANOVA — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-1.html">Part 1: Statistical Inference and Learning</a> / Lesson 1.1</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 1 · Lesson 1.1 · ~60 min</p>
+<h1>1.1 Applied Regression and ANOVA</h1>
+<p class="wharton-tag">Built from Wharton STAT 5000: Applied Regression and Analysis of Variance</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Regression is the workhorse of empirical engineering: you fit a calibration curve to sensor data, predict a chip's failure rate from operating temperature and voltage, estimate how antenna gain varies with design parameters, or quantify the effect of a firmware change on latency. ANOVA is the statistical machinery behind designed experiments — A/B tests of two radio protocols, comparing battery drain across firmware builds. Almost every ML model you will ever train is regression with fancier features, and every "does this coefficient differ from zero" question in your engineering reports is answered by the same linear-model theory. Master the linear model here and the rest of Part 1 (penalized regression, GLMs, modern ML) is a short walk.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Derive the ordinary least squares (OLS) estimator from the geometry of projection, and interpret the hat matrix and residuals.</li>
+<li>State the Gauss-Markov theorem precisely and name the assumptions that make OLS the best linear unbiased estimator.</li>
+<li>Decompose total variation into model and error sums of squares (ANOVA), and test general linear hypotheses with F-tests.</li>
+<li>Run residual diagnostics — leverage, studentized residuals, Cook's distance — and decide when a model must be refit.</li>
+<li>Recognize multicollinearity through variance inflation factors and remedy it rather than trusting unstable coefficients.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>The linear model and OLS geometry</h3>
+<p>The multiple linear regression model is y = Xβ + ε, where y is an n-vector of responses, X is an n×p design matrix (usually with a column of ones for the intercept), β is a p-vector of unknown coefficients, and ε is an n-vector of errors with E[ε] = 0 and Cov(ε) = σ²I. OLS chooses β̂ to minimize the squared error ‖y − Xβ‖². Setting the gradient to zero gives the normal equations X'Xβ̂ = X'y, and when X has full column rank, β̂ = (X'X)⁻¹X'y.</p>
+<p>The geometry matters more than the algebra. The fitted values ŷ = Xβ̂ = Hy, where H = X(X'X)⁻¹X' is the <em>hat matrix</em>, the orthogonal projection onto the column space of X. Residuals e = y − ŷ = (I − H)y are orthogonal to every column of X, i.e., X'e = 0 — the residuals carry no information left over that is linearly predictable from the regressors. This single fact explains why residual plots are so diagnostic: anything systematic left in the residuals is what the model failed to capture.</p>
+<h3>Gauss-Markov and the classical assumptions</h3>
+<p><strong>Gauss-Markov theorem.</strong> Under the model y = Xβ + ε with E[ε|X] = 0 and Cov(ε|X) = σ²I, OLS is the <em>best linear unbiased estimator</em> (BLUE): among all estimators that are linear in y and unbiased for any linear combination c'β, β̂ has the smallest variance. "Best" is conditional — it is best among linear unbiased estimators, and only under homoskedastic, uncorrelated errors with correct mean specification. Proof sketch: any linear unbiased estimator of c'β is c'(X'X)⁻¹X'y + d'y with X'd = 0; its variance is σ²[c'(X'X)⁻¹c + d'd] ≥ σ²c'(X'X)⁻¹c, the OLS variance.</p>
+<p>Gaussianity (ε ~ N(0, σ²I)) buys exact small-sample inference: β̂ ~ N(β, σ²(X'X)⁻¹), (n−p)s²/σ² ~ χ² with n−p degrees of freedom (s² = e'e/(n−p)), and these are independent. The <strong>Frisch-Waugh-Lovell theorem</strong> gives the clean interpretation of individual coefficients: the OLS estimate of β_j equals the simple regression of y on x_j after both have been "partialled out" — residualized against all other regressors. This is why you should read each coefficient as "the effect of x_j holding the others fixed," and it is also the computational engine behind partial regression plots.</p>
+<h3>ANOVA decompositions and the F-test</h3>
+<p>Analysis of variance is regression with categorical predictors, plus a disciplined bookkeeping of where the variation goes. The total sum of squares decomposes: SST = SSR + SSE, i.e., Σ(y_i − ȳ)² = Σ(ŷ_i − ȳ)² + Σ(y_i − ŷ_i)². Under Gaussianity these pieces are <em>independent</em> chi-squares (<strong>Cochran's theorem</strong>), so their ratio is F-distributed. The F-test for the general linear hypothesis H₀: Cβ = 0 rejects when F = ((SSR_full − SSR_red)/q)/(SSE_full/(n−p)) is large, comparing full and reduced models.</p>
+<p>One-way ANOVA models y_ij = μ + α_i + ε_ij for i = 1..k groups, j = 1..n_i replicates; the F-test compares between-group to within-group variation. Two-way and factorial ANOVA add row effects, column effects, and <em>interactions</em> — the effect of factor A at different levels of factor B. Rule of practice: <strong>interpret interactions before main effects</strong>, because a significant interaction makes the "average" main effect misleading. A classic EE example: testing three modem modulation schemes (factor A) across two channel conditions (factor B); if scheme rankings flip between clean and noisy channels, the interaction is the story.</p>
+<p>When Gauss-Markov's homoskedasticity assumption fails — the residual funnel — OLS stays unbiased but the classical standard errors are wrong. <strong>White's heteroskedasticity-consistent (sandwich) covariance estimator</strong> replaces σ²(X'X)⁻¹ with (X'X)⁻¹(X'Ω̂X)(X'X)⁻¹, where Ω̂ = diag(e_i²): it is consistent for the true sampling variance of β̂ without modeling the heteroskedasticity. In engineering data with variance growing in the signal (power measurements, counts), sandwich SEs are cheap insurance — report them whenever the residuals-vs-fitted plot fans out.</p>
+<h3>Prediction, transformation, and reporting</h3>
+<p>Distinguish the <strong>confidence interval for the mean response</strong> E[y|x₀] = x₀'β — narrow, shrinking with n — from the <strong>prediction interval</strong> for a new observation y₀ — wider by ±σ, never shrinking to zero. Confusing them is a classic reporting error: a calibration lab quoting the confidence band as the uncertainty of the next measurement understates risk. When diagnostics show skew or multiplicative error structure, transform: log(y) for positive quantities with proportional noise (then back-transform with the smearing correction, not naive exponentiation), or Box-Cox. A transformation chosen to fix the diagnostics is modeling, not cheating — but re-run all diagnostics after transforming, since a fix for variance can break linearity.</p>
+<h3>Diagnostics: leverage, influence, residuals</h3>
+<p>The diagonal of the hat matrix, h_ii, is the <em>leverage</em> of observation i: how far its x-values sit from the center of the data. High-leverage points can tilt the whole fit. But leverage alone is not influence — an outlier in x with a y exactly on the line changes nothing. <strong>Cook's distance</strong> D_i combines leverage and residual size, measuring how much β̂ would move if observation i were deleted; D_i &gt; 1 (or far above the pack) demands investigation. Studentized residuals (residuals divided by their own standard error) flag y-outliers against a t reference.</p>
+<p>Every fit deserves: (a) residuals vs. fitted — should be a formless cloud; a funnel means heteroskedasticity, curvature means missing nonlinearity; (b) normal QQ plot of residuals — heavy tails or skew threaten t/F inference; (c) residuals vs. each predictor and vs. time order — catches omitted variables and autocorrelation. When assumptions fail: use White heteroskedasticity-consistent standard errors, transform y or x, add polynomial or spline terms, or switch to robust regression. <strong>Multicollinearity</strong> — near-linear dependence among predictors — inflates Var(β̂_j) by the variance inflation factor VIF_j = 1/(1 − R²_j); VIF above 5–10 signals trouble. The remedy is to drop or combine collinear regressors, never to quote the unstable individual coefficients as if they were identified.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Calibrating a temperature sensor</h3><p>A thermistor is tested at known reference temperatures x = {−20, −10, 0, 10, 20, 30} °C, and the measured voltage y (mV) is {38.1, 44.2, 50.5, 55.9, 62.3, 68.0}. OLS gives ŷ = 49.83 + 0.599x (rounded), R² = 0.9997. The hat-matrix diagonal at x = 30 is h = 0.36 (of n = 6), the highest leverage — a check measurement at 40 °C would disproportionately set the slope. The residual at x = 10 °C is −0.1 mV, studentized residual −0.4: no outlier. By Gauss-Markov, with homoskedastic error this slope is BLUE; Frisch-Waugh-Lovell says the 0.599 mV/°C estimate is exactly the slope of y-on-x after removing means. Inverting the calibration (predicting temperature from voltage) is a different regression — do not invert the fitted line; refit x on y.</p></div>
+<div class="example"><h3>Example 2: A/B test of two firmware builds (one-way ANOVA)</h3><p>Build A and build B are each flashed onto 20 boards; packet loss rate (%) over a 24-hour stress test: A = {1.2, 1.5, 1.1, ...}, ȳ_A = 1.30; B: ȳ_B = 0.95. One-way ANOVA with k = 2 groups: between-group SS = 20(1.30 − 1.125)² + 20(0.95 − 1.125)² = 1.225 on 1 df; within-group SS = 4.10 on 38 df; F = (1.225/1)/(4.10/38) = 11.35, p ≈ 0.002. Reject equality of means. Note this equals the two-sample t-test squared (F = t² when k = 2) — ANOVA generalizes it to any number of groups. Residual QQ plot is straight; Levene's check suggests equal variances, so the pooled F is trusted. Conclusion for the report: build B reduces mean packet loss by ~0.35 percentage points (95% CI roughly ±0.22).</p></div>
+<div class="example"><h3>Example 3: Modulation × channel interaction (two-way ANOVA)</h3><p>Three modulation schemes (QPSK, 16-QAM, 64-QAM) × two channels (AWGN, Rayleigh fading), 10 trials each, measuring bit-error rate (log scale). The interaction F is significant: 64-QAM beats 16-QAM in AWGN but collapses in Rayleigh fading, while QPSK is mediocre-but-stable everywhere. The main effect "64-QAM is best on average" is therefore misleading — the interaction says there is no single winner; the choice depends on the channel. Reporting marginal means without the interaction plot would actively mislead a design review. This is why interactions get interpreted first.</p></div>
+<div class="example"><h3>Example 4: Cook's distance catches a logging glitch</h3><p>Regressing end-to-end latency (ms) on offered load for a messaging service, n = 200: OLS slope looks alarming — 4.2 ms per 100 concurrent connections. Residuals-vs-fitted shows one point far out: at load 8,500, latency 9,800 ms, with h_ii = 0.11 and studentized residual 6.1, Cook's D = 2.3 — by far the largest. Investigation finds a logging daemon froze and timestamps were buffered; the true latency was ~120 ms. Dropping that observation, slope becomes 1.1 ms/100 conn. and D of the next-largest point is 0.08. Lesson: never ship a regression conclusion without Cook's distance and a residual plot, and always <em>refit without influential points</em> to see whether the engineering conclusion changes before acting on it.</p>
+<pre><code>import numpy as np, statsmodels.api as sm
+X = sm.add_constant(load)          # design matrix with intercept
+fit = sm.OLS(latency, X).fit()
+infl = fit.get_influence()
+cooks_d = infl.cooks_distance[0]   # Cook's distance per point
+leverage = infl.hat_matrix_diag     # hat-matrix diagonal h_ii
+sm.qqplot(fit.resid, line='s')      # normality check
+</code></pre></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li><strong>OLS geometry:</strong> ŷ = Hy projects y onto the column space of X; residuals e = (I − H)y satisfy X'e = 0. Read the hat matrix, not just the coefficients.</li>
+<li><strong>Gauss-Markov:</strong> OLS is BLUE — best among linear unbiased estimators — under E[ε|X] = 0 and Cov(ε|X) = σ²I. "Best" fails if errors are heteroskedastic or the mean is misspecified.</li>
+<li><strong>Frisch-Waugh-Lovell:</strong> each β̂_j is the slope of y on x_j after partialling out the other regressors — the exact meaning of "holding other variables fixed."</li>
+<li><strong>ANOVA:</strong> SST = SSR + SSE with independent χ² pieces (Cochran), giving F-tests for general linear hypotheses, one-way, two-way, and factorial designs.</li>
+<li><strong>Interactions first:</strong> in factorial designs, interpret interaction effects before main effects, or the main effects can actively mislead.</li>
+<li><strong>Diagnostics are mandatory:</strong> residuals vs. fitted, QQ plots, leverage h_ii, studentized residuals, Cook's distance; refit without influential points and compare conclusions.</li>
+<li><strong>Multicollinearity (VIF):</strong> collinear predictors inflate variances; drop or combine them rather than reporting unstable coefficients.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Why does the residual vector e always satisfy X'e = 0? What does this imply about the sample correlation between any predictor and the residuals?
+<details><summary>Answer</summary><p>Because e = (I − H)y and H projects onto col(X), (I − H) projects onto its orthogonal complement, so X'e = X'(I − H)y = (X' − X'H)y = (X' − X')y = 0 since X'H = X'. Hence every column of X (each predictor, including the intercept) has exactly zero sample correlation with the residuals.</p></details></li>
+<li>An engineer says "OLS is the best estimator, so I don't need to worry about heteroskedasticity." What is wrong?
+<details><summary>Answer</summary><p>Gauss-Markov's "best" is among linear unbiased estimators and assumes homoskedastic, uncorrelated errors. Under heteroskedasticity OLS is still unbiased but no longer efficient, and the usual standard errors are wrong (typically too small). Use White heteroskedasticity-consistent SEs or weighted least squares.</p></details></li>
+<li>In a two-way ANOVA of chip yield by foundry (2 levels) and process node (3 levels), the interaction is significant but the foundry main effect is not. Can you conclude foundries don't matter? Explain.
+<details><summary>Answer</summary><p>No. A significant interaction means the foundry effect differs by node — e.g., foundry A wins at one node and loses at another — so the averaged-out main effect can be near zero while foundry choice matters enormously within each node. Report simple effects per node and the interaction plot, not the main effect.</p></details></li>
+<li>An observation has huge leverage but tiny residual. Can it still have a large Cook's distance? Why or why not?
+<details><summary>Answer</summary><p>No — Cook's distance is proportional to (studentized residual)² times a leverage factor, so a point sitting nearly on the fitted line has small D regardless of leverage. But remove caution: it still "anchors" the fit, and a small change to its y could make it very influential.</p></details></li>
+<li>Two predictors have VIFs of 12 each. What does that mean numerically, and what would you do?
+<details><summary>Answer</summary><p>Each coefficient's variance is inflated 12× relative to orthogonal predictors (standard error inflated by √12 ≈ 3.5). Check their correlation; drop one, combine them (e.g., a sum or ratio), or use ridge regression — but don't publish the two unstable coefficients as separately identified effects.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-videos/">MIT OCW 18.650 lecture videos</a> — lectures 13–16 cover the regression theory behind this lesson.</li>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-notes/">MIT OCW 18.650 lecture notes</a> — written derivations of OLS, Gauss-Markov, and ANOVA.</li>
+<li><a href="https://hbiostat.org/rmsc/">Frank Harrell's Regression Modeling Strategies notes</a> — applied strategy, validation, and diagnostics discipline for real regressions.</li>
+<li><a href="https://truescho.com/en/courses/wharton-quantitative-modeling">Coursera: Fundamentals of Quantitative Modeling (Wharton)</a> — applied regression context from Wharton's own online course.</li>
+<li>Sanford Weisberg, <em>Applied Linear Regression</em> (Wiley) — the canonical applied-regression text; geometry, diagnostics, influence.</li>
+<li>Kutner, Nachtsheim &amp; Neter, <em>Applied Linear Statistical Models</em> — ANOVA decompositions and factorial designs in full detail.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p0-3-convexity-analysis.html">← 0.3 Convexity and Real Analysis Primer</a><a class="next" href="p1-2-nonparametric-categorical.html">1.2 Nonparametric Methods and Categorical Data →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

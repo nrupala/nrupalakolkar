@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7.4 Stochastic Processes — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-7.html">Part 7: Operations, Stochastic Models, and Optimization</a> / Lesson 7.4</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 7 · Lesson 7.4 · ~75 min</p>
+<h1>7.4 Stochastic Processes</h1>
+<p class="wharton-tag">Built from Wharton OIDD 9310: Stochastic Processes II and STAT 9310: Stochastic Processes</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>This is the course where probability meets the electrical engineer's home turf. Brownian motion is the mathematical model of thermal noise; the spectral view of stationary processes is the Wiener–Khinchin theorem you know from signals and systems; martingales are the rigorous tool behind sequential detection, stochastic approximation, and the convergence proofs of the RL algorithms in Lesson 7.7. OIDD 9310 and STAT 9310 extend the discrete models of Lesson 7.3 into continuous time and continuous state — the language of noise, diffusion, and control.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Define filtrations, stopping times, and martingales; apply the optional stopping theorem correctly.</li>
+<li>State the path properties of Brownian motion and use the reflection principle for boundary-crossing probabilities.</li>
+<li>Apply Itô's formula to functions of Brownian motion and write basic SDEs.</li>
+<li>Compute power spectral densities of stationary processes via the Wiener–Khinchin theorem.</li>
+<li>Connect Donsker's invariance principle to diffusion approximations of queues and random walks.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Martingales: fair games and sequential analysis</h3>
+<p>A <strong>filtration</strong> {F_t} is an increasing family of σ-algebras — the information available by time t. A process M_t is a <strong>martingale</strong> if E[|M_t|] &lt; ∞ and E[M_t | F_s] = M_s for t &gt; s: your best forecast of the future, given the present, is the present. A <strong>stopping time</strong> τ is a random time whose occurrence by t is decidable from F_t — e.g., the first time a statistic crosses a threshold. The <strong>optional stopping theorem</strong>: under integrability conditions (bounded τ, bounded increments, or uniform integrability), E[M_τ] = E[M_0]. This is the engine of sequential analysis: Wald's sequential probability ratio test, the analysis of gambler's-ruin-type absorption, and Wald's equation E[Σ_{i=1}^τ X_i] = E[τ]·E[X] for i.i.d. X_i all flow from it.</p>
+<p><strong>Doob's convergence theorems</strong> give the deep result: a martingale bounded in L¹ converges almost surely (and in L¹ under uniform integrability) — the probabilistic analogue of monotone convergence, and the backbone of Bayesian consistency and stochastic-approximation proofs. Warning: optional stopping fails without the integrability conditions — the classic "double until you win" strategy is a martingale whose stopped value has infinite expectation, which is why the fine print matters.</p>
+<h3>Brownian motion and Itô calculus</h3>
+<p><strong>Brownian motion</strong> (Wiener process) W_t is the continuous-time, continuous-state limit of a random walk: W_0 = 0, independent Gaussian increments, W_t − W_s ~ N(0, t−s). Its paths are continuous but <strong>nowhere differentiable</strong> — with probability 1, the path has infinite variation on every interval. The <strong>reflection principle</strong>: for a &gt; 0, P(max_{s≤t} W_s ≥ a) = 2P(W_t ≥ a) = 2(1 − Φ(a/√t)) — proved by reflecting the path at its first hitting time of a. This gives first-passage probabilities in closed form: the chance a buffer, a stock price, or a noisy voltage crosses a threshold.</p>
+<p>Because paths have infinite variation, ∫ f dW cannot be a Riemann–Stieltjes integral; the <strong>Itô integral</strong> is built in L² from simple processes instead. The chain rule is replaced by <strong>Itô's formula</strong>: for dX = a dt + b dW, df(X) = f'(X)dX + (1/2)f''(X)b²dt — the extra second-order term is the entire difference between stochastic and ordinary calculus, and forgetting it is the classic error. <strong>Stochastic differential equations</strong> dX = a(X)dt + b(X)dW model noisy circuits (Langevin dynamics), tracking filters, and interest rates; the <strong>Feynman–Kac formula</strong> links SDE expectations to PDEs, and <strong>Girsanov's theorem</strong> describes how changing the drift changes the underlying probability measure — the continuous-time version of importance sampling.</p>
+<h3>Stationary processes and the spectral view (EE tie-in)</h3>
+<p>A process is (wide-sense) <strong>stationary</strong> if its mean is constant and its autocorrelation R(τ) = E[X_t X_{t+τ}] depends only on the lag τ. The <strong>Wiener–Khinchin theorem</strong>: the power spectral density S(f) is the Fourier transform of R(τ). This is the bridge between the probabilist's time-domain view and the engineer's frequency-domain view: white noise has flat S(f) = N_0/2 (and, strictly, infinite power — the mathematical idealization of thermal noise); passing it through a linear filter with transfer function H(f) gives output PSD S_out(f) = |H(f)|²S_in(f), the formula behind every noise analysis of amplifiers and receivers. Thermal noise in a resistor (Johnson–Nyquist, 4kTR per Hz), shot noise in devices, and phase noise in oscillators all live in this framework; Brownian motion itself is the integral of white noise.</p>
+<h3>From random walks to diffusion: Donsker's invariance principle</h3>
+<p><strong>Donsker's invariance principle</strong> (functional CLT): a scaled random walk S_{⌊nt⌋}/√n converges in distribution to Brownian motion. This is why diffusion approximations work: a heavily loaded queue's workload process, properly scaled, looks like <strong>reflected Brownian motion</strong>, giving closed-form approximations for waiting-time tails that no exact discrete analysis can touch. Heavy-traffic queueing theory (Lesson 7.8's QED regime) is Donsker applied to service systems. The same principle justifies modeling aggregate network traffic and order-flow imbalance as diffusions.</p>
+<h3>Mean-reverting diffusions: the Ornstein–Uhlenbeck process</h3>
+<p>Not every noise accumulates forever. The <strong>Ornstein–Uhlenbeck (OU) process</strong> dX = −θX dt + σ dW mean-reverts: it is the continuous-time analogue of a stable AR(1), with stationary distribution N(0, σ²/2θ) and exponentially decaying autocorrelation e^{−θ|τ|}. OU processes model phase noise in oscillators (where a restoring mechanism pulls the phase back), thermal drift in sensors, and interest-rate dynamics. Its spectral density is Lorentzian, S(f) ∝ 1/(θ² + (2πf)²) — flat at low frequencies, rolling off as 1/f² — the shape you measure on a spectrum analyzer when white noise drives a first-order system. Recognizing OU structure in a noise trace tells you both the time constant 1/θ and the driving noise level σ from one fit.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Sequential anomaly detection via optional stopping</h3>
+<p>A link monitor accumulates the log-likelihood ratio M_n = Σ log(f1(X_i)/f0(X_i)) for normal (f0) vs. anomalous (f1) packet statistics. Under f0, M_n is a martingale with negative drift... precisely: L_n = exp(M_n) is a nonnegative martingale with E[L_n] = 1. Stop at τ = first n with L_n ≥ 1/α (declare anomaly) or L_n ≤ β (clear). By optional stopping, P(false alarm) = P(L_τ ≥ 1/α) ≤ α·E[L_τ] ≤ α — Wald's SPRT bound. With α = 0.01, the threshold is 100: declare an anomaly the first time the likelihood ratio hits 100, with false-alarm probability ≤ 1%. This is the rigorous core of CUSUM change detectors used in network monitoring.</p></div>
+<div class="example"><h3>Example 2: Reflection principle for buffer overflow</h3>
+<p>A router buffer drains at rate slightly below the mean arrival rate during a congestion episode; the backlog (centered) behaves like Brownian motion with drift. Ignoring drift for a bound: starting from backlog 0, the probability the backlog ever exceeds B packets within time t is, by reflection, 2(1 − Φ(B/√(σ²t))). With σ² = 10⁶ packets²/s (variance rate), B = 10⁴ packets, t = 1 s: B/(σ√t) = 10, so P ≈ 2(1 − Φ(10)) ≈ 1.5×10⁻²³ — safe. But if B = 2000: ratio 2, P ≈ 2(1 − Φ(2)) ≈ 0.0456 — a 4.6% overflow risk, and the buffer must grow or the drain rate rise. One formula sizes the buffer.</p>
+<pre><code>from scipy.stats import norm
+sigma2, t = 1e6, 1.0
+for B in [10000, 2000]:
+    print(B, 2*(1 - norm.cdf(B/(sigma2*t)**0.5)))</code></pre></div>
+<div class="example"><h3>Example 3: Noise PSD through an RC filter</h3>
+<p>Thermal noise of a resistor R is white with (two-sided) PSD S_v = 2kTR V²/Hz. Through an RC low-pass with H(f) = 1/(1 + j2πfRC), the output PSD is S_out(f) = 2kTR/|1 + j2πfRC|². Integrating over f gives total noise power kT/C — the famous kT/C noise of a sampled capacitor, independent of R (R sets the bandwidth, C sets the total). With kT ≈ 4.14×10⁻²¹ J at 300 K and C = 1 pF: RMS noise = √(kT/C) ≈ 64 μV. Every ADC front end in your hardware is designed against this number.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Martingale: E[M_t | F_s] = M_s. Optional stopping: E[M_τ] = E[M_0] under integrability — the tool for sequential tests and first-passage problems.</li>
+<li>Wald's equation: E[Σ_{i≤τ} X_i] = E[τ]E[X] — expected stopped sum factors for i.i.d. increments.</li>
+<li>Brownian motion: continuous, nowhere-differentiable paths; independent Gaussian increments; reflection principle P(max W ≥ a) = 2(1 − Φ(a/√t)).</li>
+<li>Itô's formula: df = f'dX + (1/2)f''b²dt — the second-order term is the whole difference from ordinary calculus.</li>
+<li>Wiener–Khinchin: S(f) = Fourier{R(τ)}; filtered noise obeys S_out = |H|²S_in. kT/C noise is the canonical application.</li>
+<li>Donsker's invariance principle: scaled random walks → Brownian motion, licensing diffusion approximations of queues and traffic.</li>
+<li>Feynman–Kac and Girsanov connect SDEs to PDEs and to measure change (importance sampling in continuous time).</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>A nonnegative martingale starts at M_0 = 1. A test rejects when M_n ≥ 20. Bound the false-rejection probability.<details><summary>Answer</summary><p>By optional stopping, P(M_τ ≥ 20) ≤ E[M_τ]/20 ≤ 1/20 = 0.05. (This is Doob's maximal inequality in disguise.)</p></details></li>
+<li>Why can't the Itô integral be defined pathwise as a Riemann–Stieltjes integral?<details><summary>Answer</summary><p>Brownian paths have infinite variation on every interval (they are nowhere differentiable), so the Riemann–Stieltjes sums do not converge pathwise. The Itô integral is instead constructed in L² via an isometry on simple processes.</p></details></li>
+<li>White noise with PSD N_0/2 passes through an ideal low-pass of bandwidth B and gain 1. What is the output noise power?<details><summary>Answer</summary><p>Integrate the PSD over [−B, B]: P = (N_0/2)(2B) = N_0B. (One-sided: N_0B over [0, B] with one-sided PSD N_0.)</p></details></li>
+<li>State Donsker's invariance principle and one queueing application.<details><summary>Answer</summary><p>Properly scaled random walks converge in distribution to Brownian motion. Application: heavy-traffic diffusion approximation — a heavily loaded queue's workload is approximated by reflected Brownian motion, yielding closed-form waiting-time tail approximations.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://www.sciencedirect.com/book/9780443187612/introduction-to-probability-models">Sheldon Ross, <em>Introduction to Probability Models</em> (book page)</a> — renewal theory, Brownian motion, and martingale chapters.</li>
+<li>David Williams, <em>Probability with Martingales</em> [name only] — the canonical rigorous text for filtrations, stopping times, and martingale convergence.</li>
+<li>Karatzas &amp; Shreve, <em>Brownian Motion and Stochastic Calculus</em> [name only] — Itô calculus, SDEs, Girsanov, Feynman–Kac.</li>
+<li>Durrett, <em>Probability: Theory and Examples</em> [name only] — the measure-theoretic probability text behind the STAT 9310 sequence.</li>
+<li><a href="https://statistics.wharton.upenn.edu/programs/phd/course-descriptions/">Penn Statistics PhD course descriptions</a> — official STAT 9310 description (Brownian motion, martingales, Itô's formula).</li>
+<li><a href="https://apps.wharton.upenn.edu/syllabi/?course=STAT9310">Wharton syllabi listing for STAT 9310</a> — the statistics-department stochastics listing.</li>
+<li><a href="https://ocw.mit.edu/courses/6-231-dynamic-programming-and-stochastic-control-fall-2015/resources/mit6_231f15_notes_short/">MIT OCW 6.231 lecture notes (Bertsekas)</a> — where this machinery gets used for stochastic control.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p7-3-stochastic-models.html">← 7.3 Stochastic Models</a><a class="next" href="p7-5-dynamic-programming.html">7.5 Dynamic Programming and Stochastic Control →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.1 Applied Econometrics I — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-2.html">Part 2: Econometrics and Causal Inference</a> / Lesson 2.1</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 2 · Lesson 2.1 · ~60 min</p>
+<h1>2.1 Applied Econometrics I</h1>
+<p class="wharton-tag">Built from Wharton STAT 5200: Applied Econometrics I</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Every engineer fits models to data, but fitting is only half the job: the other half is knowing when to believe your estimates. A regression of latency on traffic load across servers gives you a slope — but if variance differs across machines (heteroskedasticity), if measurements taken seconds apart are correlated (autocorrelation), or if the traffic itself responds to the latency (endogeneity), your standard errors and coefficients mislead you. This lesson gives you the asymptotic machinery that turns OLS from a curve-fitting exercise into credible inference: robust standard errors, autocorrelation-consistent covariance, and the first steps toward causal identification with instruments.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Derive the large-sample behavior of OLS and explain when the classical standard errors fail.</li>
+<li>Compute and justify heteroskedasticity-consistent (White) standard errors for cross-sectional data.</li>
+<li>Compute Newey–West HAC standard errors for time-series regression residuals.</li>
+<li>Diagnose the three canonical sources of endogeneity and explain why they break OLS consistency.</li>
+<li>State the two requirements for a valid instrument and explain the intuition of the IV estimator.</li>
+</ul></section>
+<section><h2>Core content</h2>
+
+<h3>The regression model and what OLS actually estimates</h3>
+<p>Begin with the linear model y<sub>i</sub> = x<sub>i</sub>′β + ε<sub>i</sub> for i = 1, …, n, where x<sub>i</sub> is a k-vector of regressors. The OLS estimator is β̂ = (X′X)<sup>−1</sup>X′y. Under the single crucial assumption E[x<sub>i</sub>ε<sub>i</sub>] = 0 — that regressors are uncorrelated with the error — OLS is consistent: β̂ →<sub>p</sub> β as n → ∞, by the law of large numbers applied to the sample moments. This is worth pausing on: consistency does not require homoskedasticity, normality, or independence of errors. It requires exogeneity, E[x<sub>i</sub>ε<sub>i</sub>] = 0, plus a full-rank design. Everything that goes wrong in this lesson goes wrong either in the variance of β̂ (harmless for the point estimate, fatal for inference) or in this exogeneity condition (fatal for everything).</p>
+<p>For the asymptotic distribution, write √n(β̂ − β) = (X′X/n)<sup>−1</sup> (X′ε/√n). Under standard regularity conditions, X′X/n →<sub>p</sub> Q = E[x<sub>i</sub>x<sub>i</sub>′] and, by the central limit theorem, X′ε/√n →<sub>d</sub> N(0, S) where S = E[x<sub>i</sub>x<sub>i</sub>′ε<sub>i</sub><sup>2</sup>] in the independent case. Hence √n(β̂ − β) →<sub>d</sub> N(0, Q<sup>−1</sup>SQ<sup>−1</sup>). This "sandwich" form Q<sup>−1</sup>SQ<sup>−1</sup> is the single most useful formula in applied econometrics: the bread is the design matrix, the filling is the meat of the error structure. Classical OLS standard errors assume S = σ<sup>2</sup>Q, so the sandwich collapses to σ<sup>2</sup>Q<sup>−1</sup> — but whenever errors have structure, the filling changes and the classical standard errors are wrong.</p>
+
+<h3>Heteroskedasticity and White's robust standard errors</h3>
+<p>Heteroskedasticity means Var(ε<sub>i</sub>|x<sub>i</sub>) = σ<sup>2</sup>(x<sub>i</sub>) varies across observations — a server under heavy load has noisier measurements than an idle one, a high-frequency sensor's noise grows with the signal. OLS remains unbiased and consistent here, but the classical variance estimate σ̂<sup>2</sup>(X′X)<sup>−1</sup> is inconsistent for the true sampling variance, so t-tests and confidence intervals misfire. Halbert White's 1980 solution (Econometrica) was deceptively simple: estimate the meat of the sandwich directly from the data. Since S = E[x<sub>i</sub>x<sub>i</sub>′ε<sub>i</sub><sup>2</sup>], a consistent estimator is Ŝ = (1/n)Σ<sub>i</sub> x<sub>i</sub>x<sub>i</sub>′e<sub>i</sub><sup>2</sup>, where e<sub>i</sub> are the OLS residuals. The White (heteroskedasticity-consistent) covariance estimator is then Var̂(β̂) = (X′X)<sup>−1</sup>(Σ<sub>i</sub> x<sub>i</sub>x<sub>i</sub>′e<sub>i</sub><sup>2</sup>)(X′X)<sup>−1</sup>. A sketch of why it works: each term x<sub>i</sub>x<sub>i</sub>′e<sub>i</sub><sup>2</sup> has expectation x<sub>i</sub>x<sub>i</sub>′σ<sup>2</sup><sub>i</sub> (plus asymptotically negligible bias from using e<sub>i</sub> instead of ε<sub>i</sub>), and the law of large numbers aggregates them to S regardless of how σ<sup>2</sup><sub>i</sub> varies. The estimator is consistent without knowing or modeling the form of heteroskedasticity. In finite samples the raw version can be biased downward in small samples with high-leverage points, so the HC1, HC2, HC3 variants apply leverage corrections; HC3 is the recommended default for small samples.</p>
+<p>The practical lesson for an engineer: when you fit a model across heterogeneous units — servers, links, users, devices — use robust standard errors by default. The cost is negligible and the protection is real. But remember what robust SEs do not fix: bias. They correct the variance of the estimate, not the estimate itself.</p>
+
+<h3>Autocorrelation and Newey–West HAC standard errors</h3>
+<p>With time-series data, errors are often serially correlated: a positive shock to network throughput persists over adjacent measurement windows. Then the meat matrix becomes a long-run variance, S = Σ<sub>j=−∞</sub><sup>∞</sup> E[x<sub>t</sub>x<sub>t−j</sub>′ε<sub>t</sub>ε<sub>t−j</sub>], an infinite sum of autocovariances. Newey and West (1987) showed how to estimate this with a weighted sum of sample autocovariances: Ŝ = Γ̂<sub>0</sub> + Σ<sub>j=1</sub><sup>L</sup> w<sub>j</sub>(Γ̂<sub>j</sub> + Γ̂<sub>j</sub>′), where Γ̂<sub>j</sub> = (1/T)Σ<sub>t=j+1</sub><sup>T</sup> x<sub>t</sub>x<sub>t−j</sub>′e<sub>t</sub>e<sub>t−j</sub> and the Bartlett weights w<sub>j</sub> = 1 − j/(L+1) decline linearly with the lag. The weights guarantee the estimator is positive semidefinite (a raw truncated sum need not be), and letting the lag truncation L grow slowly with T (e.g., L ≈ floor(4(T/100)<sup>2/9</sup>)) makes it consistent. This is why it is called a HAC estimator — heteroskedasticity- and autocorrelation-consistent. A common mistake is to "fix" autocorrelation by adding lags of the dependent variable to the regression; that changes the model being estimated. HAC standard errors instead leave the model alone and correct the inference, which is the right move when the serial correlation lives in the errors rather than in the dynamics you want to model. If the autocorrelation is severe and persistent, however, you should model the dynamics explicitly (see Lesson 2.7) rather than patching the standard errors.</p>
+
+<h3>Endogeneity: the problem robust standard errors cannot fix</h3>
+<p>Endogeneity is failure of exogeneity: E[x<sub>i</sub>ε<sub>i</sub>] ≠ 0. Then β̂ is inconsistent — it converges to β + (bias that does not vanish with more data). There are three canonical sources. <b>Omitted variables:</b> the error contains a confounder z<sub>i</sub> correlated with x<sub>i</sub>. Regressing datacenter power consumption on cooling setpoint, while omitting outdoor temperature which drives both, attributes temperature's effect to the setpoint. <b>Simultaneity:</b> x and y cause each other. Packet loss and throughput: loss reduces throughput, but congestion (high throughput) causes loss. OLS cannot tell the directions apart. <b>Measurement error:</b> you observe x<sub>i</sub>* = x<sub>i</sub> + u<sub>i</sub> with noise u<sub>i</sub>; classical measurement error attenuates the coefficient toward zero (attenuation bias), with plim β̂ = β · Var(x)/(Var(x) + Var(u)). In each case the diagnosis tells you the cure: omitted variables need controls or proxies, simultaneity needs a source of variation that moves only one direction, measurement error needs validation data or instruments.</p>
+
+<h3>Instrumental variables: intuition and mechanics</h3>
+<p>An instrument z<sub>i</sub> is a variable satisfying two conditions. <b>Relevance:</b> z<sub>i</sub> is correlated with the endogenous regressor x<sub>i</sub> — it moves the thing you care about. <b>Exclusion (exogeneity):</b> z<sub>i</sub> is uncorrelated with the error, E[z<sub>i</sub>ε<sub>i</sub>] = 0 — it affects the outcome only through x<sub>i</sub>, not directly and not through omitted confounders. The simple IV estimator is β̂<sub>IV</sub> = (z′x)<sup>−1</sup>z′y, the sample analogue of β = E[z<sub>i</sub>x<sub>i</sub>]<sup>−1</sup>E[z<sub>i</sub>y<sub>i</sub>] given by the moment condition E[z<sub>i</sub>(y<sub>i</sub> − x<sub>i</sub>′β)] = 0. Intuitively, IV uses only the variation in x that is induced by z — the "clean" variation — and discards the contaminated rest. The estimator is consistent under relevance plus exclusion even when OLS is not, and its asymptotic variance again has a sandwich form with the meat built from z-weighted residuals.</p>
+<p>The exclusion restriction is the crux and it cannot be tested from the data alone — with one instrument and one endogenous regressor the model is exactly identified, so there is nothing left over to test. Defending exclusion is an argument from institutional or engineering knowledge, not from statistics. The canonical economics example is Angrist and Krueger (1991), who used quarter of birth as an instrument for schooling: compulsory-schooling laws create a correlation between birth quarter and years of education (relevance), while birth quarter is plausibly unrelated to unobserved ability (exclusion). For an engineer: to estimate the causal effect of cache size on request latency in a production fleet, you might use the random assignment of servers to configuration groups as an instrument — random assignment guarantees exclusion, and the configuration change guarantees relevance. Whenever your system has randomization — A/B tests, staggered rollouts, load-balancer assignment — you have a natural instrument, and you should think of every A/B test as an IV design waiting to happen. Weak instruments, overidentification, and 2SLS are the subject of the next lesson.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: White standard errors across heterogeneous servers</h3>
+<p>You regress p99 request latency y<sub>i</sub> on offered load x<sub>i</sub> across n = 200 servers. The OLS slope is 0.42 ms per request/sec with a classical standard error of 0.05. But residual variance clearly grows with load: loaded machines have noisier latencies. Recomputing with White standard errors:</p>
+<pre><code>import statsmodels.api as sm
+X = sm.add_constant(load)
+ols = sm.OLS(latency, X).fit()
+print(ols.summary())                    # classical SEs
+robust = ols.get_robustcov_results(cov_type='HC3')
+print(robust.summary())                 # White HC3 SEs</code></pre>
+<p>The slope stays 0.42, but the robust SE is 0.09 — the classical SE understated uncertainty by nearly half, and a t-statistic that looked decisive (t = 8.4) is merely strong (t = 4.7). Conclusion stands, but the honest confidence interval is wider. Takeaway: point estimates are unaffected; inference is.</p>
+</div>
+<div class="example"><h3>Example 2: Newey–West standard errors on link throughput</h3>
+<p>You model per-second link throughput y<sub>t</sub> as a function of active flows x<sub>t</sub> over T = 3600 one-second windows. The OLS residuals show autocorrelation ρ̂ ≈ 0.6 at lag 1 (shocks persist across seconds). Classical SEs treat the 3600 observations as independent — massively overstating precision. With statsmodels:</p>
+<pre><code>res = sm.OLS(throughput, sm.add_constant(flows)).fit()
+hac = res.get_robustcov_results(cov_type='HAC',
+        kernel='bartlett', maxlags=int(4*(3600/100)**(2/9)))
+print(hac.summary())</code></pre>
+<p>With L ≈ 13 lags, the HAC standard error on the flows coefficient roughly triples relative to the classical SE, because each "effective" independent observation is a block of ~2–3 seconds, not a single second. Takeaway: ignoring autocorrelation in time series is the most common way to get absurdly small standard errors.</p>
+</div>
+<div class="example"><h3>Example 3: Endogeneity from simultaneity in a congestion study</h3>
+<p>You regress flow completion time on the number of concurrent flows per link. OLS says each extra flow adds 15 ms. But this is simultaneity: long-running flows are still around when you count (slow flows accumulate), so the regressor and the error (unobserved flow-size heterogeneity) are correlated. An engineer proposes an instrument: a randomized load-balancer experiment that reassigns a fraction of flows to neighboring links, shifting flow counts exogenously. Relevance holds because reassignment changes per-link flow counts; exclusion holds because the coin flip that assigned the reassignment is independent of unobserved flow characteristics. The simple IV estimate is Cov(z, y)/Cov(z, x): if links randomly assigned extra flows show 8 ms higher completion time per extra flow, the IV estimate is 8 ms — the OLS estimate of 15 ms was biased upward by the accumulation effect. Takeaway: when x and y determine each other, look for randomized variation that moves only one of them.</p>
+</div>
+<div class="example"><h3>Example 4: Measurement error in sensor calibration</h3>
+<p>A temperature sensor reads x* = x + u with u ∼ noise of standard deviation 2°C, while the true temperature x has standard deviation 5°C across your sample. You regress energy consumption y on the sensor reading x*. Classical measurement-error theory gives plim β̂ = β · 25/(25 + 4) ≈ 0.86β — a 14% attenuation toward zero. If the vendor supplies a calibration rig whose readings z are correlated with true temperature (relevance) but whose calibration errors are independent of the building's energy use (exclusion), z is an instrument and β̂<sub>IV</sub> recovers the true slope. Takeaway: noisy regressors bias slopes toward zero; an instrument that tracks the truth without sharing the noise fixes it.</p>
+</div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>OLS is consistent under exogeneity E[x<sub>i</sub>ε<sub>i</sub>] = 0 plus full rank; the asymptotic variance is the sandwich Q<sup>−1</sup>SQ<sup>−1</sup>.</li>
+<li>White (1980): Ŝ = (1/n)Σ x<sub>i</sub>x<sub>i</sub>′e<sub>i</sub><sup>2</sup> gives heteroskedasticity-consistent standard errors with no model of the variance function; use HC3 in small samples.</li>
+<li>Newey–West (1987): weighted sums of sample autocovariances with Bartlett weights estimate the long-run variance; HAC standard errors are consistent under both heteroskedasticity and serial correlation.</li>
+<li>Robust standard errors correct inference, never bias. Endogeneity — omitted variables, simultaneity, measurement error — breaks consistency itself.</li>
+<li>A valid instrument needs relevance (moves the regressor) and exclusion (uncorrelated with the error); exclusion cannot be tested when exactly identified and must be defended with domain knowledge.</li>
+<li>The IV estimator uses only the variation in x induced by z: β̂<sub>IV</sub> = (z′x)<sup>−1</sup>z′y.</li>
+<li>Every randomized experiment or staggered rollout in your systems is a potential instrument; treat randomization as the gold standard for exclusion.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Your OLS residuals show variance increasing with a regressor, but the regressor is exogenous. Is your point estimate biased? Are your classical t-tests valid?
+<details><summary>Answer</summary><p>The point estimate is still consistent — heteroskedasticity alone does not violate exogeneity. But the classical standard errors are inconsistent, so t-tests and confidence intervals are invalid; use White robust standard errors.</p></details></li>
+<li>You add Newey–West standard errors and your t-statistic falls from 6.2 to 2.1. What does this tell you about your data?
+<details><summary>Answer</summary><p>The errors are substantially autocorrelated, so the effective sample size is much smaller than T. The classical standard error treated dependent observations as independent and overstated precision; the HAC standard error reflects the true information content.</p></details></li>
+<li>Why can the exclusion restriction not be tested with a single instrument and a single endogenous regressor?
+<details><summary>Answer</summary><p>With one instrument the model is exactly identified: the single moment condition E[z<sub>i</sub>ε<sub>i</sub>] = 0 is used up estimating β, leaving no remaining restrictions to test. Testing requires overidentification (more instruments than endogenous regressors) — and even then, the test assumes at least one instrument is valid.</p></details></li>
+<li>In the cache-size/latency example, someone proposes using the server's total memory as an instrument for cache size. Why is this a bad instrument?
+<details><summary>Answer</summary><p>It likely violates exclusion: total memory is correlated with machine generation, which affects latency through channels other than cache size (CPU speed, NIC). Relevance is plausible but exclusion fails — the instrument must affect the outcome only through the endogenous regressor.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://ocw.mit.edu/courses/14-310x-data-analysis-for-social-scientists-spring-2023/download/">MIT OCW 14.310x Data Analysis for Social Scientists</a> — full open course materials covering OLS inference, robust standard errors, and IV, the closest public analogue to STAT 5200/5210.</li>
+<li>Bruce Hansen, <em>Econometrics</em> [name only] — free graduate textbook; chapters on OLS asymptotics, heteroskedasticity-consistent and HAC covariance, and instrumental variables, with proofs.</li>
+<li>Angrist &amp; Pischke, <em>Mostly Harmless Econometrics</em> [name only] — the applied companion: readable chapters on regression, robust inference, and the logic of instrumental variables.</li>
+<li>Joshua Angrist's lectures on master methods [name only] — search MIT OCW for 14.32 "Econometric Data Science" for lecture videos on IV and research design.</li>
+<li>White (1980), "A Heteroskedasticity-Consistent Covariance Matrix Estimator and a Direct Test for Heteroskedasticity," <em>Econometrica</em> [name only] — the original paper; short and self-contained.</li>
+<li>Newey &amp; West (1987), "A Simple, Positive Semi-Definite, Heteroskedasticity and Autocorrelation Consistent Covariance Matrix," <em>Econometrica</em> [name only] — the HAC paper; see especially the Bartlett-weight argument.</li>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-notes/">MIT OCW 18.650 lecture notes</a> — asymptotic theory (LLN, CLT, delta method) underlying the sandwich variance derivations.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p1-8-statistical-learning.html">← 1.8 Statistical Learning and Data Mining</a><a class="next" href="p2-2-applied-econometrics-2.html">2.2 Applied Econometrics II →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7.8 Queueing and Networks for Communications Systems — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-7.html">Part 7: Operations, Stochastic Models, and Optimization</a> / Lesson 7.8</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 7 · Lesson 7.8 · ~60 min</p>
+<h1>7.8 Queueing and Networks for Communications Systems</h1>
+<p class="wharton-tag">Bridge lesson — connecting OID core to AI, technology, and electrical systems</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Queueing theory was born in telephony (Erlang, 1909) and remains the performance language of communications: every router buffer, base station, call center, and inference-server pool is a queueing system. Little's law, PASTA, the M/M/1 and M/G/1 formulas, Jackson networks, and square-root staffing are the tools that size links, provision servers, and guarantee latency. This lesson teaches them rigorously, with the packet-network and server-farm examples where they earn their keep.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Prove and apply Little's law (L = λW) and explain the PASTA property.</li>
+<li>Derive M/M/1, M/M/c, and M/M/∞ steady-state distributions from birth–death analysis.</li>
+<li>Apply the Pollaczek–Khinchine formula for M/G/1 and interpret the variance term.</li>
+<li>State Jackson's theorem (product form) for open queueing networks.</li>
+<li>Use square-root staffing (Halfin–Whitt/QED regime) to dimension server pools.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Little's law and PASTA</h3>
+<p><strong>Little's law</strong>: for any stable system, long-run average number in system L = λW, where λ is the arrival rate and W the mean time in system. The proof is a sample-path argument: plot cumulative arrivals A(t) and departures D(t); the area between them is total customer-time; divide by t for L and by A(t) for W, and the ratio A(t)/t → λ gives L = λW — no distributional assumptions, no Poisson requirement, works per-class and per-subsystem. Apply it to subsystems too: L_q = λW_q for the queue alone. <strong>PASTA</strong> (Poisson Arrivals See Time Averages): with Poisson arrivals, an arrival's view of the system equals the time-average view — because the memoryless property makes the arrival instant independent of the past. PASTA fails for non-Poisson arrivals (a periodic arrival stream can systematically see an empty system), which is why the "M" in M/M/1 matters.</p>
+<h3>Birth–death queues: M/M/1, M/M/c, M/M/∞</h3>
+<p>With Poisson(λ) arrivals and exponential(μ) service, the number in system is a birth–death process (Lesson 7.3) with λ_n = λ, μ_n = min(n,c)μ. <strong>M/M/1</strong>: ρ = λ/μ &lt; 1 for stability; detailed balance gives π_n = (1−ρ)ρ^n — geometric. Then L = ρ/(1−ρ), and by Little, W = 1/(μ−λ), W_q = ρ/(μ−λ). The waiting-time tail is exponential: P(W_q &gt; t) = ρe^{−(μ−λ)t}. <strong>M/M/c</strong>: π_n = π_0(λ/μ)^n/n! for n ≤ c, π_0(λ/μ)^n/(c!c^{n−c}) beyond; the <strong>Erlang C formula</strong> C(c,λ/μ) = P(wait &gt; 0) is the call-center workhorse. <strong>Erlang B</strong> gives the blocking probability for loss systems (M/M/c/c): B = [(λ/μ)^c/c!]/[Σ_{k≤c}(λ/μ)^k/k!]. <strong>M/M/∞</strong>: π_n Poisson(λ/μ) — no queueing, the model for "enough parallelism" regimes like shot-noise-limited photon arrivals.</p>
+<h3>M/G/1: general service and Pollaczek–Khinchine</h3>
+<p>Keep Poisson arrivals but allow general service times with mean 1/μ and variance σ². The <strong>Pollaczek–Khinchine formula</strong> for mean queue wait: W_q = λE[S²]/(2(1−ρ)) = [ρ/(1−ρ)]·[(1 + C_s²)/2]·(1/μ), where C_s² is the squared coefficient of variation. Two lessons: waiting scales with the <em>second moment</em> of service — variability hurts as much as load — and decomposing into the M/M/1 term times (1+C_s²)/2 shows exactly what determinism buys you (C_s² = 0 halves the wait). The derivation uses the residual-service-time argument: an arrival waits for the work in system, whose mean involves E[S²] via the inspection paradox (Lesson 7.3) — the same size-biasing, now inside a router. For GI/G/1 (general arrivals too), <strong>Kingman's approximation</strong> W_q ≈ [ρ/(1−ρ)]·[(C_a² + C_s²)/2]·(1/μ) extends the insight.</p>
+<h3>Jackson networks: product form</h3>
+<p>An <strong>open Jackson network</strong>: m M/M/· nodes, external Poisson arrivals γ_i, routing probabilities r_{ij}, exponential service μ_i. Solve the <strong>traffic equations</strong> λ = γ + λR for the total arrival rate λ_i at each node. <strong>Jackson's theorem</strong>: the joint steady-state distribution factors, π(n_1,…,n_m) = ∏ π_i(n_i), where each π_i is the M/M/1 (or M/M/c_i) marginal at rate λ_i — <em>as if</em> each node were an independent queue, even though departures from one feed the next. The proof uses time-reversibility / quasi-reversibility (Kelly): Poisson departures from an M/M/1 in steady state make the network's reversed process another Jackson network. Consequence: end-to-end delay analysis of a packet network reduces to per-node M/M/1 formulas plus Little's law — mean total delay Σ 1/(μ_i − λ_i). BCMP networks extend product form to multiple classes and disciplines (processor sharing, LCFS).</p>
+<h3>Square-root staffing: the QED regime</h3>
+<p>How many servers for a call center or inference pool with offered load R = λ/μ Erlangs? <strong>Square-root staffing</strong> (Halfin–Whitt, 1981): c = R + β√R. In this <strong>QED (quality-and-efficiency-driven) regime</strong>, utilization → 1 (efficiency) while P(wait &gt; 0) → a nondegenerate limit in (0,1) (quality) — the best of both worlds, achieved because √R-scale safety capacity absorbs √R-scale stochastic fluctuations (CLT scaling). The parameter β trades delay probability against cost via the Halfin–Whitt formula. This is the principled alternative to both "staff to the mean" (meltdown under variability) and "staff to the peak" (wasteful): it is the newsvendor logic of Lesson 7.1 in many-server form, and it sizes GPU inference pools, support desks, and hospital wards alike.</p>
+<h3>Queueing control: the cμ rule</h3>
+<p>Queues are not just for analysis — they are for <em>control</em>, which closes the loop to dynamic programming. With multiple job classes sharing one server, holding cost c_i per job per time and service rate μ_i for class i, which class should the server prioritize to minimize long-run holding cost? The <strong>cμ rule</strong>: always serve the nonempty class with the highest c_iμ_i. Proof sketch by interchange: if a policy ever serves a lower-cμ job while a higher-cμ job waits, swapping their order leaves every other job's completion time unchanged while the higher-cμ job finishes earlier — strictly reducing cost. So any optimal policy can be transformed into cμ without loss. The rule is myopic yet optimal (an index policy, like Gittins in Lesson 7.7), and it generalizes: with convex holding costs the optimal policy is still priority-based via the DP of Lesson 7.5. Scheduling disciplines in routers (weighted fair queueing) and OS schedulers are cμ's descendants.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Sizing a router link (M/M/1)</h3>
+<p>Packets arrive Poisson at λ = 8000/s; mean packet 1250 bytes on a 100 Mb/s link gives μ = 10⁸/(1250×8) = 10000/s; ρ = 0.8. Mean packets in system L = 0.8/0.2 = 4; mean delay W = 1/(10000−8000) = 0.5 ms; P(queueing delay &gt; 2 ms) = ρe^{−(μ−λ)t} = 0.8·e^{−4} ≈ 0.0147. Upgrade to 1 Gb/s (μ = 100000): ρ = 0.08, W ≈ 0.0109 ms — delay collapses because 1/(μ−λ) is hypersensitive near ρ = 1. The M/M/1 formula quantifies exactly why "just add bandwidth" has diminishing returns once ρ is small.</p></div>
+<div class="example"><h3>Example 2: Square-root staffing for an inference pool</h3>
+<p>An LLM serving pool faces λ = 90 requests/s; each request occupies a replica for mean 2 s (μ = 0.5/s). Offered load R = λ/μ = 180 Erlangs. Mean-staffing (c = 180) gives ρ = 1 — unstable. Peak-staffing (c = 260) wastes 80 replicas. Square-root staffing with β = 1: c = 180 + √180 ≈ 193.4 → 194 replicas; utilization 180/194 ≈ 0.928, with delay probability from the Halfin–Whitt limit ≈ 0.3–0.4 depending on β. Choose β = 1.5 for stricter latency: c ≈ 200. One formula replaces rules of thumb.</p>
+<pre><code>import math
+lam, mu = 90, 0.5
+R = lam/mu
+for beta in [0.5, 1.0, 1.5]:
+    c = math.ceil(R + beta*math.sqrt(R))
+    print(beta, c, round(R/c, 3))</code></pre></div>
+<div class="example"><h3>Example 3: Two-node Jackson network (edge → core)</h3>
+<p>Packets arrive at an edge router (node 1) Poisson at γ_1 = 4000/s; after service they go to the core router (node 2) with probability 0.9 or leave; node 2 also receives external γ_2 = 1000/s. Service rates μ_1 = 8000/s, μ_2 = 10000/s. Traffic equations: λ_1 = 4000; λ_2 = 1000 + 0.9×4000 = 4600. Check stability: ρ_1 = 0.5, ρ_2 = 0.46. By Jackson's theorem the joint distribution factors; mean end-to-end delay = 1/(8000−4000) + 1/(10000−4600) = 0.25 ms + 0.185 ms = 0.435 ms. Each node analyzed as an independent M/M/1 — product form doing the heavy lifting.</p></div>
+<div class="example"><h3>Example 4: Verifying Little's law by simulation</h3>
+<pre><code>import numpy as np
+rng = np.random.default_rng(1)
+lam, mu, T = 0.8, 1.0, 200000
+t, n, area, arr, comp = 0.0, 0, 0.0, 0, 0.0
+next_arr, next_dep = rng.exponential(1/lam), np.inf
+while t < T:
+    dt = min(next_arr, next_dep) - t
+    area += n*dt; t += dt
+    if next_arr < next_dep:
+        n += 1; arr += 1; next_arr = t + rng.exponential(1/lam)
+        if n == 1: next_dep = t + rng.exponential(1/mu)
+    else:
+        n -= 1; comp += 1
+        next_dep = t + rng.exponential(1/mu) if n > 0 else np.inf
+L, lam_hat = area/T, arr/T
+print("L =", round(L,3), " lambda*W =", round(lam_hat*(area/arr),3), " theory:", round(lam/(mu-lam),3))
+# L ≈ 4.0 both ways: Little's law holds on the simulated sample path</code></pre></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Little's law L = λW: sample-path proof, no distributional assumptions; apply to whole systems and subsystems (L_q = λW_q).</li>
+<li>PASTA: Poisson arrivals see time averages — memoryless arrivals sample the steady state fairly; non-Poisson arrivals need not.</li>
+<li>M/M/1: π_n = (1−ρ)ρ^n, L = ρ/(1−ρ), W = 1/(μ−λ); Erlang B (blocking) and Erlang C (delay probability) for M/M/c.</li>
+<li>Pollaczek–Khinchine: W_q = λE[S²]/(2(1−ρ)) — waiting scales with service-time variance; determinism (C_s² = 0) halves M/M/1 waiting.</li>
+<li>Jackson's theorem: open networks of exponential nodes have product-form steady state; solve traffic equations λ = γ + λR, then treat nodes independently.</li>
+<li>Square-root staffing c = R + β√R (Halfin–Whitt/QED): utilization → 1 with nondegenerate delay probability — the principled many-server sizing rule.</li>
+<li>Kingman's G/G/1 approximation: W_q ≈ [ρ/(1−ρ)]·[(C_a²+C_s²)/2]·(1/μ) — variability from arrivals and service adds symmetrically.</li>
+<li>Queueing control (cμ rule: serve the class maximizing c_i μ_i to minimize holding cost) bridges queueing to DP — Lesson 7.5's territory.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>An M/M/1 has λ = 6/s, μ = 10/s. Compute ρ, L, W, and P(an arrival must wait).<details><summary>Answer</summary><p>ρ = 0.6; L = 0.6/0.4 = 1.5; W = 1/(10−6) = 0.25 s; P(wait) = ρ = 0.6 (PASTA: arrivals see the time-average occupancy).</p></details></li>
+<li>Two links have identical λ and mean service time, but link A has deterministic packet sizes and link B exponential. Which has lower mean queueing delay, and by what factor (M/G/1)?<details><summary>Answer</summary><p>Link A: W_q proportional to (1+C_s²)/2 = 0.5 vs. 1.0 for B — deterministic service halves mean queueing delay.</p></details></li>
+<li>Why does square-root staffing beat "provision to the mean" and "provision to the peak"?<details><summary>Answer</summary><p>Provision-to-mean (c = R) gives ρ = 1: unstable, queues explode. Provision-to-peak wastes capacity guarding rare events. c = R + β√R adds safety capacity at the CLT scale of fluctuations, achieving utilization → 1 with controlled delay probability (QED regime).</p></details></li>
+<li>In a Jackson network, node 2's arrivals are departures from node 1 — not Poisson in general. Why can we still treat node 2 as M/M/1?<details><summary>Answer</summary><p>Jackson's theorem (via quasi-reversibility): in steady state each node's marginal distribution is exactly as if it faced independent Poisson arrivals at its traffic-equation rate. The joint distribution factors into the product of these marginals — the dependence affects only the joint structure, which product form resolves.</p></details></li>
+<li>A load balancer splits Poisson(λ) evenly across 2 identical M/M/1 servers. Is mean delay lower than one server of double speed? Why?<details><summary>Answer</summary><p>The single fast server wins: pooling is more efficient. Two M/M/1s at ρ each vs. one M/M/1 at same ρ but double μ: W = 1/(2μ−λ) vs. 1/(μ−λ/2) — the fast server's delay is half. Splitting loses the pooling benefit (this is why shared queues beat dedicated queues).</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://www.sciencedirect.com/book/9780443187612/introduction-to-probability-models">Sheldon Ross, <em>Introduction to Probability Models</em> (book page)</a> — birth–death queues, Erlang formulas, M/G/1, and queueing networks chapters.</li>
+<li><a href="https://ocw.mit.edu/courses/6-231-dynamic-programming-and-stochastic-control-fall-2015/resources/mit6_231f15_notes_short/">MIT OCW 6.231 lecture notes (Bertsekas)</a> — queueing control and the DP bridge (cμ rule, dynamic server allocation).</li>
+<li><a href="https://www.coursera.org/programs/university-of-colorado-learning-program-e0g2m/learn/wharton-operations-analytics?specialization=business-analytics">Wharton Online: Operations Analytics (Gans, Savin, Veeraraghavan)</a> — Noah Gans's queueing-based service-operations lectures.</li>
+<li><a href="https://oid.wharton.upenn.edu/?p=263">OM/OR qualifying exam coverage</a> — queueing and stochastic models as examined in the OM/OR qualifier.</li>
+<li>Kleinrock, <em>Queueing Systems, Vols. I &amp; II</em> [name only] — the communications-networking queueing canon; packet-network applications throughout.</li>
+<li>Kelly, <em>Reversibility and Stochastic Networks</em> [name only] — quasi-reversibility and the product-form theory behind Jackson/BCMP networks.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p7-7-reinforcement-learning.html">← 7.7 Reinforcement Learning as Dynamic Programming</a><a class="next" href="../index.html">Course home →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

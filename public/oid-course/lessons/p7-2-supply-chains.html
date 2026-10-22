@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7.2 Supply Chains and Distribution — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-7.html">Part 7: Operations, Stochastic Models, and Optimization</a> / Lesson 7.2</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 7 · Lesson 7.2 · ~60 min</p>
+<h1>7.2 Supply Chains and Distribution</h1>
+<p class="wharton-tag">Built from Wharton OIDD 9410: Distribution Systems Seminar</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>A GPU supply chain runs from foundry to data center through distributors, integrators, and cloud regions; cloud capacity itself flows through a chain — hardware procurement, regional pools, availability zones, on-demand instances. Multi-echelon inventory theory (Clark–Scarf) tells you where to hold safety stock across such a chain; the bullwhip effect explains why order variability explodes upstream in chip procurement; coordination contracts are the formal version of the volume commitments cloud vendors negotiate. This is inventory theory scaled to networks.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Define echelon stock versus installation stock and state the Clark–Scarf decomposition for serial systems.</li>
+<li>Explain the four causes of the bullwhip effect and how information sharing dampens it.</li>
+<li>Show how double marginalization arises and how buyback and revenue-sharing contracts coordinate a chain.</li>
+<li>Apply Littlewood's rule for single-leg revenue management.</li>
+<li>Map multi-echelon models onto hardware and cloud-capacity chains.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Multi-echelon inventory: Clark and Scarf (1960)</h3>
+<p>Consider a serial system: stage 1 supplies stage 2, …, stage N faces customer demand; each stage has a lead time and linear holding/shortage costs. Two ways to count inventory: <strong>installation stock</strong> is the physical inventory at one stage; <strong>echelon stock</strong> is the inventory at that stage plus everything downstream (in transit and at lower echelons). Clark and Scarf's breakthrough was to decompose this coupled N-stage problem into N single-stage problems. Define the echelon inventory position at stage j and an induced penalty for starving downstream; then each echelon faces its own convex-cost newsvendor problem, and the optimal policy is an <strong>echelon base-stock policy</strong>: at each stage, order up to an echelon target S_j. Theorem (Clark–Scarf 1960): under backorders, linear costs, and nested lead times, echelon base-stock policies are optimal for the serial system.</p>
+<p>The proof idea: work backwards from the most downstream stage. The downstream stage's optimal cost-to-go, viewed as a function of what the upstream stage delivers, induces an "echelon holding cost" that makes the upstream stage's problem separable. Convexity propagates upstream, so each echelon independently solves a newsvendor-like problem against echelon demand. Axsäter and Rosling (1993) later clarified when installation-stock policies suffice and when echelon information strictly helps: echelon policies dominate when stages can observe downstream positions — the formal justification for centralized visibility in supply chains.</p>
+<h3>Distribution systems and METRIC</h3>
+<p>Real distribution is <strong>arborescent</strong>: one depot feeds many retailers (think: a central cloud region feeding edge zones). Exact optimality is lost, but the METRIC approximation (Sherbrooke) treats each location as facing a compound-Poisson-like demand with mean and variance of resupply delay computed from the depot's backorders, then optimizes base-stock levels location by location. Guaranteed-service models offer a cleaner alternative: each stage quotes a service time to its downstream customer, decoupling stages at the cost of extra safety stock — the modeling choice behind many spare-parts networks for hardware maintenance.</p>
+<h3>The bullwhip effect</h3>
+<p>Lee, Padmanabhan, and Whang showed that order variability amplifies upstream even when consumer demand is stable. Four operational causes: (1) <strong>demand-signal processing</strong> — each stage forecasts from the orders it sees, adding its own safety stock; (2) <strong>order batching</strong> — EOQ-style batching creates lumpy orders; (3) <strong>price fluctuations</strong> — promotions pull demand forward; (4) <strong>shortage gaming</strong> — rationing during shortages induces order inflation. Cachon and Fisher (2000) quantified the value of shared information: with full demand visibility, the supplier can cut inventory substantially while holding service constant. The engineering analogue: without end-to-end telemetry, each layer of a capacity-planning stack (forecast → procure → deploy) pads its own safety margin, and the paddings compound. Shared, granular demand data is the cure in both worlds.</p>
+<h3>Coordination contracts: curing double marginalization</h3>
+<p>When a supplier sells to a retailer at wholesale price w &gt; marginal cost c, the retailer faces a higher effective cost and orders less than the chain-optimal quantity — <strong>double marginalization</strong>. The chain leaves profit on the table because no one owns the total. Cachon and Lariviere (2005) analyze contracts that restore coordination in the newsvendor setting. A <strong>buyback contract</strong> (w, b): the supplier charges w per unit but buys back leftovers at b, shifting overage risk upstream; with the right (w, b) the retailer's critical fractile equals the chain's, so the decentralized Q* matches the centralized optimum while profits split per bargaining. A <strong>revenue-sharing contract</strong> (w, φ): the retailer keeps fraction φ of revenue and pays a low w; again, properly chosen parameters align the fractile and divide the surplus. Cachon (2004) extends this to push, pull, and advance-purchase discount contracts, showing how the <em>allocation of inventory risk</em> determines who bears demand uncertainty. For hardware procurement: a cloud vendor's committed-use discount is a quantity-discount contract; a take-or-pay chip agreement is a push contract with risk parked on the buyer.</p>
+<h3>Revenue management: Littlewood's rule</h3>
+<p>Revenue management allocates fixed, perishable capacity across fare classes — the same math as allocating a fixed pool of reserved instances across customer tiers. <strong>Littlewood's rule</strong> (single leg, two classes): accept a low-fare request iff its fare f_L ≥ f_H · P(D_H &gt; remaining seats), i.e., protect seats for high-fare demand exactly when the expected marginal value of protection exceeds the low fare. EMSR heuristics extend this to many classes; network RM (Talluri and van Ryzin) handles itineraries competing for shared legs — the analogue of jobs competing for shared GPU pools with different priorities.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Two-echelon Clark–Scarf for edge data centers</h3>
+<p>A central warehouse (stage 2, lead time 2 weeks) supplies an edge site (stage 1, lead time 1 week) facing Poisson demand at λ = 10 units/week. Holding cost h1 = $5, h2 = $2; backorder cost p = $50. Echelon holding costs: e1 = h1 = 5 (echelon 1), e2 = h1 + h2 = 7? No — echelon 2's incremental cost is h2 = 2, with downstream cost already accounted. Each echelon solves a newsvendor: echelon 1 faces lead-time demand over 1 week (mean 10), fractile = p/(p+e1) = 50/55 ≈ 0.909 → S1 ≈ 14 (Poisson(10) 0.909-quantile). Echelon 2 faces echelon lead-time demand over 2 weeks (mean 20) with its induced fractile → S2 computed from the echelon cost function. The policy: keep echelon inventory positions at S1, S2. The decomposition means the warehouse manager needs only the echelon position, not the full system state.</p></div>
+<div class="example"><h3>Example 2: Bullwhip in chip procurement (simulation)</h3>
+<pre><code>import numpy as np
+np.random.seed(0)
+T = 200
+consumer = 100 + 5*np.random.randn(T)          # stable consumer demand
+# each of 3 upstream stages forecasts with moving average and batches x2
+orders = consumer.copy()
+for stage in range(3):
+    ma = np.convolve(orders, np.ones(8)/8, mode='same')
+    safety = 2*np.std(orders)
+    orders = np.maximum(0, 2*(ma + safety) - np.concatenate([[0], np.cumsum(orders)[:-1]])*0 + ma)
+    # simpler: order = 2x smoothed forecast
+    orders = 2*ma
+print("consumer std:", consumer.std().round(1), " tier-3 order std:", orders.std().round(1))
+# consumer std ~5, tier-3 order std ~ 2^3 x smoothed — variance explodes upstream</code></pre>
+<p>Even with stable consumer demand (σ ≈ 5), three stages of forecast-and-double batching multiply order variability — the signature bullwhip pattern. Sharing the raw consumer signal (Cachon–Fisher) collapses the amplification.</p></div>
+<div class="example"><h3>Example 3: Coordinating with a buyback contract</h3>
+<p>Supplier cost c = $20/chip, retail price p = $60, demand Uniform[0, 1000]. Chain optimum: fractile = (60−20)/60 = 2/3 → Q_chain = 667. With wholesale w = $40, retailer's fractile = (60−40)/60 = 1/3 → Q = 333: double marginalization. A buyback contract (w = $45, b = $33.33): retailer's underage = 60−45 = 15, overage = 45−33.33 = 11.67, fractile = 15/26.67 = 0.5625... tune b so (p−w)/(p−b) = 2/3: (60−45)/(60−b) = 2/3 → 60−b = 22.5 → b = $37.50. Then the retailer orders 667 — coordination restored, with surplus split by w.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Clark–Scarf (1960): echelon base-stock policies are optimal in serial systems — decompose the chain into per-echelon newsvendors.</li>
+<li>Echelon stock = own inventory + everything downstream; it is the right state variable for multi-echelon control.</li>
+<li>Bullwhip: order variance amplifies upstream through signal processing, batching, price fluctuations, and shortage gaming; shared demand information dampens it (Cachon–Fisher 2000).</li>
+<li>Double marginalization: wholesale pricing above marginal cost shrinks orders below the chain optimum.</li>
+<li>Buyback and revenue-sharing contracts (Cachon–Lariviere 2005) coordinate the chain by realigning the retailer's critical fractile with the chain's.</li>
+<li>Littlewood's rule: protect capacity for high-value demand when f_L &lt; f_H · P(D_H &gt; x) — the basis of revenue management and priority allocation.</li>
+<li>Cloud and hardware capacity chains exhibit all of these: pad-at-every-layer is bullwhip; committed-use discounts are coordination contracts.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Why does the Clark–Scarf decomposition use echelon stock rather than installation stock as the state variable?<details><summary>Answer</summary><p>Echelon stock internalizes everything downstream, so each stage's decision problem becomes separable: the downstream cost-to-go induces an echelon holding cost that makes the upstream stage face an independent newsvendor problem. Installation stock alone cannot capture the downstream consequences of a stockout.</p></details></li>
+<li>Name two bullwhip causes and one mitigation for each.<details><summary>Answer</summary><p>Order batching → smaller, more frequent orders (or continuous replenishment). Demand-signal processing → share point-of-sale/actual demand data downstream-to-upstream (Cachon–Fisher). Price fluctuations → everyday low pricing instead of promotions. Shortage gaming → allocate on past sales, not inflated orders.</p></details></li>
+<li>A supplier offers w = $30, buyback b = $10; retail price p = $50, cost c = $20. Does this coordinate? What b would?<details><summary>Answer</summary><p>Chain fractile = (50−20)/50 = 0.6. Retailer fractile = (50−30)/(50−10) = 0.5 ≠ 0.6 — not coordinated. Need (50−30)/(50−b) = 0.6 → 50−b = 33.33 → b = $16.67.</p></details></li>
+<li>How is Littlewood's rule analogous to spot-vs-reserved instance pricing?<details><summary>Answer</summary><p>Reserved (high-fare) demand should displace on-demand/spot (low-fare) requests exactly when the expected value of the reserved capacity exceeds the spot price — same protection-level logic, with fares replaced by margins per instance-hour.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://www.gerard-cachon.com/research">Gérard Cachon's research page</a> — full texts of Cachon–Lariviere 2005 (revenue sharing), Cachon 2004 (push/pull contracts), Cachon–Fisher 2000 (value of information).</li>
+<li><a href="https://www.oreilly.com/library/view/fundamentals-of-supply/9781119024842/c06.xhtml">Snyder &amp; Shen, <em>Fundamentals of Supply Chain Theory</em>, Ch. 6: Multiechelon Inventory Models</a> — open-access chapter; the clearest walkthrough of Clark–Scarf and METRIC.</li>
+<li><a href="https://mackinstitute.wharton.upenn.edu/2023/creative-disruption-innovations-in-supply-chain-management/">Mack Institute supply-chain research briefings</a> — current Wharton research on supply-chain disruption and innovation.</li>
+<li><a href="https://apps.wharton.upenn.edu/syllabi/?course=OIDD9410">Wharton syllabi listing for OIDD 9410</a> — the Distribution Systems Seminar listing.</li>
+<li><a href="https://www.coursera.org/programs/university-of-colorado-learning-program-e0g2m/learn/wharton-operations-analytics?specialization=business-analytics">Wharton Online: Operations Analytics</a> — applied inventory and supply-chain analytics lectures.</li>
+<li>Clark &amp; Scarf, "Optimal policies for a multi-echelon inventory problem," <em>Management Science</em> 6(4), 1960 [name only] — the founding multi-echelon paper.</li>
+<li>Talluri &amp; van Ryzin, <em>The Theory and Practice of Revenue Management</em> [name only] — the RM canon; Littlewood's rule, EMSR, network RM.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p7-1-operations-management.html">← 7.1 Operations Management Core</a><a class="next" href="p7-3-stochastic-models.html">7.3 Stochastic Models →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.6 Modern Regression: Penalization, GLMs, GAMs — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-1.html">Part 1: Statistical Inference and Learning</a> / Lesson 1.6</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 1 · Lesson 1.6 · ~75 min</p>
+<h1>1.6 Modern Regression: Penalization, GLMs, GAMs</h1>
+<p class="wharton-tag">Built from Wharton STAT 9740: Modern Regression for the Social, Behavioral and Biological Sciences</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Classical regression assumed n &gt;&gt; p and a correctly specified linear form. Modern engineering breaks both: you have 200 candidate telemetry features and 60 test runs (p &gt; n), the response is a failure count or a bit-error probability (not Gaussian), and the true relationship is nonlinear in ways you can't guess. Penalized regression (ridge, lasso, elastic net) fits when predictors outnumber observations; GLMs handle binary and count data with the right likelihood; GAMs let each predictor contribute a smooth nonlinear curve. This is the bridge from the linear model to machine learning — and the source of most "my model looked great in training" disasters, which this lesson teaches you to avoid.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Formulate ridge, lasso, and elastic-net estimators, explain the geometry that makes lasso sparse, and tune λ by cross-validation.</li>
+<li>Choose among AIC, BIC, and cross-validation for model selection, matching the criterion to prediction vs. identification goals.</li>
+<li>Specify and fit GLMs (logistic, Poisson) via IRLS, and diagnose overdispersion with quasi-likelihood.</li>
+<li>Fit smoothing splines and GAMs, select smoothing parameters by cross-validation, and plot fits with uncertainty bands.</li>
+<li>Explain why naive inference after model selection is invalid and name two honest remedies.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Penalized regression: ridge, lasso, elastic net</h3>
+<p>When p is large relative to n — or predictors are collinear — OLS is unstable or undefined. Penalized regression minimizes ‖y − Xβ‖² + λ·penalty(β). <strong>Ridge</strong> uses penalty Σβ_j² (L2): β̂_ridge = (X'X + λI)⁻¹X'y, shrinking all coefficients smoothly toward zero; it handles collinearity gracefully but keeps every variable. <strong>Lasso</strong> (Tibshirani 1996) uses Σ|β_j| (L1): the constraint region is a diamond whose corners sit on the axes, so the optimum lands exactly on axes — <strong>automatic variable selection</strong>, setting some coefficients to precisely zero. Geometry in one line: round constraint (ridge) touches the loss contours at interior points; pointy constraint (lasso) touches at corners.</p>
+<p><strong>Elastic net</strong> mixes both penalties, λ[αΣ|β_j| + (1−α)Σβ_j²]: lasso's sparsity plus ridge's grouping of correlated predictors (lasso alone picks one of a correlated pair arbitrarily — dangerous when the pair is "temperature at sensor A" and "temperature at sensor B"). The lasso has an <strong>oracle property</strong> under the irrepresentable condition: with proper λ it selects the true support and estimates as well as if the support were known. Tune λ by <strong>cross-validation</strong> (k-fold, minimizing out-of-fold error); the "one-standard-error rule" picks the simplest model within noise of the best — a cheap guard against overfitting. Always <strong>standardize predictors</strong> before penalizing (penalties are scale-dependent) and never penalize the intercept.</p>
+<p>The lasso's <strong>degrees of freedom</strong> equal the expected number of nonzero coefficients (Zou-Hastie-Tibshirani) — a remarkably clean result that lets you build Cp/AIC-type criteria for penalized fits without extra simulation. And when predictors are grouped (dummy variables for one categorical factor, frequency bands of a spectrum), the <strong>group lasso</strong> penalizes whole groups in or out together, respecting the structure instead of shredding it.</p>
+<h3>Model selection: AIC, BIC, CV — and the post-selection trap</h3>
+<p>Three philosophies. <strong>AIC</strong> (−2ℓ̂ + 2p) estimates out-of-sample prediction error — asymptotically equivalent to leave-one-out CV for linear models. <strong>BIC</strong> (−2ℓ̂ + p log n) approximates the Bayes factor and is <em>consistent</em>: it finds the true model as n → ∞ (if truth is in the candidate set). <strong>Cross-validation</strong> directly estimates prediction error by refitting on folds — the most honest, most expensive. Match to goal: deploying a predictor → AIC/CV; claiming which effects exist → BIC.</p>
+<p>The trap (Leeb &amp; Pötscher; also lesson 1.5): after the lasso selects 7 of 200 features, the usual t-statistics on those 7 are computed as if you'd always meant those 7 — <strong>post-selection inference is invalid</strong>, p-values skewed toward significance. Honest remedies: <strong>sample splitting</strong> (select on half the data, do inference on the other half), <strong>selective inference</strong> (condition on the selection event; the Lee et al. truncated-Gaussian intervals for the lasso), or <strong>stability selection</strong> (keep features selected across many subsamples). In an engineering report, never present lasso-selected p-values without one of these.</p>
+<p>One more practical subtlety: penalized fits are <strong>biased by design</strong> — the lasso shrinks even the true signals. The <strong>relaxed lasso</strong> (fit OLS on the selected support) or <strong>debiasing</strong> corrections recover honest coefficient magnitudes after selection. Report the penalized fit for prediction, but if engineering needs an unbiased effect size ("how many dB per volt, really?"), refit unpenalized on the selected variables — and remember the post-selection caveat still applies to its p-values.</p>
+<h3>GLMs and IRLS</h3>
+<p><strong>Generalized linear models</strong> (McCullagh-Nelder) extend regression to non-Gaussian responses via three ingredients: a random component from an <strong>exponential family</strong> (binomial, Poisson, gamma...), a linear predictor η = Xβ, and a <strong>link function</strong> g(μ) = η connecting mean to predictor — logit for binary outcomes, log for counts. Fitting is by <strong>IRLS</strong> (iteratively reweighted least squares): linearize the score equations around the current fit, solve the resulting weighted least-squares problem, repeat — each iteration is just weighted OLS with working responses z and weights W from the current μ̂. It usually converges in under 10 iterations.</p>
+<p>Diagnostics carry over with adjustments: <strong>deviance residuals</strong> replace raw residuals; the <strong>deviance</strong> D = 2(ℓ_saturated − ℓ̂) generalizes SSE with asymptotic χ² for nested-model comparison. <strong>Overdispersion</strong> — variance exceeding the family's (common: defect counts clump) — is handled by <strong>quasi-likelihood</strong>: keep the mean model, set Var = φ·V(μ), estimate the dispersion φ from Pearson residuals, and inflate standard errors by √φ̂. If φ̂ ≈ 3, your "significant" effects from the naive Poisson fit are roughly √3 too confident.</p>
+<h3>Splines and GAMs</h3>
+<p>When E[y|x] is nonlinear and unknown, <strong>smoothing splines</strong> minimize Σ(y_i − m(x_i))² + λ∫(m″)²dx — fit plus a roughness penalty; the solution is a natural cubic spline with knots at the data. λ chosen by cross-validation or GCV. <strong>Local polynomial</strong> regression (Fan-Gijbels) fits weighted polynomials in sliding windows — excellent at adapting to local curvature, weaker at boundaries (use local linear, not Nadaraya-Watson, to reduce boundary bias).</p>
+<p><strong>Generalized additive models</strong> (Hastie-Tibshirani) extend to many predictors: g(μ) = β_0 + Σ f_j(x_j), each f_j a smooth function fit by backfitting (iteratively smooth partial residuals). GAMs are the sweet spot engineers underuse: as flexible as you need per-variable, still interpretable per-variable — plot each f̂_j with its uncertainty band and read off "latency rises steeply with load past 70%, flat before." Choose smoothing parameters by CV/GCV, and always plot the fitted curves: a GAM you haven't looked at is a black box you chose by accident.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Lasso selects 9 of 180 telemetry features</h3><p>Predicting SSD failure within 90 days from 180 SMART telemetry features, n = 400 drives. Lasso with 10-fold CV: λ_min keeps 23 features (CV AUC 0.91); the one-SE rule keeps 9 (CV AUC 0.895) — nearly identical performance, far simpler model. Surviving: reallocated-sector count, temperature max, power-cycle count, six others. Correlated pairs (e.g., two temperature summaries) collapsed to one — elastic net (α = 0.5) instead keeps both with shared weight, which the hardware team prefers for redundancy. Then the honest step: the team wants p-values on the 9 features — refused; instead report CV performance and stability-selection frequencies across 100 subsamples (7 of 9 selected &gt;80% of the time).</p>
+<pre><code>from sklearn.linear_model import LassoCV, ElasticNetCV
+from sklearn.preprocessing import StandardScaler
+Xs = StandardScaler().fit_transform(X)   # standardize BEFORE penalizing
+lasso = LassoCV(cv=10).fit(Xs, y)        # tune lambda by 10-fold CV
+print(lasso.alpha_, (lasso.coef_ != 0).sum())
+</code></pre></div>
+<div class="example"><h3>Example 2: Ridge stabilizes a collinear calibration</h3><p>Calibrating an RF power amplifier: output power regressed on 12 bias settings that move together (VIFs 8–40). OLS coefficients swing wildly — one bias gets +3.2 dB/V, its twin −2.9 dB/V, canceling. Ridge with λ chosen by CV shrinks both to +0.4 and +0.3 dB/V; prediction MSE on held-out boards drops 35%. The individual OLS coefficients were never identified (the data can't separate the twins); ridge's grouped shrinkage is the honest representation of that ignorance. Lesson: when predictors are near-duplicates, don't ask "which one matters" — ask "what does the group do."</p></div>
+<div class="example"><h3>Example 3: Logistic GLM for link failure, with overdispersion check</h3><p>Modeling per-hour link failure (0/1) from temperature and humidity via logistic regression: logit(p) = β_0 + β_1·temp + β_2·humidity. IRLS converges in 5 iterations. β̂_1 = 0.31/°C (OR = e^{0.31} = 1.36 per °C — failure odds rise 36% per degree). Deviance residuals vs. fitted show no pattern; but failures cluster in storms — check overdispersion via grouped data: Pearson χ²/df = 2.4. Refit quasi-binomial: coefficients unchanged, SEs × √2.4 — the humidity effect drops below significance. Without the check you'd have shipped a false finding; quasi-likelihood is a two-line insurance policy.</p></div>
+<div class="example"><h3>Example 4: GAM for datacenter cooling</h3><p>Predicting PUE (power usage effectiveness) from outside temperature, IT load, and humidity: PUE ~ s(temp) + s(load) + s(humidity). The fitted smooths show: PUE flat below 18 °C then rising steeply (free-cooling threshold — matches the chiller spec), decreasing convexly in IT load (fixed overhead amortized), humidity nearly flat. Each curve plotted with ±2 SE bands; the temp curve's kink at 18 °C is estimated ±1.5 °C. Smoothing parameters by GCV. The facilities team gets an interpretable model that a random forest couldn't give them — and the kink location becomes a design parameter for the next site.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li><strong>Ridge</strong> (L2) shrinks smoothly, handles collinearity; <strong>lasso</strong> (L1) gives exact zeros — sparsity from the diamond's corners; <strong>elastic net</strong> groups correlated predictors.</li>
+<li><strong>Tune λ by cross-validation</strong>; consider the one-SE rule. Standardize predictors first; never penalize the intercept.</li>
+<li><strong>AIC ≈ prediction</strong> (like leave-one-out CV); <strong>BIC ≈ consistent selection</strong>; CV directly estimates prediction error. Match criterion to goal.</li>
+<li><strong>Post-selection inference is invalid</strong> without adjustment — use sample splitting, selective inference, or stability selection before quoting p-values.</li>
+<li><strong>GLMs:</strong> exponential family + link (logit for binary, log for counts), fit by IRLS; deviance generalizes SSE; check overdispersion and use quasi-likelihood (SEs × √φ̂).</li>
+<li><strong>Smoothing splines / local polynomials / GAMs</strong> fit unknown nonlinearities; choose smoothness by CV/GCV; always plot each fitted curve with uncertainty bands.</li>
+<li>Penalization, GLMs, and GAMs are Stein's phenomenon, exponential families, and smoothing made practical — the bridge from lesson 1.5 to machine learning.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Why does the lasso set coefficients to exactly zero while ridge only shrinks them?
+<details><summary>Answer</summary><p>The L1 constraint region is a diamond with corners on the axes; the elliptical loss contours typically first touch the diamond at a corner, where some coordinates are exactly zero. Ridge's spherical constraint touches at interior points with all coordinates nonzero (almost surely).</p></details></li>
+<li>You ran lasso on 500 features, kept 12, and a colleague reports their t-statistics as "highly significant." What's wrong, and what should you do?
+<details><summary>Answer</summary><p>Post-selection inference: the t-statistics ignore that the data chose those 12 features, so they're biased toward significance. Use sample splitting (infer on fresh data), selective-inference intervals, or report stability-selection frequencies and CV performance instead of p-values.</p></details></li>
+<li>Your Poisson regression of defect counts gives Pearson χ²/df = 4.1. Interpret and fix.
+<details><summary>Answer</summary><p>Severe overdispersion — variance is ~4× the Poisson assumption, so standard errors are ~2× too small. Refit with quasi-Poisson (inflate SEs by √4.1) or negative binomial, and look for unmodeled heterogeneity (e.g., batch effects) causing the clumping.</p></details></li>
+<li>When would you prefer a GAM over a random forest for an engineering model?
+<details><summary>Answer</summary><p>When you need per-variable interpretability — the GAM's plotted smooths show exactly how each predictor affects the response (e.g., locating a cooling threshold), while a random forest's effect is buried in interactions. GAMs also extrapolate more sanely and need less data per dimension.</p></details></li>
+<li>Two temperature features correlate at r = 0.97. Lasso keeps one, elastic net keeps both. Which behavior do you want for a safety-critical sensor model, and why?
+<details><summary>Answer</summary><p>Elastic net's: if the kept sensor fails or drifts, the lasso model has no backup and its coefficient was fit assuming the other was absent. Keeping both with shared weight is more robust — the "which one" question was never answerable from the data anyway.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://www.statlearning.com/">An Introduction to Statistical Learning</a> — free book + labs covering penalized regression, GLMs, GAMs (Ch. 3, 6, 7).</li>
+<li><a href="https://hbiostat.org/rmsc/">Frank Harrell's Regression Modeling Strategies notes</a> — penalization, validation, and why stepwise selection fails.</li>
+<li><a href="https://hbiostat.org/rmsc/intro.html">Harrell's RMS online course notes (intro)</a> — entry point to the full strategy chapters.</li>
+<li><a href="http://www-stat.wharton.upenn.edu/~stine/mich/syllabus.pdf">Robert Stine's data-mining syllabus and lectures</a> — topic-by-topic guide including penalized methods.</li>
+<li>Trevor Hastie &amp; Robert Tibshirani, <em>Generalized Additive Models</em> — the canonical GAM text.</li>
+<li>Simon Wood, <em>Generalized Additive Models: An Introduction with R</em> — practical GAM fitting with uncertainty bands.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p1-5-theory-of-statistics.html">← 1.5 Theory of Statistics</a><a class="next" href="p1-7-bayesian.html">1.7 Bayesian Theory and Computation →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7.6 Optimization Foundations — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-7.html">Part 7: Operations, Stochastic Models, and Optimization</a> / Lesson 7.6</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 7 · Lesson 7.6 · ~75 min</p>
+<h1>7.6 Optimization Foundations</h1>
+<p class="wharton-tag">Built from Wharton OIDD 9120: Introduction to Optimization</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Every resource-allocation problem in networks and compute is an optimization problem: route flows to minimize latency (linear programming), allocate transmit power across subcarriers (convex optimization — water-filling is KKT in action), place data centers or schedule jobs on machines (integer programming), split a giant problem across regions (decomposition). OIDD 9120's static-optimization half gives you duality as a certificate of optimality and KKT as the working optimality condition — the same tools that train your neural networks and price your cloud capacity.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>State weak and strong LP duality and use complementary slackness to certify optimality.</li>
+<li>Formulate integer programs and explain branch-and-bound, cutting planes, and Lagrangian relaxation.</li>
+<li>Write KKT conditions for convex problems and state Slater's condition for strong duality.</li>
+<li>Describe Dantzig–Wolfe and Benders decomposition and when each applies.</li>
+<li>Match problem structure (LP / convex / integer / network) to the right solution paradigm.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Linear programming and duality</h3>
+<p>The primal LP: min cᵀx s.t. Ax ≥ b, x ≥ 0. Its dual: max bᵀy s.t. Aᵀy ≤ c, y ≥ 0. <strong>Weak duality</strong>: any feasible dual value ≤ any feasible primal value — every dual-feasible y is a <em>certificate</em> lower-bounding the optimum. <strong>Strong duality</strong>: at optimality the values are equal (when both are feasible). <strong>Complementary slackness</strong>: at optimal (x*, y*), y*_i(a_iᵀx* − b_i) = 0 and x*_j(c_j − a_jᵀy*) = 0 — a constraint with slack has zero dual price, and a positive variable has a tight dual constraint. Together these let you <em>verify</em> optimality without re-solving: exhibit primal- and dual-feasible points with equal values.</p>
+<p>The dual variables are <strong>shadow prices</strong>: y*_i = ∂(optimal value)/∂b_i, the marginal value of relaxing constraint i — the economic content behind congestion pricing, and the reason dual solutions are often more interesting than primal ones. The simplex method walks vertices; <strong>interior-point methods</strong> follow the central path with polynomial-time guarantees and dominate large-scale practice.</p>
+<h3>Convex optimization and KKT</h3>
+<p>Minimize a convex f over a convex set: any local optimum is global — the single fact that makes convex optimization tractable. For min f(x) s.t. g_i(x) ≤ 0, h_j(x) = 0 with f, g_i convex and h_j affine, the <strong>KKT conditions</strong> are: stationarity (∇f + Σλ_i∇g_i + Σν_j∇h_j = 0), primal feasibility, dual feasibility (λ ≥ 0), complementary slackness (λ_i g_i = 0). Under a <strong>constraint qualification</strong> (e.g., <strong>Slater's condition</strong>: a strictly feasible point exists), KKT is necessary for optimality; with convexity it is also sufficient — so solving KKT <em>is</em> solving the problem. The <strong>Lagrangian dual</strong> g(λ,ν) = inf_x L(x,λ,ν) always lower-bounds the primal (weak duality); strong duality (zero gap) holds under Slater's condition.</p>
+<p>Algorithms: gradient descent, Newton's method (using Hessians), and their stochastic variants — the same methods training ML models, now with convergence theory attached. SDP and QP formulations extend the reach to control (LQR), robust estimation, and combinatorial relaxations.</p>
+<h3>Integer programming: relaxations and cuts</h3>
+<p>Add integrality: min cᵀx s.t. Ax ≥ b, x ∈ ℤⁿ. The LP relaxation (drop integrality) gives a bound; <strong>branch-and-bound</strong> partitions on fractional variables, pruning by bound. <strong>Cutting planes / valid inequalities</strong> tighten the relaxation by cutting off fractional solutions without removing integer ones — the engine behind modern MIP solvers. <strong>Lagrangian relaxation</strong> moves complicating constraints into the objective with multipliers, decomposing the problem into easy subproblems and yielding bounds; <strong>column generation</strong> and <strong>branch-and-price</strong> handle exponentially many variables by generating them on demand; <strong>Benders decomposition</strong> projects out continuous subproblem variables, iterating between a master integer problem and dual-derived cuts.</p>
+<h3>Decomposition for large structured problems</h3>
+<p><strong>Dantzig–Wolfe decomposition</strong> exploits block-angular structure (independent blocks + coupling constraints): the master problem coordinates via prices while subproblems solve independently — the optimization analogue of dual decomposition in distributed systems. Benders does the reverse, keeping complicating (integer) variables in the master. For an engineer: multi-region capacity planning, network design, and unit commitment in power systems all decompose this way, and the same price-coordination idea appears in TCP congestion control (dual decomposition of network utility maximization).</p>
+<h3>Networks: the combinatorial backbone</h3>
+<p>Shortest path, max flow / min cut, matching, facility location — network flow LPs are totally unimodular, so their LP optima are automatically integral: integer programming for free. Max-flow/min-cut duality is strong LP duality made concrete, and it is the workhorse behind distribution network design (Lesson 7.2) and survivable network topology.</p>
+<h3>Dual decomposition: TCP congestion control as optimization</h3>
+<p>Duality is not just a certificate — it is a <em>distributed algorithm</em>. Consider network utility maximization: max Σ_s U_s(x_s) s.t. Rx ≤ c (link capacities), x ≥ 0, with R the routing matrix. The Lagrangian L = Σ_s U_s(x_s) − Σ_l p_l((Rx)_l − c_l) separates by source given link prices p_l: each source solves max_{x_s} [U_s(x_s) − x_s Σ_{l∈route(s)} p_l], and each link updates its price by gradient ascent on the dual, p_l ← [p_l + α((Rx)_l − c_l)]⁺. This is exactly TCP congestion control: link prices are queueing delays / drop probabilities, sources adapt rates to observed congestion signals, and the network converges to the socially optimal allocation without any central coordinator. Kelly's framework shows AIMD-style protocols are solving a global convex program by dual decomposition — Lesson 7.6's mathematics running inside every router on the internet.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Water-filling power allocation (KKT in action)</h3>
+<p>Allocate total power P across n subcarriers with channel gains g_i to maximize Σ log(1 + g_i p_i) s.t. Σ p_i = P, p_i ≥ 0. Lagrangian: L = Σ log(1+g_i p_i) − λ(Σ p_i − P) + Σ μ_i p_i. KKT stationarity: g_i/(1 + g_i p_i) − λ + μ_i = 0, with μ_i p_i = 0. Hence p_i = (1/λ − 1/g_i)⁺ — the <strong>water-filling</strong> solution: pour power where the channel is good, down to the "water level" 1/λ chosen so Σ p_i = P.</p>
+<pre><code>import numpy as np
+g = np.array([0.5, 1.0, 2.0, 4.0]); P = 10.0
+# bisection on water level mu = 1/lambda
+lo, hi = 0.0, 1/min(g) + P
+for _ in range(60):
+    mu = (lo+hi)/2
+    if np.sum(np.maximum(mu - 1/g, 0)) > P: hi = mu
+    else: lo = mu
+p = np.maximum(mu - 1/g, 0)
+print("power:", p.round(3), " sum:", p.sum().round(6))
+# -> [0. 1.25 2.75 6.0]: the weakest carrier gets nothing (KKT at work)</code></pre></div>
+<div class="example"><h3>Example 2: Certifying LP optimality with complementary slackness</h3>
+<p>Primal: min 3x_1 + 5x_2 s.t. x_1 + x_2 ≥ 4, 2x_1 + x_2 ≥ 6, x ≥ 0. Dual: max 4y_1 + 6y_2 s.t. y_1 + 2y_2 ≤ 3, y_1 + y_2 ≤ 5, y ≥ 0. Candidate x* = (2, 2): primal value 16, both constraints tight. Dual candidate y* = (1, 1): constraints 3 ≤ 3, 2 ≤ 5; dual value 4 + 6 = 10 ≠ 16 — not optimal. Solve properly: dual optimum at intersection y_1 + 2y_2 = 3 with y_1 = 3 − 2y_2; value 4(3−2y_2) + 6y_2 = 12 − 2y_2, maximized at y_2 = 0 → y* = (3, 0), value 12. Then x*: complementary slackness with y*_2 = 0 leaves constraint 2 possibly slack; y*_1 = 3 &gt; 0 forces x_1 + x_2 = 4; dual constraint 1 tight forces... solving gives x* = (4, 0), value 12 = dual value. Certificate complete: 12 is optimal.</p></div>
+<div class="example"><h3>Example 3: Facility location as integer programming</h3>
+<p>Choose data-center sites (binary y_j, fixed cost f_j) to serve demand regions (assignment x_{ij} ∈ {0,1}, transport cost c_{ij}): min Σ f_j y_j + Σ c_{ij} x_{ij} s.t. each region assigned, x_{ij} ≤ y_j (can't serve from an unopened site). The LP relaxation opens "fractional" sites; branch-and-bound branches on fractional y_j; valid inequalities (e.g., cover cuts) tighten the bound. Lagrangian relaxation of the assignment constraints decomposes into per-site subproblems — the standard approach for continental-scale network design.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Weak duality: dual-feasible values bound the primal optimum — a certificate. Strong duality: the bound is tight for LPs.</li>
+<li>Complementary slackness characterizes optimal primal–dual pairs; dual variables are shadow prices (marginal constraint values).</li>
+<li>KKT (stationarity, primal/dual feasibility, complementary slackness) is necessary under constraint qualifications and sufficient under convexity.</li>
+<li>Slater's condition (strict feasibility) ⇒ strong duality for convex problems — zero duality gap.</li>
+<li>Integer programming: LP relaxation bounds, branch-and-bound partitions, cutting planes tighten, Lagrangian relaxation decomposes.</li>
+<li>Dantzig–Wolfe (block-angular → price coordination) and Benders (complicating variables in master, cuts from subproblem duals) scale structured problems.</li>
+<li>Network flow LPs are totally unimodular: integrality comes free; max-flow/min-cut is duality made concrete.</li>
+<li>Match paradigm to structure: LP for linear flows, convex for smooth convex costs, IP for discrete choices, DP for sequential uncertainty.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>In the water-filling example, why does the weakest subcarrier get zero power? Which KKT condition forces this?<details><summary>Answer</summary><p>p_i = (1/λ − 1/g_i)⁺: when 1/g_i exceeds the water level 1/λ, the unconstrained maximizer is negative, so the bound p_i ≥ 0 binds and complementary slackness (μ_i p_i = 0 with μ_i &gt; 0) sets p_i = 0. Power goes only where marginal return exceeds λ.</p></details></li>
+<li>You have a primal-feasible x with value 12 and a dual-feasible y with value 12. What do you know?<details><summary>Answer</summary><p>Both are optimal: weak duality says dual ≤ primal always, so equal values certify optimality of both (strong duality realized at this pair).</p></details></li>
+<li>When would you choose Benders decomposition over Dantzig–Wolfe?<details><summary>Answer</summary><p>Benders when a small set of complicating variables (typically integers, e.g., facility-opening decisions) couples otherwise independent continuous subproblems — keep them in the master, generate cuts from subproblem duals. Dantzig–Wolfe when the structure is block-angular with coupling constraints across independent blocks.</p></details></li>
+<li>Why do network flow LPs not need integer programming machinery?<details><summary>Answer</summary><p>Total unimodularity of the node-arc incidence matrix: every basic feasible solution of the LP is integral when supplies/demands are integral, so the simplex optimum is automatically an integer flow.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li>Boyd &amp; Vandenberghe, <em>Convex Optimization</em> [name only] — the convex-optimization canon; KKT, duality, algorithms (free from the authors).</li>
+<li>Stanford EE364A <em>Convex Optimization</em> (Stephen Boyd) [name only] — public lectures; the standard free equivalent for the convex half of OIDD 9120.</li>
+<li>Sundaram, <em>A First Course in Optimization Theory</em> [name only] — static optimization plus dynamic programming in one text, matching the course's structure.</li>
+<li>Bertsekas, <em>Nonlinear Programming</em> [name only] — KKT, constraint qualifications, penalty and augmented Lagrangian methods.</li>
+<li><a href="https://apps.wharton.upenn.edu/syllabi/?course=OIDD9120">Wharton syllabi listing for OIDD 9120</a> — past Introduction to Optimization sections.</li>
+<li><a href="https://oid.wharton.upenn.edu/programs/phd/course-descriptions/">Wharton OID PhD course descriptions</a> — official OIDD 9120 description.</li>
+<li><a href="https://globalyouth.wharton.upenn.edu/programs-courses/oidd-0001-prescriptive-analytics/">Wharton OIDD 0001 Prescriptive Analytics (Sergei Savin video lectures)</a> — optimization and simulation lectures by the OIDD 9120 instructor.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p7-5-dynamic-programming.html">← 7.5 Dynamic Programming and Stochastic Control</a><a class="next" href="p7-7-reinforcement-learning.html">7.7 Reinforcement Learning as Dynamic Programming →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

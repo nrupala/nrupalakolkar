@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.5 Advanced Cross-Section Econometrics — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-2.html">Part 2: Econometrics and Causal Inference</a> / Lesson 2.5</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 2 · Lesson 2.5 · ~75 min</p>
+<h1>2.5 Advanced Cross-Section Econometrics</h1>
+<p class="wharton-tag">Built from Wharton ECON 8310: Econometrics III: Advanced Techniques of Cross-Section Econometrics</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Fully parametric models are a bet: probit bets on normality, Tobit bets on homoskedastic normality, conditional logit bets on IIA. When the bet is wrong, the estimates are inconsistent — not just noisy. Semiparametric methods let you keep the parametric structure where it matters (the coefficients you interpret, the policy counterfactuals you need) while leaving the parts you don't trust — the error distribution, the shape of a nuisance function — unspecified. And when your model is a full structural simulation — an agent-based model of a marketplace, a queuing network with strategic users — the likelihood is intractable, and simulated method of moments is how you estimate it anyway. This lesson is about estimating serious models without making bets you can't afford.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Explain the semiparametric efficiency bound and why relaxing distributional assumptions costs precision but buys robustness.</li>
+<li>Estimate partially linear and single-index models and interpret their parameters.</li>
+<li>Describe sieve estimation and how growing the sieve with the sample trades bias against variance.</li>
+<li>Set up mixed logit to break IIA and allow heterogeneous tastes in discrete choice.</li>
+<li>Implement simulated method of moments and indirect inference for models with intractable likelihoods.</li>
+</ul></section>
+<section><h2>Core content</h2>
+
+<h3>Why semiparametric? The efficiency–robustness tradeoff</h3>
+<p>A parametric model assumes a finite-dimensional parameter plus a known distribution; a nonparametric model assumes almost nothing but converges slowly (curse of dimensionality); a <b>semiparametric</b> model sits between: a finite-dimensional parameter of interest θ plus an infinite-dimensional nuisance component η (an unknown function or distribution). The key theoretical result is the <b>semiparametric efficiency bound</b> (Newey, 1990): even with η unknown, there is a lower bound on the asymptotic variance of regular estimators of θ, achieved by the efficient score — the projection of the parametric score onto the orthocomplement of the nuisance tangent space. In plain terms: you can estimate θ at the parametric √n rate without knowing η, but you pay an efficiency cost relative to knowing the truth. That cost is the price of robustness, and it is usually worth paying: a fully parametric estimator that is inconsistent under misspecification has infinite effective cost. The practical rule: go semiparametric for the components whose misspecification would bias your answer, stay parametric where theory or evidence supports the shape.</p>
+
+<h3>Partially linear models</h3>
+<p>The workhorse: y<sub>i</sub> = x<sub>i</sub>′β + g(z<sub>i</sub>) + ε<sub>i</sub>, with E[ε<sub>i</sub>|x<sub>i</sub>, z<sub>i</sub>] = 0 and g(·) an unknown smooth function. You care about β (the effect of a config change); z is a confounder whose functional form you don't trust (time-of-day effects on latency are wiggly, not quadratic). Robinson's (1988) double-residual estimator: (1) nonparametrically regress y on z and each x<sub>j</sub> on z to get residuals ỹ = y − Ê[y|z], x̃ = x − Ê[x|z]; (2) OLS of ỹ on x̃. Intuition: partial out the nuisance nonparametrically, then run the parametric regression on what's left — a generalization of Frisch–Waugh–Lovell. β̂ is √n-consistent and asymptotically normal under mild smoothness on g, even though ĝ converges slower than √n: the slow nuisance estimation doesn't contaminate the parametric part (an early instance of the orthogonality/debiased-ML idea). For an engineer: model the effect of a routing change on latency while letting the diurnal pattern be fully flexible — no more arguing about which polynomial in hour-of-day is "right."</p>
+
+<h3>Single-index models</h3>
+<p>Binary choice without distributional bets: P(y<sub>i</sub>=1|x<sub>i</sub>) = G(x<sub>i</sub>′β) with G unknown (increasing). Probit assumes G = Φ; if the true link is skewed or heavy-tailed, probit is inconsistent. The single-index model keeps the index structure x′β — coefficients still summarize how covariates trade off — but estimates G nonparametrically. Identification needs a scale normalization (e.g., the coefficient on a continuous regressor fixed at 1, or ||β|| = 1), since G absorbs any rescaling. Estimators include Manski's maximum score (maximizes the number of correct sign predictions — √n-inconsistent under smoothness, converging at the cube-root rate n<sup>1/3</sup>, a famous nonstandard asymptotic), and smoothed versions (Horowitz) that recover √n rates. The lesson for practice: if your binary-outcome model will drive decisions (churn intervention, fraud flags), check the link — compare probit/logit fits against a single-index estimate, and worry if they disagree.</p>
+
+<h3>Sieve estimation</h3>
+<p>Sieves approximate the infinite-dimensional nuisance by a finite-dimensional space that grows with n: approximate g(z) by Σ<sub>k=1</sub><sup>K<sub>n</sub></sup> α<sub>k</sub>p<sub>k</sub>(z) — polynomials, splines, wavelets — with K<sub>n</sub> → ∞ slowly. Ai and Chen (2003) developed sieve MLE and sieve minimum-distance estimators for general semiparametric problems. The bias–variance logic is transparent: small K<sub>n</sub> can't capture g (bias), large K<sub>n</sub> overfits (variance); the optimal K<sub>n</sub> balances them and is typically chosen by cross-validation or information criteria. Sieves are the econometric cousin of what ML engineers do with basis expansions and wide neural nets — and the theory clarifies exactly what ML practice leaves implicit: the approximation space must grow, but slower than the sample, and inference on θ must account for the sieve approximation error. When you see "we used a flexible ML first stage," the sieve literature is the rigorous version of that sentence.</p>
+
+<h3>Mixed logit: breaking IIA with heterogeneous tastes</h3>
+<p>Recall conditional logit's IIA problem from Lesson 2.2: it forces proportional substitution. Mixed logit (McFadden &amp; Train) lets coefficients vary across decision-makers: decision-maker i has β<sub>i</sub> ∼ F(β; θ), and P<sub>i</sub>(choose j) = ∫ [e<sup>x<sub>ij</sub>′β</sup>/Σ<sub>k</sub> e<sup>x<sub>ik</sub>′β</sup>] dF(β; θ). Integrating over the taste distribution breaks IIA — substitution patterns become flexible because different consumers substitute differently — and the estimated θ describes taste heterogeneity (e.g., the distribution of price sensitivity across cloud customers). The integral has no closed form, so estimation is by <b>simulated maximum likelihood</b>: draw R values β<sup>r</sup> from F(·; θ), approximate the integral by (1/R)Σ<sub>r</sub> L<sub>ij</sub>(β<sup>r</sup>), maximize the simulated log-likelihood. Simulation noise inflates variance, so use many draws (hundreds+) and low-discrepancy sequences (Halton draws beat pseudo-random). Kenneth Train's <em>Discrete Choice Methods with Simulation</em> (free from the author) is the bible here. Application: modeling which instance type each customer chooses as prices and workloads vary — mixed logit captures that startups and enterprises substitute across tiers completely differently.</p>
+
+<h3>Simulated method of moments and indirect inference</h3>
+<p>Some models have no tractable likelihood but are easy to <b>simulate</b>: agent-based marketplaces, dynamic games, queuing systems with strategic users, Rust-style dynamic discrete choice (nested fixed point). The <b>simulated method of moments (SMM)</b> (McFadden 1989; Pakes &amp; Pollard 1989): (1) choose moments m̂ from the real data; (2) for candidate θ, simulate S datasets from the model and compute simulated moments m̃(θ); (3) minimize [m̂ − m̃(θ)]′W[m̂ − m̃(θ)]. If the model is correct and moments identify θ, θ̂<sub>SMM</sub> is consistent and asymptotically normal; simulation adds a (1 + 1/S) variance inflation factor — simulate a lot (S ≥ 10–20) to make it negligible. Moment choice is the art: pick moments that are sensitive to the parameters you care about and robust to the parts you don't. <b>Indirect inference</b> generalizes: estimate an auxiliary (misspecified but easy) model on real data to get β̂, estimate the same auxiliary model on simulated data to get β̃(θ), and choose θ to match β̃(θ) ≈ β̂. When the auxiliary model is the score of a likelihood, this becomes efficient (Gallant–Tauchen EMM). The through-line: when you can simulate your system but can't write its likelihood, moment-matching on simulated data is how you do structural estimation — the same idea powers "digital twin" calibration of network simulators to measured telemetry.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Partially linear model of a config change</h3>
+<p>You want the effect β of a TCP stack change on flow completion time, but completion times have a strong, wiggly diurnal pattern (z = hour of day) you don't want to model parametrically. Robinson's double-residual approach:</p>
+<pre><code>from sklearn.ensemble import GradientBoostingRegressor
+# partial out z nonparametrically
+my = GradientBoostingRegressor().fit(Z, y).predict(Z)
+mx = GradientBoostingRegressor().fit(Z, x).predict(Z)
+beta = ((x-mx) @ (y-my)) / ((x-mx) @ (x-mx))   # OLS on residuals
+# SEs: heteroskedasticity-robust on the residual regression</code></pre>
+<p>β̂ = −14 ms (SE 3 ms). A quadratic-in-hour specification had given −9 ms — the parametric diurnal model was absorbing part of the treatment effect because rollout timing correlated with time of day. Takeaway: partial out flexible confounders nonparametrically; parametric shortcuts on nuisance functions can bias the parameter you actually care about.</p>
+</div>
+<div class="example"><h3>Example 2: Single-index check on a churn model</h3>
+<p>Your probit churn model (1 = cancelled) drives a retention campaign. You fit a single-index model with unknown link G and compare predicted probabilities: probit and single-index agree in the middle of the covariate distribution but diverge in the high-risk tail — the true link is heavier-tailed than Φ, so probit understates churn risk for the riskiest accounts, exactly the ones the campaign targets. You switch the targeting model to the semiparametric fit. Takeaway: distributional assumptions bite hardest in the tails, which is where decisions live.</p>
+</div>
+<div class="example"><h3>Example 3: Mixed logit for cloud instance choice</h3>
+<p>50,000 customer-months choosing among standard, memory-optimized, and GPU instances with varying prices. Conditional logit: price coefficient −0.9 for everyone. Mixed logit with β<sub>price,i</sub> ∼ N(μ, σ<sup>2</sup>): μ̂ = −1.1, σ̂ = 0.7 — substantial heterogeneity. The implied substitution: a price hike on standard instances pushes price-sensitive startups to memory-optimized, while enterprises barely move — conditional logit's IIA had forced both segments to substitute proportionally, understating startup churn. Counterfactual revenue under a 10% price increase differs by 18% between the models. Takeaway: when customers differ, mixed logit isn't a refinement — it changes the business answer.</p>
+</div>
+<div class="example"><h3>Example 4: SMM calibration of a datacenter network simulator</h3>
+<p>You have a packet-level simulator of your datacenter fabric with parameters θ = (buffer sizes, ECN thresholds, flow-size distribution parameters) — 12 parameters, no likelihood. Real telemetry gives moments: mean and p99 flow completion times by flow-size bin, link utilization distribution, retransmission rates (28 moments). SMM: for each candidate θ, run the simulator (S = 20 replications), compute simulated moments, minimize the weighted distance. The minimized J-like criterion also serves as a specification check — a huge minimized value says the simulator can't reproduce reality at any parameter, i.e., the model itself is wrong, not just miscalibrated. Takeaway: SMM turns "we have a simulator and we have data" into parameter estimates plus a test of the simulator.</p>
+</div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Semiparametric models estimate a finite-dimensional θ at √n rates with an unknown nuisance function; the efficiency bound (Newey 1990) prices the robustness you buy by not specifying the nuisance.</li>
+<li>Partially linear model y = x′β + g(z) + ε: Robinson's double-residual estimator partials out z nonparametrically, then OLS on residuals — nuisance flexibility without contaminating β.</li>
+<li>Single-index binary choice P(y=1|x) = G(x′β) drops the probit/logit distributional bet; needs a scale normalization; Manski's maximum score converges at the nonstandard n<sup>1/3</sup> rate.</li>
+<li>Sieve estimation approximates infinite-dimensional nuisances with K<sub>n</sub> → ∞ basis terms; choose K<sub>n</sub> by cross-validation to balance approximation bias against variance.</li>
+<li>Mixed logit integrates the logit kernel over a taste distribution, breaking IIA and capturing heterogeneous substitution; estimate by simulated MLE with many (Halton) draws.</li>
+<li>SMM/indirect inference estimate models with intractable likelihoods by matching simulated moments to data moments; simulation inflates variance by (1 + 1/S); the minimized criterion doubles as a specification test.</li>
+<li>Rule of thumb: be semiparametric about the components whose misspecification would bias your answer; stay parametric where theory supports the shape.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>In a partially linear model, why doesn't the slow nonparametric convergence rate of ĝ contaminate the √n rate of β̂?
+<details><summary>Answer</summary><p>Because of orthogonality: the double-residual construction makes the estimation error in ĝ asymptotically uncorrelated with the score for β (the Frisch–Waugh–Lovell logic). The nuisance error averages out, leaving β̂ √n-consistent and asymptotically normal.</p></details></li>
+<li>Your mixed logit estimates show σ̂ (taste heterogeneity) near zero. What does this imply?
+<details><summary>Answer</summary><p>Tastes are nearly homogeneous, so the model collapses toward conditional logit — but IIA still binds exactly only at σ = 0. Practically, substitution patterns are close to proportional; you could simplify, but keep the mixed logit as a check.</p></details></li>
+<li>SMM with S = 2 simulation replications gives very noisy estimates. Why, and what's the fix?
+<details><summary>Answer</summary><p>Simulation noise inflates the asymptotic variance by (1 + 1/S) = 1.5×. Increase S (10–20+ replications) to drive the factor toward 1; the remaining noise is then negligible relative to sampling variation.</p></details></li>
+<li>When would you prefer a single-index model over probit for a binary outcome?
+<details><summary>Answer</summary><p>When the error distribution is unknown or suspected non-normal/skewed and the decision depends on tail probabilities. Probit is inconsistent under link misspecification; the single-index model keeps the interpretable index structure while estimating the link flexibly.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li>Kenneth Train, <em>Discrete Choice Methods with Simulation</em> [name only] — free from the author; the definitive treatment of mixed logit, simulated MLE, and Halton draws.</li>
+<li>Cameron &amp; Trivedi, <em>Microeconometrics</em> [name only] — chapters on semiparametric methods, selection, and simulation-based estimation with worked examples.</li>
+<li>Wooldridge, <em>Econometric Analysis of Cross Section and Panel Data</em> [name only] — semiparametric chapters and the partial-linear/IV extensions.</li>
+<li>Newey (1990) on semiparametric efficiency bounds [name only] — the original efficiency-bound paper; read the projection intuition, skim the tangent-space formalism.</li>
+<li>Ai &amp; Chen (2003), "Efficient Estimation of Models with Conditional Moment Restrictions Containing Unknown Functions," <em>Econometrica</em> [name only] — sieve estimation for semiparametric models.</li>
+<li>McFadden (1989) / Pakes &amp; Pollard (1989) on simulation estimators [name only] — the SMM founding papers; the moment-choice discussion is the practically valuable part.</li>
+<li><a href="https://ocw.mit.edu/courses/14-310x-data-analysis-for-social-scientists-spring-2023/download/">MIT OCW 14.310x Data Analysis for Social Scientists</a> — discrete-choice and structural-model lectures complementing the ECON 8310 material.</li>
+<li><a href="https://quantecon.org/about-python-lectures/">QuantEcon (Sargent &amp; Stachurski)</a> — simulation-based quantitative economics with Python; useful for implementing SMM on dynamic models.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p2-4-gmm-panels.html">← 2.4 GMM, M-Estimation, and Panel Methods</a><a class="next" href="p2-6-causal-inference.html">2.6 Causal Inference and Observational Studies →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

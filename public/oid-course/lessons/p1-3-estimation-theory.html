@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.3 Estimation Theory: Sufficiency, UMVUE, MLE — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-1.html">Part 1: Statistical Inference and Learning</a> / Lesson 1.3</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 1 · Lesson 1.3 · ~75 min</p>
+<h1>1.3 Estimation Theory: Sufficiency, UMVUE, MLE</h1>
+<p class="wharton-tag">Built from Wharton STAT 5150: Advanced Statistical Inference I</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Every parameter you estimate — a bit-error rate, a sensor's noise variance, the failure rate λ of a component, the weights of a logistic model — comes from some estimator, and estimation theory tells you which estimators deserve your trust. Sufficiency says which summaries of the data contain all the information (the sample mean, not the raw samples, for a Gaussian mean). UMVUE gives the gold standard of unbiased estimation. Maximum likelihood is the engine behind nearly every parametric model you fit, from logistic regression to deep generative models. Understanding when MLE is efficient, when it breaks (irregular problems, high dimensions), and how to certify an estimator is what separates fitting a model from knowing it.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Find sufficient statistics via the Fisher-Neyman factorization theorem and reduce to minimal sufficiency.</li>
+<li>Apply Rao-Blackwell and Lehmann-Scheffé to construct UMVUEs, and test completeness where needed.</li>
+<li>Compute the Cramér-Rao lower bound and state the regularity conditions behind it.</li>
+<li>State MLE consistency and asymptotic normality, and use observed vs. expected information correctly.</li>
+<li>Apply the delta method to get asymptotics for smooth functions of MLEs.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Sufficiency and the Fisher-Neyman factorization</h3>
+<p>A statistic T(X) is <strong>sufficient</strong> for θ if the conditional distribution of the data given T does not depend on θ — T squeezes out everything the data know about θ. The <strong>Fisher-Neyman factorization theorem</strong> makes this checkable: T is sufficient iff the likelihood factors as L(θ; x) = g_θ(T(x)) · h(x), where h does not involve θ. Example: for X_i i.i.d. N(θ, 1), the likelihood ∏ (2π)^{-1/2} exp(−(x_i − θ)²/2) = exp(nθx̄ − nθ²/2) · [(2π)^{-n/2} exp(−Σx_i²/2)], so T = X̄ is sufficient — the raw samples add nothing beyond their mean.</p>
+<p><strong>Minimal sufficiency</strong> asks for the coarsest sufficient statistic: T is minimal sufficient iff T(x)/T(y) is θ-free exactly when the likelihood ratio L(θ; x)/L(θ; y) is θ-free. For exponential families (normal, Poisson, Bernoulli, gamma — the bread of engineering models), the natural sufficient statistics are minimal sufficient and complete.</p>
+<h3>Completeness, Rao-Blackwell, Lehmann-Scheffé</h3>
+<p>A sufficient statistic T is <strong>complete</strong> if E_θ[g(T)] = 0 for all θ implies g = 0 a.s. — no nontrivial unbiased estimator of zero can be built from T, so T carries no "junk" directions. <strong>Rao-Blackwell theorem:</strong> if δ is unbiased for τ(θ) and T is sufficient, then δ* = E[δ|T] is unbiased and Var(δ*) ≤ Var(δ), with strict inequality unless δ already depends only on T. Conditioning on sufficiency can only help — you should never publish an estimator that could be Rao-Blackwellized further.</p>
+<p><strong>Lehmann-Scheffé theorem:</strong> if T is complete and sufficient and φ(T) is unbiased for τ(θ), then φ(T) is the <em>unique</em> <strong>UMVUE</strong> — uniformly minimum variance unbiased estimator. The recipe: (1) factor the likelihood to find a sufficient T; (2) verify completeness (automatic for full exponential families with open parameter space); (3) find any unbiased estimator, condition it on T. Classic: for Poisson(λ) data, T = ΣX_i is complete sufficient, and X̄ = T/n is UMVUE for λ. But unbiasedness has limits: for estimating e^{−λ} (probability of zero counts — e.g., no defects), no unbiased estimator exists at all; UMVUE theory is silent, and MLE wins by default.</p>
+<p>The <strong>likelihood principle</strong> (Berger-Wolpert) goes further: all the evidence about θ in the data is contained in the likelihood function — two experiments with proportional likelihoods carry identical evidence. It is philosophically elegant and practically contested, since it clashes with frequentist concerns about sampling plans (stopping rules change p-values but not likelihoods). Know the tension: it explains why Bayesians ignore stopping rules while frequentist tests must account for them.</p>
+<h3>The Cramér-Rao lower bound</h3>
+<p>For regular models (support not depending on θ, differentiation under the integral justified, Fisher information 0 &lt; I(θ) &lt; ∞), any unbiased estimator T of τ(θ) satisfies <strong>Var_θ(T) ≥ [τ'(θ)]² / I(θ)</strong>, where I(θ) = E[(∂/∂θ log f(X;θ))²] = −E[∂²/∂θ² log f(X;θ)] is the <strong>Fisher information</strong>. The bound is attained iff the score is linear in T — which happens exactly in exponential families with the natural sufficient statistic. For X_i i.i.d. N(μ, σ²) with σ² known, I(μ) = n/σ², and X̄ attains variance σ²/n: fully efficient. Warning: the bound needs regularity — for X_i ~ Uniform(0, θ), the support depends on θ and the bound fails (the MLE X_(n) converges at rate 1/n, faster than 1/√n — "super-efficiency" that regularity would forbid).</p>
+<h3>Maximum likelihood: the workhorse</h3>
+<p>The <strong>MLE</strong> θ̂ maximizes L(θ) (or the log-likelihood ℓ(θ)). Under <strong>Cramér conditions</strong> (identifiability, compact-ish parameter space, three-times differentiability, dominated derivatives, nonsingular information): (1) <strong>consistency</strong>: θ̂ → θ₀ in probability — the score equation's root converges to truth because (1/n)ℓ(θ) → E[log f(X;θ)] uniformly, and that limit is uniquely maximized at θ₀ (Kullback-Leibler); (2) <strong>asymptotic normality</strong>: √n(θ̂ − θ₀) → N(0, I(θ₀)⁻¹) — a Taylor expansion of the score around θ₀ plus the CLT gives θ̂ − θ₀ ≈ I(θ₀)⁻¹ · (1/n)Σ score, and the score has variance I(θ₀). Hence the MLE is asymptotically efficient: it attains the Cramér-Rao bound.</p>
+<p>For standard errors, prefer <strong>observed information</strong> J(θ̂) = −ℓ″(θ̂) over <strong>expected information</strong> I(θ̂): observed information conditions on the actual data's curvature and is more accurate in finite samples (Efron-Hinkley). Report which you used. The <strong>delta method</strong> extends asymptotics: if √n(θ̂ − θ₀) → N(0, Σ) and g is differentiable at θ₀, then √n(g(θ̂) − g(θ₀)) → N(0, ∇g' Σ ∇g). Example: for Poisson counts, MLE λ̂ = x̄, and the estimated zero-defect probability e^{−λ̂} has asymptotic variance e^{−2λ}·λ/n.</p>
+<p>MLE's failure modes matter for engineers: inconsistent under misspecification (it converges to the KL projection, not "truth"); badly biased in high dimensions (p growing with n — the Neyman-Scott problem); and undefined at boundaries. When asymptotics look fragile — small n, heavy tails, parameters near boundaries — the <strong>bootstrap</strong> (Efron) resamples the data to approximate the sampling distribution directly, and the <strong>EM algorithm</strong> (Dempster-Laird-Rubin) maximizes likelihoods with missing or latent variables by alternating expectation and maximization steps, with the incomplete-data likelihood guaranteed non-decreasing.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: UMVUE for a sensor's noise variance</h3><p>Calibration residuals X_1..X_20 ~ N(0, σ²) (mean known zero after offset removal). Factor the likelihood: L ∝ (σ²)^{-n/2} exp(−Σx_i²/2σ²) — sufficient T = ΣX_i². Completeness: T/σ² ~ χ²_n is a full exponential family in 1/σ², hence complete. The unbiased estimator S² = T/n is a function of complete sufficient T, so by Lehmann-Scheffé it is the UMVUE for σ². Note the usual "sample variance" with n−1 is for unknown mean; with known mean, dividing by n is UMVUE and has smaller MSE. Cramér-Rao: I(σ²) = n/(2σ⁴), bound = 2σ⁴/n — attained by T/n. Every decibel of your noise-floor spec rests on this estimator being exactly optimal.</p></div>
+<div class="example"><h3>Example 2: Rao-Blackwell improves a silly estimator</h3><p>Estimating Poisson rate λ (defects per wafer) from X_1..X_n, someone proposes δ = X_1 (unbiased but wasteful). Condition on the complete sufficient T = ΣX_i: E[X_1|T = t] = t/n (by symmetry, each X_i gets an equal share of the total). The Rao-Blackwellized estimator is X̄ = T/n — the UMVUE. Var drops from λ to λ/n, a factor of n improvement. Moral: if your estimator ignores most of the data while a sufficient statistic exists, conditioning fixes it for free.</p></div>
+<div class="example"><h3>Example 3: MLE asymptotics for a bit-error rate</h3><p>Transmitting n = 10⁶ bits, observe k = 412 errors; model k ~ Binomial(n, p). MLE p̂ = k/n = 4.12×10⁻⁴. Fisher information I(p) = n/[p(1−p)], so SE ≈ √(p̂(1−p̂)/n) = 2.03×10⁻⁵. A 95% Wald interval: p̂ ± 1.96·SE = (3.72, 4.52)×10⁻⁴. By the delta method, the estimated log-BER log(p̂) has SE ≈ SE(p̂)/p̂ = 0.049 — so log-BER = −7.79 ± 0.10. This is the standard machinery behind every BER confidence statement in communications datasheets; it is valid because n is huge and p is interior — near p = 0 you would need exact (Clopper-Pearson) intervals instead.</p>
+<pre><code>import numpy as np
+from scipy import stats
+k, n = 412, 10**6
+phat = k/n
+se = np.sqrt(phat*(1-phat)/n)          # from expected information
+ci = (phat - 1.96*se, phat + 1.96*se)  # Wald interval
+exact = stats.binomtest(k, n).proportion_confint()  # Clopper-Pearson
+</code></pre></div>
+<div class="example"><h3>Example 4: EM for a mixture of two failure modes</h3><p>Disk-drive lifetimes look bimodal: early "infant mortality" failures plus wear-out. Model: with probability π, lifetime ~ Exp(λ_1); else ~ Exp(λ_2). The component labels are missing data. EM: E-step computes responsibilities γ_i = P(component 1 | x_i, current params); M-step updates π = mean(γ_i), λ_1 = Σγ_i/Σγ_i x_i, λ_2 similarly. The incomplete-data log-likelihood rises monotonically each iteration (Dempster-Laird-Rubin guarantee). Starting from π = 0.5, λ_1 = λ_2 = overall rate, it converges to π̂ = 0.08 (8% infant mortality), λ̂_1 = 1/40 days, λ̂_2 = 1/900 days — separating the two physics of failure that a single exponential would average into meaninglessness.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li><strong>Fisher-Neyman factorization:</strong> L(θ;x) = g_θ(T(x))h(x) ⟺ T sufficient. For exponential families, natural sufficient statistics are minimal sufficient and complete.</li>
+<li><strong>Rao-Blackwell:</strong> E[δ|T] never hurts an unbiased estimator — condition on sufficiency before publishing.</li>
+<li><strong>Lehmann-Scheffé:</strong> unbiased function of a complete sufficient statistic = unique UMVUE.</li>
+<li><strong>Cramér-Rao:</strong> Var(T) ≥ [τ'(θ)]²/I(θ) for regular models; attained by exponential-family sufficient statistics. Fails when support depends on θ.</li>
+<li><strong>MLE asymptotics:</strong> consistent, and √n(θ̂ − θ₀) → N(0, I(θ₀)⁻¹) under Cramér conditions — asymptotically efficient.</li>
+<li><strong>Observed vs. expected information:</strong> prefer observed J(θ̂) = −ℓ″(θ̂) for finite-sample standard errors; say which you used.</li>
+<li><strong>Delta method:</strong> smooth functions of asymptotically normal estimators inherit normality with variance ∇g'Σ∇g.</li>
+<li><strong>Escape hatches:</strong> bootstrap when asymptotics are fragile; EM for missing/latent data with monotone likelihood ascent.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>For X_i i.i.d. Exp(rate λ), factor the likelihood and identify a sufficient statistic. Is it complete?
+<details><summary>Answer</summary><p>L = λⁿ exp(−λΣx_i) = g_λ(Σx_i)·1, so T = ΣX_i is sufficient. The exponential is a full exponential family with open parameter space (λ &gt; 0), so T is complete — and X̄ = T/n is UMVUE for 1/λ.</p></details></li>
+<li>Someone estimates normal variance with σ² known-zero mean as ΣX_i²/(n−1) "to be safe." What does Lehmann-Scheffé say?
+<details><summary>Answer</summary><p>With known mean, T = ΣX_i² is complete sufficient, and T/n is the unique UMVUE. Dividing by n−1 is inadmissible among unbiased estimators — it has strictly larger variance. The n−1 correction only applies when the mean is estimated.</p></details></li>
+<li>Why does the Cramér-Rao bound not apply to the Uniform(0, θ) MLE X_(n)?
+<details><summary>Answer</summary><p>The support [0, θ] depends on θ, violating the regularity condition that lets you differentiate under the integral sign (the score identity E[score] = 0 fails). Indeed X_(n) converges at rate 1/n, beating the 1/√n rate the bound would imply.</p></details></li>
+<li>You need a standard error for the estimated defect-free probability e^{−λ̂} from Poisson data. Outline the steps.
+<details><summary>Answer</summary><p>MLE λ̂ = x̄; asymptotic variance of λ̂ is λ/n (from Fisher information I(λ) = n/λ). Delta method with g(λ) = e^{−λ}, g'(λ) = −e^{−λ}: Var(e^{−λ̂}) ≈ e^{−2λ}·λ/n. Plug in λ̂ for a standard error.</p></details></li>
+<li>When would you distrust the MLE's asymptotic normal approximation and reach for the bootstrap instead?
+<details><summary>Answer</summary><p>Small n, parameters near boundaries (e.g., p̂ near 0 or 1), heavy-tailed data, high-dimensional parameters (p comparable to n), or misspecified models. The bootstrap resamples the empirical distribution directly and doesn't need the Cramér regularity conditions.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-videos/">MIT OCW 18.650 lecture videos</a> — the closest open analogue to STAT 5150; sufficiency, MLE asymptotics.</li>
+<li><a href="https://ocw.mit.edu/courses/18-650-statistics-for-applications-fall-2016/resources/lecture-notes/">MIT OCW 18.650 lecture notes</a> — written derivations with stated regularity conditions.</li>
+<li>George Casella &amp; Roger Berger, <em>Statistical Inference</em>, 2nd ed. — the canonical text matching this course; chapters on sufficiency, UMVUE, likelihood.</li>
+<li>Larry Wasserman, <em>All of Statistics</em> — fast, clear companion for the same material.</li>
+<li><a href="https://www.cmu.edu/dietrich/statistics-datascience/people/faculty/larry-wasserman.html">Larry Wasserman (CMU) teaching materials</a> — asymptotic statistics notes.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p1-2-nonparametric-categorical.html">← 1.2 Nonparametric Methods and Categorical Data</a><a class="next" href="p1-4-testing-asymptotics.html">1.4 Testing, Asymptotics, and Decision Theory →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

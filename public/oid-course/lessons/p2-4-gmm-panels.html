@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.4 GMM, M-Estimation, and Panel Methods — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-2.html">Part 2: Econometrics and Causal Inference</a> / Lesson 2.4</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 2 · Lesson 2.4 · ~75 min</p>
+<h1>2.4 GMM, M-Estimation, and Panel Methods</h1>
+<p class="wharton-tag">Built from Wharton ECON 7310: Econometrics II: Methods &amp; Models</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Modern estimation problems rarely hand you a tidy likelihood. Your model of a recommender system gives you moment conditions — "these residuals should be uncorrelated with those features" — but no full probability distribution. GMM turns any set of moment conditions into an efficient estimator, and its overidentification test is the closest econometrics gets to asking the data "are my assumptions mutually consistent?" M-estimation generalizes the extremum theory from Lesson 2.3 to robust estimators. And the panel methods here — dynamic panels, sample selection, quantile regression — are the tools for the two hardest realities of system data: persistence over time, nonrandom missingness (you only observe the servers that didn't crash), and effects that differ across the distribution (a config change that helps the median but hurts the tail).</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Construct the GMM estimator from moment conditions, derive the optimal weighting matrix, and interpret the J test of overidentifying restrictions.</li>
+<li>Apply Newey–McFadden M-estimation asymptotics to robust estimators like LAD and Huber.</li>
+<li>Estimate dynamic panels with Arellano–Bond and test the identifying assumptions.</li>
+<li>Correct for sample selection with the Heckman model and defend the required exclusion restriction.</li>
+<li>Estimate and interpret quantile regression, contrasting it with mean regression.</li>
+</ul></section>
+<section><h2>Core content</h2>
+
+<h3>GMM: Hansen's framework</h3>
+<p>Suppose economic or engineering theory gives you moment conditions E[g(w<sub>i</sub>, θ<sub>0</sub>)] = 0, an m-vector of functions with E[g] = 0 only at the true θ<sub>0</sub>. With more moments than parameters (m &gt; k, overidentification), no θ sets all sample moments ḡ(θ) = (1/n)Σg(w<sub>i</sub>, θ) exactly to zero, so Hansen (1982) proposed minimizing a quadratic form: θ̂<sub>GMM</sub> = argmin<sub>θ</sub> ḡ(θ)′W<sub>n</sub>ḡ(θ), for a positive-definite weighting matrix W<sub>n</sub>. The estimator is consistent for any W<sub>n</sub> →<sub>p</sub> W, and its asymptotic variance is (G′WG)<sup>−1</sup>G′WΩWG(G′WG)<sup>−1</sup>, where G = E[∇<sub>θ</sub>g] and Ω = Var(g(w<sub>i</sub>, θ<sub>0</sub>)) — another sandwich. The <b>optimal weighting matrix</b> is W = Ω<sup>−1</sup>, the inverse of the moment covariance: it downweights noisy, imprecise moments and upweights informative ones, exactly like GLS downweights noisy observations. With W = Ω<sup>−1</sup>, the asymptotic variance collapses to (G′Ω<sup>−1</sup>G)<sup>−1</sup>, the efficiency bound for moment-based estimation.</p>
+<p>In practice: <b>two-step GMM</b> first estimates with W = I (or another simple matrix) to get a consistent θ̃, estimates Ω̂ from the residuals' moment outer products, then re-estimates with W = Ω̂<sup>−1</sup>. <b>Continuously updated GMM (CUE)</b> minimizes ḡ(θ)′Ω̂(θ)<sup>−1</sup>ḡ(θ) jointly over θ, updating the weighting matrix as θ moves — more stable in small samples when the two-step weighting is erratic, and invariant to normalization. Report both when they diverge and investigate why. Note that 2SLS is just GMM with moments E[z<sub>i</sub>ε<sub>i</sub>] = 0 and a particular weighting matrix; GMM is the parent, IV the special case.</p>
+
+<h3>Testing overidentifying restrictions</h3>
+<p>When m &gt; k, the model makes more claims than needed to identify θ — and those extra claims are testable. Hansen's <b>J test</b> (Sargan's test is the homoskedastic/2SLS special case): J = n·ḡ(θ̂)′Ω̂<sup>−1</sup>ḡ(θ̂) →<sub>d</sub> χ<sup>2</sup><sub>m−k</sub> under the null that all moment conditions hold. Intuition: if every moment is truly zero at θ<sub>0</sub>, the minimized criterion should be small; a large J says the moments cannot be simultaneously satisfied — at least one assumption is wrong. But the test has a critical blind spot: it tests the <em>joint</em> validity of all moments, and it has no power against violations that all moments share. If every instrument is invalid in the same way, J will not catch it. So a non-rejection is not a certificate of validity — it only says the moments are mutually consistent. When J rejects, don't just drop moments until it passes (that is specification search); investigate which assumption fails, because the rejection is the data telling you your theory is incomplete.</p>
+
+<h3>M-estimation and robust estimators</h3>
+<p>M-estimators maximize (or minimize) a sum of criterion functions, θ̂ = argmax<sub>θ</sub> Σ<sub>i</sub> m(w<sub>i</sub>, θ) — MLE (m = log-likelihood), nonlinear least squares, and also robust estimators. The Newey–McFadden theory from Lesson 2.3 applies directly: consistency from uniform convergence plus identification, normality from the first-order-condition expansion. The payoff is robustness: least absolute deviations (LAD), θ̂ = argmin<sub>θ</sub> Σ|y<sub>i</sub> − x<sub>i</sub>′θ|, estimates the conditional median and resists outliers that would drag OLS — one corrupted sensor reading can't move it much. Huber's estimator blends quadratic loss near zero with linear loss in the tails, keeping efficiency under normality while bounding influence. The asymptotic variance follows the sandwich with H<sub>0</sub> = E[∇<sup>2</sup>m] and Ω<sub>0</sub> = Var(∇m). For an engineer drowning in heavy-tailed telemetry — latency spikes, bursty errors — M-estimators are the principled alternative to ad-hoc outlier trimming: they keep all the data but limit each observation's influence.</p>
+
+<h3>Dynamic panels: Arellano–Bond (deeper cut)</h3>
+<p>Building on Lesson 2.2: the model y<sub>it</sub> = ρy<sub>i,t−1</sub> + x<sub>it</sub>′β + α<sub>i</sub> + ε<sub>it</sub> with small T. First-difference to kill α<sub>i</sub>: Δy<sub>it</sub> = ρΔy<sub>i,t−1</sub> + Δx<sub>it</sub>′β + Δε<sub>it</sub>. The regressor Δy<sub>i,t−1</sub> correlates with Δε<sub>it</sub> (both contain ε<sub>i,t−1</sub>), but lagged levels y<sub>i,t−2</sub>, y<sub>i,t−3</sub>, … are valid instruments: E[y<sub>i,t−s</sub>Δε<sub>it</sub>] = 0 for s ≥ 2 when ε<sub>it</sub> is serially uncorrelated. The instrument set grows with t (at time t you can use all lags back to period 1), giving many moment conditions — estimate by GMM with the optimal weighting matrix. Three practical disciplines: (1) test for AR(2) in the differenced residuals — AR(1) is mechanical, but AR(2) means ε<sub>it</sub> itself is serially correlated and the instruments are invalid; (2) report the Hansen/Sargan overidentification test on the stacked moments; (3) control instrument proliferation — with long T the instrument count can exceed n, overfitting the first stage; collapse the instrument matrix or cap lag depth. The system-GMM extension (Arellano–Bover/Blundell–Bond) adds level equations instrumented with lagged differences, gaining efficiency when series are highly persistent — the usual case for throughput, utilization, and other system metrics.</p>
+
+<h3>Sample selection: Heckman</h3>
+<p>You observe wages only for the employed, latency only for requests that complete, failure diagnostics only for machines that report back. If selection into the observed sample correlates with the outcome error, OLS on the observed sample is biased. Heckman's (1979) model: selection s<sub>i</sub> = 1{z<sub>i</sub>′γ + u<sub>i</sub> &gt; 0}, outcome y<sub>i</sub> = x<sub>i</sub>′β + ε<sub>i</sub> observed only when s<sub>i</sub> = 1, with (u<sub>i</sub>, ε<sub>i</sub>) bivariate normal, corr = ρ. Then E[y<sub>i</sub>|x<sub>i</sub>, s<sub>i</sub>=1] = x<sub>i</sub>′β + ρσ<sub>ε</sub>λ(z<sub>i</sub>′γ), where λ(·) = φ(·)/Φ(·) is the inverse Mills ratio. The two-step estimator: (1) probit for selection, compute λ̂<sub>i</sub>; (2) OLS of y on x and λ̂<sub>i</sub> — the Mills ratio absorbs the selection bias, and its coefficient estimates ρσ<sub>ε</sub> (a test of whether selection bias exists at all). Full-information MLE is more efficient. The Achilles' heel is the <b>exclusion restriction</b>: z needs a variable affecting selection but not the outcome — without it, identification rests purely on the nonlinearity of λ(·), which is fragile (λ is nearly linear over much of its range, causing severe multicollinearity). Defend the exclusion with institutional knowledge, or treat the estimates with deep skepticism. For engineers: modeling "time to failure" only on machines that failed, or "user satisfaction" only among survey respondents, are textbook selection problems.</p>
+
+<h3>Quantile regression</h3>
+<p>Mean regression answers "how does x shift the average?" Quantile regression (Koenker &amp; Bassett, 1978) answers "how does x shift the τ-th quantile?" — the median, the 90th percentile, the tail. The estimator minimizes the asymmetric absolute loss: β̂(τ) = argmin<sub>β</sub> Σ<sub>i</sub> ρ<sub>τ</sub>(y<sub>i</sub> − x<sub>i</sub>′β), with check function ρ<sub>τ</sub>(u) = u(τ − 1{u&lt;0}). It is an M-estimator (non-differentiable at zero, but the asymptotics go through with care), computed by linear programming. Why it matters for systems: SLAs are written on quantiles (p99 latency ≤ 200 ms), and treatment effects are routinely heterogeneous — a load-balancing change might cut median latency while increasing tail latency by rerouting stragglers. Plotting β̂(τ) across τ ∈ {0.1, 0.25, 0.5, 0.75, 0.9} with confidence bands reveals the full distributional effect that mean regression flattens into a single number. Quantile regression is also inherently robust: like the median, it shrugs off outliers. Its limitation: quantiles don't aggregate — the quantile of a sum isn't the sum of quantiles — so it's a descriptive tool for distributions, not a substitute for structural modeling.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: GMM estimation of a network demand model</h3>
+<p>You model link demand: throughput y<sub>i</sub> depends on price p<sub>i</sub> (endogenous — prices respond to congestion) with instruments z<sub>i</sub> = (fiber-construction cost shifters, regulatory dummies). Moments: E[z<sub>i</sub>(y<sub>i</sub> − α − βp<sub>i</sub>)] = 0, three instruments, two parameters — overidentified by one degree. Two-step GMM:</p>
+<pre><code>from linearmodels.iv import IVGMM
+res = IVGMM.from_formula('thrpt ~ 1 + [price ~ cost_shifter + reg_a + reg_b]',
+                         data=df).fit(cov_type='robust')
+print(res.summary)   # J-test p-value reported</code></pre>
+<p>The J statistic is 1.9 on 1 df (p = 0.17) — the moments are mutually consistent, no evidence against the instruments as a set. But you remember the blind spot: this doesn't prove validity, only consistency. You additionally argue exclusion from the institutional fact that construction costs shift supply, not demand. Takeaway: GMM + J test is the workflow for overidentified models; the J test checks consistency, your domain knowledge defends validity.</p>
+</div>
+<div class="example"><h3>Example 2: LAD vs. OLS on latency with outliers</h3>
+<p>Regressing request latency on payload size across 10,000 requests, OLS gives a slope of 0.9 ms/KB — but 40 requests hit a pathological retry storm with latencies 100× normal, and they dominate the squared-error fit. LAD (median regression) gives 0.31 ms/KB, and dropping the 40 outliers then running OLS gives 0.30 — LAD found the right answer without any ad-hoc trimming. You report LAD with its sandwich standard errors as the headline and OLS-with-trimming as a robustness check. Takeaway: M-estimators like LAD handle contamination gracefully; they dominate manual outlier deletion because the influence bound is built into the estimator.</p>
+</div>
+<div class="example"><h3>Example 3: Arellano–Bond for persistent server utilization</h3>
+<p>You model hourly CPU utilization for 300 servers over 48 hours with a lagged dependent variable and a cooling-intervention dummy. Fixed effects would suffer Nickell bias (T = 48 helps, but the bias is still material and the intervention is staggered). Arellano–Bond difference GMM with lags 2–4 as instruments: ρ̂ = 0.82 (highly persistent, as expected), intervention effect −3.1 points (SE 0.8). Diagnostics: AR(1) test rejects (expected mechanically), AR(2) test p = 0.34 (good — no second-order serial correlation), Hansen J p = 0.22 (moments consistent), 12 instruments for 300 units (no proliferation). Takeaway: report the full diagnostic battery — AR(2), J test, instrument count — or the dynamic-panel estimate isn't credible.</p>
+</div>
+<div class="example"><h3>Example 4: Quantile regression reveals heterogeneous load-balancer effects</h3>
+<p>A new load-balancing policy is evaluated on request latency. Mean regression: −8 ms (SE 3). Quantile regression tells the real story: τ = 0.5: −12 ms; τ = 0.9: −4 ms; τ = 0.99: +25 ms (SE 9). The policy helps typical requests but hurts the extreme tail — rerouting occasionally strands requests on slow paths. The SLA-relevant p99 effect has the opposite sign of the mean effect. You recommend against rollout despite the attractive mean. Takeaway: when the loss function lives in the tail, mean regression can recommend exactly the wrong policy; always check the quantiles.</p>
+</div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>GMM: θ̂ = argmin ḡ(θ)′Wḡ(θ); the optimal weighting matrix is Ω<sup>−1</sup>, giving asymptotic variance (G′Ω<sup>−1</sup>G)<sup>−1</sup>. Two-step GMM is standard; CUE is the small-sample-robust alternative.</li>
+<li>Hansen's J test: n·ḡ(θ̂)′Ω̂<sup>−1</sup>ḡ(θ̂) ∼ χ<sup>2</sup><sub>m−k</sub> tests mutual consistency of overidentifying moments — not their validity. Investigate rejections; don't specification-search them away.</li>
+<li>M-estimators (LAD, Huber) fit the Newey–McFadden extremum framework with sandwich asymptotics; they bound outlier influence by construction, dominating ad-hoc trimming.</li>
+<li>Arellano–Bond: difference the dynamic panel, instrument Δy<sub>i,t−1</sub> with lagged levels y<sub>i,t−2</sub>,…, estimate by GMM; mandatory diagnostics are the AR(2) test, the J test, and the instrument count.</li>
+<li>Heckman selection: add the inverse Mills ratio λ(z′γ̂) from a first-stage probit to absorb selection bias — but credible identification needs an exclusion restriction in the selection equation, not just the nonlinearity of λ.</li>
+<li>Quantile regression minimizes the check function ρ<sub>τ</sub>; plot β̂(τ) across τ with bands to see distributional effects. Tail effects can reverse mean effects — check before shipping.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Your GMM J test fails to reject. Can you now claim your instruments are valid?
+<details><summary>Answer</summary><p>No. The J test checks mutual consistency of the moments, not validity: if all instruments are invalid in the same way, the test has no power. Validity still rests on the economic/engineering argument for exclusion.</p></details></li>
+<li>Why is the optimal GMM weighting matrix the inverse of the moment covariance?
+<details><summary>Answer</summary><p>Because it minimizes the asymptotic variance: weighting by Ω<sup>−1</sup> downweights noisy moments and upweights precise ones, collapsing the sandwich to (G′Ω<sup>−1</sup>G)<sup>−1</sup>, the efficiency bound for moment-based estimation. It's the GMM analogue of GLS.</p></details></li>
+<li>In Arellano–Bond, the AR(2) test rejects. What does this mean and what do you do?
+<details><summary>Answer</summary><p>It means the differenced residuals have second-order serial correlation, so ε<sub>it</sub> is serially correlated and the lagged-level instruments (which require E[y<sub>i,t−2</sub>Δε<sub>it</sub>] = 0) are invalid. Use deeper lags as instruments (t−3 and earlier) if AR(2)-only correlation holds, or reconsider the dynamic specification.</p></details></li>
+<li>You run Heckman without any variable in the selection equation that's excluded from the outcome. Why is this fragile?
+<details><summary>Answer</summary><p>Identification then rests solely on the nonlinearity of the inverse Mills ratio, which is approximately linear over much of its range — producing severe multicollinearity between λ̂ and x and wildly unstable estimates. A genuine exclusion restriction is needed for credibility.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://economics.sas.upenn.edu/sites/default/files/penncourse/2026a_econ%207310_gao_diebold.pdf">ECON 7310 outline, Spring 2026 (Diebold &amp; Gao)</a> — the panel/GMM half of the course this lesson follows; check which half covers your topic.</li>
+<li>Hansen (1982), "Large Sample Properties of Generalized Method of Moments Estimators," <em>Econometrica</em> [name only] — the founding GMM paper; the optimal-weighting and J-test arguments in their original form.</li>
+<li>Hayashi, <em>Econometrics</em> [name only] — Chapters 3–4: GMM from first principles with unusual clarity; the best first read on two-step and continuously updated GMM.</li>
+<li>Arellano &amp; Bond (1991) [name only] — the dynamic-panel paper; pair with Blundell–Bond for the system-GMM extension.</li>
+<li>Heckman (1979), "Sample Selection Bias as a Specification Error," <em>Econometrica</em> [name only] — the selection paper; short, and the two-step estimator is fully derived.</li>
+<li>Koenker &amp; Bassett (1978), "Regression Quantiles," <em>Econometrica</em> [name only] — the quantile-regression founding paper; the check-function formulation.</li>
+<li><a href="https://www.sas.upenn.edu/~fdiebold/Teaching706/econ706Penn.html">Francis Diebold's PhD time-series site</a> — open slides, code, and reading lists overlapping the ECON 7310 material.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p2-3-econometrics-fundamentals.html">← 2.3 Econometrics Fundamentals</a><a class="next" href="p2-5-advanced-cross-section.html">2.5 Advanced Cross-Section Econometrics →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

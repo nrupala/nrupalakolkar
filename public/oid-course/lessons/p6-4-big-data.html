@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6.4 Big Data Analytics — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-6.html">Part 6: Information Systems, AI, and Machine Learning</a> / Lesson 6.4</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 6 · Lesson 6.4 · ~60 min</p>
+<h1>6.4 Big Data Analytics</h1>
+<p class="wharton-tag">Built from Wharton CIS 5450: Big Data Analytics</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Your models are only as good as the pipeline that feeds them. CIS 5450 is about scaling computation: collecting, wrangling, and structuring data, then expressing analytics as distributed programs. An EE/AI engineer meets this daily — telemetry from a sensor fleet, clickstreams from a platform, logs from a network — where the dataset no longer fits on one machine and the algorithm must be redesigned for the cluster, not just ported to it. This lesson gives you the mental models: MapReduce, Spark, SQL at scale, streaming, and the feature-engineering discipline that decides whether the pipeline's output is actually usable.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Express filtering, grouping, and join operations in the MapReduce mental model and name its limits.</li>
+<li>Explain RDDs, lineage, and lazy evaluation, and why Spark outperforms MapReduce on iterative algorithms.</li>
+<li>Choose between shuffle joins and broadcast joins using data-size arithmetic.</li>
+<li>Apply sketching (Count-Min) and sampling to answer questions without scanning full data.</li>
+<li>Design a feature pipeline that avoids leakage and documents wrangling from raw data to deployed model.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>The pipeline: collect, wrangle, structure, model, deploy</h3>
+<p>CIS 5450's arc runs from raw data to deployed model, and the unglamorous middle is where projects live or die. Collection means instrumenting sources (logs, sensors, APIs) with schemas and timestamps from day one — you cannot recover provenance you never recorded. Wrangling is parsing, deduping, handling missing values, and normalizing formats; regular expressions and relational schemas are the basic tools. Structuring turns the mess into tables or feature stores with documented transformations. The skill's standing rule applies: document every wrangling step so the pipeline reproduces from raw data. A model trained on undocumented cleaning is not a result; it is an anecdote.</p>
+<h3>MapReduce: the mental model</h3>
+<p>MapReduce (Dean and Ghemawat 2004) is a programming model for cluster computation: <em>map</em> transforms each input record into key–value pairs; the framework <em>shuffles</em> (groups by key, sorting, moving data across the network); <em>reduce</em> aggregates each key's values. Fault tolerance comes from re-executing failed tasks on replicated input splits (HDFS, Shvachko et al. 2010) — no checkpointing of intermediate state needed. The mental model to internalize: any computation expressible as "emit keyed pairs, then aggregate per key" parallelizes. Filtering is a map with no reduce; counting is the canonical word-count; joins are a map that tags records by join key plus a reduce that combines them. The limits are equally important: MapReduce materializes intermediate results to disk between jobs, so iterative algorithms (k-means, PageRank, gradient descent) pay a full disk-and-shuffle cost per iteration — which is the pain Spark was built to remove. Hive (Thusoo et al. 2009) layered SQL over MapReduce, proving that declarative queries, not hand-written jobs, are how analysts actually work at scale.</p>
+<h3>Spark and RDDs: dataflow with memory</h3>
+<p>Spark's Resilient Distributed Datasets (Zaharia et al. 2012) keep data in memory across iterations and recover failures through <em>lineage</em> — the deterministic transformation graph — rather than replication: lose a partition, recompute it from its ancestors. Evaluation is <em>lazy</em>: transformations build a DAG, and only actions trigger execution, letting the engine optimize the whole plan (predicate pushdown, pipelining). Design for two things: <em>data locality</em> (compute where the data lives) and <em>shuffle minimization</em> (the all-to-all exchange is the expensive operation; wide transformations like groupByKey trigger it, narrow ones like map and filter do not). Converting an algorithm to a distributed model means checking that its communication pattern is affordable: k-means parallelizes beautifully (each iteration is a map computing nearest centroids plus a reduce averaging per centroid — one shuffle per iteration, in memory), while algorithms needing global synchronization per step do not.</p>
+<h3>SQL at scale: thinking in shuffles</h3>
+<p>At scale, SQL is a physical-planning problem. A join's cost is dominated by moving rows to the same machine. The <em>shuffle join</em> (sort-merge) repartitions both tables by join key — cost proportional to the sum of table sizes crossing the network. The <em>broadcast join</em> copies the small table to every node — cost proportional to the small table's size times the node count — and is a pure win when one side fits comfortably in memory on each executor. The worked example below makes the arithmetic concrete. Skew is the silent killer: if one join key holds half the rows, one reducer does half the work — mitigate with salting (appending random suffixes to hot keys) or key splitting. And "don't scan what you don't need" is a physical law at scale: columnar formats, partitioning by date, and predicate pushdown turn a petabyte scan into a gigabyte one.</p>
+<h3>Feature engineering: where leverage lives</h3>
+<p>Models rarely fail for lack of algorithmic sophistication; they fail on features. The hashing trick maps high-cardinality categoricals (device IDs, URLs) into a fixed-width vector via a hash function — collisions are controlled by width (see the example), and no vocabulary needs storing. Embeddings learn dense representations of categoricals jointly with the model — the deep-learning answer to one-hot explosions. Temporal features demand the cardinal discipline: <em>no leakage</em> — every feature for a prediction at time t may use only information available at t. Joining a "7-day future average" into training rows is the classic way to build a model that is perfect offline and useless in production. Validate with time-based splits (train on the past, test on the future), not random splits, whenever the deployment setting is temporal.</p>
+<h3>Streaming and sketching basics</h3>
+<p>When data arrives as an unbounded stream — network telemetry, ad impressions — you cannot store it all, so you summarize on the fly. <em>Sketching</em> trades exactness for bounded memory with guarantees: the Count-Min sketch estimates item frequencies in O(1/ε · log(1/δ)) space with error at most εN with probability 1 − δ, using pairwise-independent hash functions into a small counter array. Windowing (tumbling, sliding, session windows) defines "the recent data" a query runs over; watermarks handle late arrivals. Lambda architecture (batch + speed layers) gives accuracy with latency; kappa (stream-only) bets the stream processor is correct enough. For most engineering purposes the takeaway is simpler: know whether your question needs exact answers on history (batch), approximate answers now (streaming/sketch), or both.</p>
+<h3>Evaluating at scale</h3>
+<p>Never run a full hyperparameter sweep on the entire dataset when a representative sample answers the question: prototype on a 1 percent sample, validate the winner at scale. Hypothesis testing at scale has the opposite problem from small data — with billions of rows, everything is significant, so report effect sizes and confidence intervals, not just p-values. And the train/validation/test discipline from Lesson 6.2 applies with extra force: temporal leakage and duplicate records across splits are the two ways big-data evaluation most often lies to you.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Word count as MapReduce, with the shuffle made explicit</h3><p>Input splits on 3 machines hold log lines; we count error codes. Map: each line "ERR_404 ..." emits (ERR_404, 1). Suppose the corpus emits 12M pairs across 3 mappers (4M each). Shuffle: the framework hash-partitions by key — all (ERR_404, 1) pairs land on reducer R2, say 3M of them, moving ~3M × 16 bytes ≈ 48 MB across the network. Reduce: R2 sums to (ERR_404, 3000000). The shuffle is the only network-heavy phase; the map and reduce are embarrassingly parallel. Now run k-means for 20 iterations in classic MapReduce: 20 full disk writes + 20 shuffles. In Spark, the points stay cached in memory and each iteration is one narrow map plus one shuffle — typically 10–100× faster. That gap, not any algorithmic difference, is why the industry moved.</p></div>
+<div class="example"><h3>Example 2: Broadcast vs shuffle join, in bytes</h3><p>Fact table: 1 TB of smart-meter readings (10B rows). Dimension table: 100 MB of meter metadata (1M rows). Cluster: 50 executors. Shuffle join: repartition both tables by meter_id — roughly 1 TB crosses the network (plus the 100 MB). Broadcast join: copy 100 MB to each of 50 executors = 5 GB total network traffic, and each executor joins locally in memory. 1 TB vs 5 GB: a 200× reduction in network I/O for changing one join hint. Rule of thumb: broadcast when the small side fits in executor memory with headroom (default thresholds are conservative — often 10–100 MB — but manually broadcasting up to a few GB routinely wins). The general principle: at scale, <em>data movement</em> is the cost model; compute is nearly free.</p></div>
+<div class="example"><h3>Example 3: Count-Min sketch sizing for heavy hitters</h3><p>You need per-IP request counts over a 24-hour stream of N = 10^9 requests to find heavy hitters, with additive error at most εN = 10^6 (0.1 percent) and failure probability δ = 0.01. Count-Min needs width w = ⌈e/ε⌉ = ⌈2.718/0.001⌉ = 2719 counters and depth d = ⌈ln(1/δ)⌉ = ⌈4.6⌉ = 5 hash functions: 2719 × 5 × 8 bytes ≈ 109 KB of memory. Storing exact per-IP counts for, say, 50M distinct IPs would need ~50M × 16 bytes ≈ 800 MB. The sketch answers "is this IP over threshold T?" correctly whenever its true count exceeds T + εN — a 7,000× memory saving for a one-sided, bounded error. In Python for prototyping:
+<pre><code>import mmh3
+w, d = 2719, 5
+table = [[0]*w for _ in range(d)]
+def add(ip):
+    for i in range(d):
+        table[i][mmh3.hash(ip, i) % w] += 1
+def estimate(ip):
+    return min(table[i][mmh3.hash(ip, i) % w] for i in range(d))</code></pre></p></div>
+<div class="example"><h3>Example 4: Feature hashing collision control</h3><p>1M distinct device IDs hashed into 2^18 = 262,144 buckets. Expected fraction of buckets with a collision is high — but what matters is per-pair collision probability: any two IDs collide with probability ≈ 1/262144. For a linear model, collisions just add unbiased noise to weights (the hashed features remain an unbiased estimator of the full one-hot inner product). If you need collision probability below 10^−6 for any specific pair, width 2^20 suffices (1/2^20 ≈ 9.5×10^−7). Signed hashing (multiply by ±1 from a second hash) makes the noise zero-mean. The engineering point: you get a fixed-memory categorical encoding with a tunable, quantified error — no vocabulary to store, update, or ship.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Document the pipeline from raw data: collection, wrangling, structuring must reproduce — an undocumented pipeline is an anecdote, not a result.</li>
+<li>MapReduce = map (emit keyed pairs) → shuffle (group by key) → reduce (aggregate); fault tolerance via re-execution on replicated splits; disk-bound per iteration.</li>
+<li>Spark RDDs: in-memory dataflow, lazy evaluation, lineage-based recovery; minimize shuffles (wide vs narrow transformations) and maximize data locality.</li>
+<li>At scale, data movement is the cost model: broadcast-join the small side (1 TB vs 5 GB in the example); watch for key skew; partition and push predicates down.</li>
+<li>Feature hashing gives fixed-memory categorical encodings with quantified collision error; embeddings are the learned alternative.</li>
+<li>No leakage: features at prediction time t may use only data available at t; use time-based splits for temporal problems.</li>
+<li>Count-Min sketch: O((1/ε) log(1/δ)) memory for frequency estimates with additive error εN — heavy hitters in ~100 KB instead of ~800 MB.</li>
+<li>Prototype on samples, validate at scale; at billions of rows report effect sizes, not just p-values.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Why is iterative k-means much faster in Spark than in classic MapReduce, given the same algorithm?<details><summary>Answer</summary><p>MapReduce materializes intermediate data to disk between jobs, so each of the 20 iterations pays a full disk write plus shuffle. Spark caches the points in memory as an RDD and each iteration is one narrow map plus one shuffle — removing the disk bottleneck, typically 10–100× faster.</p></details></li>
+<li>Your join of a 2 TB event table with a 50 MB user table is slow. What do you change, and roughly how much network traffic do you save on a 40-executor cluster?<details><summary>Answer</summary><p>Broadcast the 50 MB table: traffic drops from ~2 TB (shuffle join repartitions the fact table) to 50 MB × 40 = 2 GB — about a 1000× reduction — and the join runs locally in memory on each executor.</p></details></li>
+<li>A fraud model's offline AUC is 0.97 but production AUC is 0.61. Name the most likely pipeline cause and the validation fix.<details><summary>Answer</summary><p>Feature leakage — e.g., a feature computed from post-event data. Fix: audit every feature for availability at prediction time, and validate with time-based splits (train on past, test on future) instead of random splits.</p></details></li>
+<li>When would you choose a Count-Min sketch over exact counting?<details><summary>Answer</summary><p>When the stream is unbounded or too large to store exactly, and an approximate answer with bounded one-sided error (εN) suffices — e.g., heavy-hitter detection in network telemetry — trading exactness for orders of magnitude less memory.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://rmarcus.info/syllabi/Penn_CIS5450_F26.pdf">CIS 5450 Fall 2026 syllabus (Ryan Marcus)</a> — full syllabus with grading, project, and reading details; the authoritative course map.</li>
+<li><a href="https://www.cis.upenn.edu/~cis5450/2019A/">CIS 5450 Spring 2019 course site</a> — older public site (Susan Davidson) with full course description and readings.</li>
+<li><a href="https://www.cis.upenn.edu/~cis5450/2018A/">CIS 5450 Spring 2018 course site</a> — earlier version of the materials; useful second perspective.</li>
+<li><a href="https://online.seas.upenn.edu/courses/cis-545-big-data-analytics/">CIS 545 Big Data Analytics course page</a> — official description and prerequisites (Python plus probability/statistics).</li>
+<li>Leskovec, Rajaraman and Ullman, <em>Mining of Massive Datasets</em> — cited by name; the canonical big-data algorithms text, free online; the source for sketching and distributed algorithms.</li>
+<li>Stanford CS246 "Mining Massive Data Sets" (Jure Leskovec) — cited by name; public video lectures accompanying the book.</li>
+<li>McKinney, <em>Python for Data Analysis</em> — cited by name; the syllabus-recommended reference for the wrangling half of the pipeline.</li>
+<li>UC Berkeley, <em>Foundations of Data Science</em> (inferentialthinking.com) — cited by name; free companion text recommended on the 5450 syllabus.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p6-3-deep-learning.html">← 6.3 Deep Learning</a><a class="next" href="p6-5-economics-of-ai.html">6.5 Economics of AI, Platforms, and Digitization →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

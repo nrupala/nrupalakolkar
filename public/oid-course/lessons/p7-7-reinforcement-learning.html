@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7.7 Reinforcement Learning as Dynamic Programming — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-7.html">Part 7: Operations, Stochastic Models, and Optimization</a> / Lesson 7.7</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 7 · Lesson 7.7 · ~75 min</p>
+<h1>7.7 Reinforcement Learning as Dynamic Programming</h1>
+<p class="wharton-tag">Bridge lesson — connecting OID core to AI, technology, and electrical systems</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Reinforcement learning is dynamic programming with the model removed: where Lesson 7.5 assumed known transitions P(s'|s,a), RL learns the Bellman fixed point from samples. Q-learning is stochastic approximation applied to the Bellman operator; policy gradients are stochastic gradient ascent on the value function; bandits are the exploration subproblem isolated. If you understood contraction mappings and Bellman equations, RL's core algorithms are one-line corollaries — and their failure modes (divergence with function approximation, exploration collapse) are exactly the places where the DP assumptions break.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Formulate MDPs and derive Q-learning as Robbins–Monro stochastic approximation of the Bellman operator.</li>
+<li>Explain why tabular Q-learning converges (contraction + martingale noise) and why function approximation can diverge.</li>
+<li>State and apply the policy gradient theorem; contrast actor–critic with value-based methods.</li>
+<li>Analyze bandits via UCB and connect the Gittins index to Bayesian optimal exploration.</li>
+<li>Design an RL formulation for a systems-control problem (scheduling, power, routing).</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>MDPs: DP without the model</h3>
+<p>An MDP is Lesson 7.5's tuple (S, A, P, c, β) with the twist that P and c are <em>unknown</em> — the agent observes only sampled transitions (s, a, c, s'). Define the optimal action-value Q*(s,a) = c(s,a) + βE[min_{a'} Q*(s',a') | s,a]; this is the Bellman optimality equation written per state–action pair, with operator (HQ)(s,a) = c(s,a) + βE[min Q(s',·)]. H is a β-contraction in sup norm, exactly as in Lesson 7.5, so Q* is its unique fixed point. Every value-based RL algorithm is an attempt to find this fixed point from samples.</p>
+<h3>Q-learning as stochastic approximation</h3>
+<p><strong>Q-learning</strong> (Watkins 1989) updates on each sample: Q(s,a) ← Q(s,a) + α_t [c + β min_{a'} Q(s',a') − Q(s,a)]. Read it as <strong>Robbins–Monro stochastic approximation</strong>: θ_{t+1} = θ_t + α_t [h(θ_t) + noise_t], where h(Q) = HQ − Q is the mean Bellman residual and the noise is a martingale difference (Lesson 7.4's machinery). Convergence needs the Robbins–Monro step conditions Σα_t = ∞, Σα_t² &lt; ∞, plus infinite visits to every (s,a) — i.e., sufficient exploration. The proof sketch: the contraction pulls the mean dynamics to Q*, while the square-summable steps kill the martingale noise (a stochastic-approximation version of Doob's convergence). This is why Q-learning "just works" in the tabular case — and pinpoints the two things that can break: non-contractive operators and unvisitable states.</p>
+<p><strong>The deadly triad</strong>: function approximation + bootstrapping + off-policy learning can diverge — Baird's counterexample shows linear Q-learning blowing up. The contraction argument fails because the projection onto the function class composed with H need not be a contraction. Fixes target each leg: target networks slow the bootstrapping, experience replay and importance sampling tame off-policy noise, and gradient-TD / residual methods restore contraction-like guarantees. DQN's engineering (target nets, replay) is best understood as surgery on the triad.</p>
+<h3>Policy gradients and actor–critic</h3>
+<p>Parameterize the policy π_θ(a|s) and maximize J(θ) = E[return]. The <strong>policy gradient theorem</strong>: ∇J(θ) = E_{π_θ}[Σ_t ∇log π_θ(a_t|s_t) · Q^{π_θ}(s_t,a_t)] — the gradient depends on the policy only through the score function and the action-values, <em>not</em> through derivatives of the stationary state distribution (the envelope-theorem-like cancellation is the whole point). REINFORCE samples this directly; <strong>actor–critic</strong> replaces the sampled return with a learned critic Q_w (baseline subtraction reduces variance without bias), giving the two-timescale stochastic approximation that powers A2C/PPO. Deterministic policy gradients (DDPG) extend this to continuous actions — the setting for power control and robotics.</p>
+<h3>Bandits: exploration isolated</h3>
+<p>The <strong>multi-armed bandit</strong> strips RL to pure exploration: K arms with unknown mean rewards, minimize cumulative regret. <strong>UCB</strong> (upper confidence bound) plays argmax_a [Q̄_a + √(2ln t / n_a)]: optimism in the face of uncertainty, with O(log T) regret matching the Lai–Robbins lower bound up to constants. Thompson sampling randomizes by posterior probability of optimality — a Bayesian UCB with excellent empirical behavior. The <strong>Gittins index</strong> (Lesson 7.5) is the exact Bayesian-optimal solution for discounted infinite-horizon bandits: compute one index per arm, always play the largest. Contextual bandits (choose arm given features x) are the workhorse of recommendation and A/B testing at scale — RL with horizon 1.</p>
+<h3>RL for control and systems</h3>
+<p>Systems problems are natural MDPs: states are queue lengths / server modes / channel states, actions are scheduling / sleep / power decisions, costs are latency + energy. Average-cost formulations (Lesson 7.5) suit perpetually running systems; constrained MDPs handle SLA constraints via Lagrangian dual methods (Lesson 7.6's duality again). The honest engineering caveats: simulators are biased models (sim-to-real gap), exploration is unsafe on live systems (use offline RL / conservative policy iteration), and sample complexity scales with the effective horizon 1/(1−β) — which is why reward shaping and hierarchical structure matter more than algorithm choice in practice.</p>
+<h3>Offline RL and the limits of learning from logs</h3>
+<p>Live exploration on production systems is often unacceptable — you cannot let a router "try" dropping all traffic to learn it is bad. <strong>Offline (batch) RL</strong> learns solely from logged data, but faces <strong>distributional shift</strong>: the learned policy visits states the logs never covered, where the critic's values are pure extrapolation. Naive off-policy evaluation then overestimates wildly. Conservative methods (CQL, behavior-regularized policy gradients) penalize deviation from the logging policy or lower-bound values on unseen actions — trading optimality for safety. The theoretical lens is <strong>concentrability</strong>: offline RL works when the data distribution covers the states the optimal policy visits. For systems engineers the takeaway is concrete: log with exploratory policies (not just the production policy), record the propensities, and treat "train on logs, deploy" as a counterfactual-inference problem (Part 4's territory) before it is a control problem.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Q-learning for queue admission control</h3>
+<p>A server with buffer 10; per slot, admit or reject an arriving job (Bernoulli(0.6) arrivals, geometric service). Holding cost 1 per queued job, rejection cost 8. The optimal policy is threshold (Lesson 7.5 lattice logic). Tabular Q-learning recovers it:</p>
+<pre><code>import numpy as np
+rng = np.random.default_rng(0)
+B, beta, gamma = 10, 0.6, 0.95
+Q = np.zeros((B+1, 2))  # actions: 0=reject, 1=admit
+for ep in range(40000):
+    s = rng.integers(0, B+1); done = False
+    alpha = 0.1/(1+ep/5000)
+    for _ in range(200):
+        a = rng.integers(2) if rng.random() < 0.1 else int(np.argmin(Q[s]))
+        arr = rng.random() < beta; dep = (s > 0) and rng.random() < 0.5
+        ns = min(max(s + (a and arr) - dep, 0), B)
+        c = s + (8 if (arr and not a) else 0)   # holding + rejection cost
+        Q[s,a] += alpha*(c + gamma*np.min(Q[ns]) - Q[s,a])
+        s = ns
+policy = np.argmin(Q, axis=1)
+print("admit(1)/reject(0) by queue length:", policy)
+# -> admits when short, rejects when long: a threshold policy, learned</code></pre></div>
+<div class="example"><h3>Example 2: UCB on a 3-arm bandit</h3>
+<p>Arms with true means 0.3, 0.5, 0.7 (Bernoulli). UCB with bonus √(2ln t/n_a): after t = 1000 pulls, the counts concentrate on arm 3 (n_3 ≈ 900+), cumulative regret ≈ Σ Δ_a E[n_a] grows logarithmically — roughly (0.2+0.4)×(8ln1000/0.04...) — in simulation ≈ 25–40, vs. linear regret (~200) for ε-greedy with fixed ε = 0.1. Optimism explores efficiently because the bonus shrinks exactly as 1/√n_a.</p></div>
+<div class="example"><h3>Example 3: Policy gradient for power capping</h3>
+<p>A cluster controller sets a power cap a ∈ {low, high} each 5-minute window; state s = (queue length, electricity price tier). Reward = −(latency penalty + energy cost). A softmax policy π_θ(a|s) trained with actor–critic: the critic learns V(s), the actor ascends ∇log π · (return − V(s)). After training on a week of simulated traces, the policy learns price-aware capping — low caps during price spikes unless queues are long — reproducing the threshold structure a DP would prove, without ever writing a transition model.</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Q-learning is Robbins–Monro stochastic approximation of the Bellman operator: Q ← Q + α[c + βminQ' − Q]; contraction + martingale noise + Σα=∞/Σα²&lt;∞ ⇒ convergence (tabular).</li>
+<li>The deadly triad — function approximation + bootstrapping + off-policy — can diverge; DQN's target networks and replay are fixes aimed at specific legs.</li>
+<li>Policy gradient theorem: ∇J = E[Σ ∇log π(a|s)·Q^π(s,a)] — no derivative of the state distribution needed.</li>
+<li>Actor–critic = policy gradient with a learned baseline/critic: lower variance, two-timescale stochastic approximation.</li>
+<li>UCB achieves O(log T) regret via optimism; Gittins index is the exact Bayesian-optimal index policy for discounted bandits.</li>
+<li>Average-cost and constrained MDPs are the right formulations for perpetually running systems with SLA constraints — solved via Lesson 7.5/7.6 tools.</li>
+<li>Every RL algorithm inherits DP's assumptions; when it fails, check which one broke: Markovian state, sufficient exploration, contractive operator.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Why does tabular Q-learning converge but linear Q-learning may diverge?<details><summary>Answer</summary><p>Tabular Q-learning is stochastic approximation of a sup-norm contraction, so the mean dynamics converge and square-summable steps kill the martingale noise. With linear function approximation, the composed operator (projection ∘ Bellman) need not be a contraction — the deadly triad — so iterates can diverge (Baird's counterexample).</p></details></li>
+<li>What role does the critic play in actor–critic, and why is baseline subtraction unbiased?<details><summary>Answer</summary><p>The critic estimates Q^π or V^π to replace high-variance sampled returns. Subtracting a state-dependent baseline b(s) is unbiased because E[∇log π(a|s)·b(s)] = b(s)·∇E[1] = 0 — the score function has zero mean under π.</p></details></li>
+<li>A recommender must choose among 5 layouts per visit to maximize clicks. Which framework, and why not full RL?<details><summary>Answer</summary><p>Contextual bandit: the decision's effect is immediate (horizon 1), so there is no sequential credit assignment to gain from full RL, while bandit algorithms (UCB/Thompson) give optimal exploration–exploitation with far less sample complexity.</p></details></li>
+<li>Your Q-learning agent on a live router diverges. Name two DP assumptions to check first.<details><summary>Answer</summary><p>(1) Markovian state — if the state omits relevant history (e.g., traffic phase), the Bellman equation is wrong. (2) Sufficient exploration / step-size conditions — a greedy-only policy stops visiting state–actions, and constant α never kills the noise. Also check for the deadly triad if using function approximation.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://ocw.mit.edu/courses/6-231-dynamic-programming-and-stochastic-control-fall-2015/resources/mit6_231f15_notes_short/">MIT OCW 6.231 lecture notes (Bertsekas)</a> — approximate DP and neuro-DP: the DP-side foundation of RL.</li>
+<li><a href="https://gwern.net/doc/www/web.mit.edu/e10de22213403f908886e9e84d44b36b3dfe5388.html">Bertsekas, <em>Dynamic Programming and Optimal Control</em>, Vol. II (book page mirror)</a> — approximate DP, rollout, temporal differences.</li>
+<li><a href="https://julia.quantecon.org/dynamic_programming/discrete_dp.html">QuantEcon: discrete dynamic programming</a> — code-first value/policy iteration to ground the Bellman machinery.</li>
+<li>Puterman, <em>Markov Decision Processes</em> [name only] — the rigorous MDP/DP reference behind the convergence arguments.</li>
+<li>Gittins, "Bandit processes and dynamic allocation indices," <em>JRSS-B</em> 41(2), 1979 [name only] — the index theorem for Bayesian bandits.</li>
+<li>Sutton &amp; Barto, <em>Reinforcement Learning: An Introduction</em> [name only] — the standard RL text; Q-learning, policy gradients, bandits (free from the authors).</li>
+<li><a href="https://www.cis.upenn.edu/~ungar/cis520/">Penn CIS 5200 course page (Lyle Ungar)</a> — Penn's ML course; its reinforcement-learning lecture module connects to this lesson.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p7-6-optimization.html">← 7.6 Optimization Foundations</a><a class="next" href="p7-8-queueing-networks.html">7.8 Queueing and Networks for Communications Systems →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

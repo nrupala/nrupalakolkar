@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>0.2 Linear Algebra for ML and Optimization — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-0.html">Part 0: Mathematical Foundations for Engineers</a> / Lesson 0.2</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 0 · Lesson 0.2 · ~60 min</p>
+<h1>0.2 Linear Algebra for ML and Optimization</h1>
+<p class="wharton-tag">Bridge lesson — mathematical foundations for the OID PhD core</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Nearly every computation in modern AI and signal processing is linear algebra at scale: a neural layer is a matrix multiply, least squares is a projection, PCA is an eigendecomposition, and gradient descent walks a landscape whose curvature is a Hessian. The OID PhD core — econometrics, stochastic optimization, machine learning — expresses estimators, tests, and algorithms in this vocabulary: OLS is the orthogonal projection onto a column space, ridge regression is a damped pseudoinverse, and a Gaussian likelihood is a positive-definite quadratic form. This lesson rebuilds the linear algebra you will actually use: spaces, projections, the two great factorizations (eigendecomposition and SVD), definiteness, and the matrix calculus that makes backpropagation possible.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Describe a subspace by its span and basis, identify the four fundamental subspaces of a matrix, and explain the rank–nullity relationship.</li>
+<li>Construct and interpret orthogonal projections, and derive least squares as the projection of y onto the column space of X.</li>
+<li>State the spectral theorem for symmetric matrices and the singular value decomposition for general matrices, and use them to explain PCA and low-rank approximation.</li>
+<li>Test a symmetric matrix for positive (semi)definiteness via eigenvalues or pivots, and explain why definiteness governs convexity and Gaussian densities.</li>
+<li>Compute basic matrix-calculus identities (gradients of linear and quadratic forms) used in deriving normal equations and gradient updates.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Vector spaces and the four fundamental subspaces</h3>
+<p>A vector space is a set closed under addition and scalar multiplication; R^n with the usual operations is the one you will live in. A subspace is a subset that is itself a space — a line or plane through the origin in R³, for instance. The span of a set of vectors is all their linear combinations; a basis is a linearly independent spanning set, and its size is the dimension. For an m × n matrix A, four subspaces matter. The column space C(A) ⊆ R^m: all outputs Ax. The nullspace N(A) ⊆ R^n: all inputs x with Ax = 0. The row space C(A^T) ⊆ R^n and the left nullspace N(A^T) ⊆ R^m complete the picture. The rank–nullity theorem says dim C(A) + dim N(A) = n: rank plus nullity equals the number of columns. Rank is the number of linearly independent columns — equivalently rows. Two facts you will use constantly: C(A) is orthogonal to N(A^T) (every vector b decomposes into a part in the column space plus a part orthogonal to it), and A has full column rank exactly when A^T A is invertible.</p>
+<h3>Projections and the geometry of least squares</h3>
+<p>An orthogonal projection onto a subspace S sends each vector y to the unique closest point in S. For a subspace spanned by the columns of X (full column rank), the projection matrix is P = X(X^T X)^(−1) X^T: it satisfies P² = P (idempotent — projecting twice changes nothing) and P^T = P (symmetric — the projection is orthogonal). The residual I − P projects onto the orthogonal complement, so (I − P)y is perpendicular to every column of X. Least squares is exactly this geometry: minimizing ‖y − Xβ‖² over β is equivalent to projecting y onto C(X), because the residual must be orthogonal to the column space. Setting the gradient to zero gives the normal equations X^T X β = X^T y, i.e., X^T (y − Xβ) = 0 — the orthogonality condition. When X^T X is singular (collinear features), the pseudoinverse X⁺ via the SVD gives the minimum-norm solution. In statistics, P is the "hat matrix": its diagonal entries measure leverage — how strongly each observation pulls the fitted values — and tr(P) = rank(X) counts the effective degrees of freedom.</p>
+<h3>Eigendecomposition: the spectral theorem</h3>
+<p>For a symmetric matrix A (the case that dominates statistics and physics), the spectral theorem says A = QΛQ^T, where Q is orthogonal (Q^T Q = I) and Λ is diagonal with the real eigenvalues λ_i. Geometrically, A stretches space along its orthonormal eigenvectors e_i by factors λ_i. Powers are trivial in this basis: A^k = QΛ^k Q^T, and functions like the matrix exponential follow. The eigenvalues also diagnose the matrix: λ_i &gt; 0 for all i means positive definite (a bowl); λ_i ≥ 0 means positive semidefinite (a bowl with flat directions). Determinant = product of eigenvalues; trace = sum of eigenvalues — quick consistency checks. Symmetric matrices arise as covariance matrices Σ = E[(X − μ)(X − μ)^T], Hessians of smooth functions, graph Laplacians, and kernel (Gram) matrices — the spectral theorem is what makes PCA, quadratic forms, and second-order optimization work.</p>
+<h3>SVD: the factorization that works for everything</h3>
+<p>Every m × n matrix, symmetric or not, rectangular or singular, admits a singular value decomposition A = UΣV^T with U, V orthogonal and Σ diagonal with nonnegative singular values σ_1 ≥ σ_2 ≥ ··· ≥ 0. The columns of V are eigenvectors of A^T A with eigenvalues σ_i²; the columns of U are eigenvectors of AA^T. The SVD reveals the action of A: rotate (V^T), stretch (Σ), rotate (U). Its applications are legion. Rank equals the number of nonzero singular values. The Eckart–Young theorem: the best rank-k approximation to A in Frobenius (or spectral) norm is the truncated SVD keeping the top k terms, with error equal to the sum of squares of the discarded singular values — this is the exact mathematics behind image compression, latent semantic indexing, and low-rank neural-network adapters. The pseudoinverse A⁺ = VΣ⁺U^T (reciprocating the nonzero singular values) solves least squares even when X^T X is singular. And PCA is the SVD of the centered data matrix: the principal components are the columns of V, the variances explained are σ_i²/(n−1), and projecting onto the first k components is the optimal k-dimensional summary in the mean-squared sense.</p>
+<h3>Positive definiteness: convexity's gatekeeper</h3>
+<p>A symmetric matrix A is positive definite (PD) if x^T A x &gt; 0 for all nonzero x, and positive semidefinite (PSD) if x^T A x ≥ 0. Tests: all eigenvalues positive (nonnegative); all leading principal minors positive (Sylvester's criterion); or all pivots positive in Gaussian elimination — which is the Cholesky factorization A = LL^T with L lower-triangular, the fast, stable way to sample Gaussians (x = μ + Lz with z standard normal) and solve normal equations. Why it matters: a twice-differentiable function is strictly convex exactly when its Hessian is PD everywhere (convex when PSD) — definiteness is the bridge from linear algebra to optimization. Covariance matrices are PSD by construction, and a Gaussian density N(μ, Σ) exists as a proper density only when Σ is PD (its inverse and determinant appear in the formula). Indefinite matrices (eigenvalues of both signs) give saddle points — the bane of gradient methods.</p>
+<h3>Matrix calculus: gradients without tears</h3>
+<p>Optimization needs gradients of scalar functions of vectors and matrices. With the numerator layout (gradient as a column vector matching x), the identities that cover 90% of derivations are: ∇_x (a^T x) = a; ∇_x (x^T A x) = (A + A^T)x, which is 2Ax when A is symmetric; ∇_x ‖y − Xβ‖² = −2X^T(y − Xβ) — the normal equations fall out immediately; and ∇_X tr(AXB) = A^T B^T. For matrix variables, ∇_X log det X = X^(−T) (X^(−1) for symmetric X) — the derivative at the heart of Gaussian maximum-likelihood estimation of Σ. The chain rule works as expected, and differentials are often cleaner than index-chasing: write df = tr(G^T dX) and read off ∇_X f = G. Every backpropagation pass is this calculus mechanized: the gradient of a loss with respect to each layer's weight matrix is a product of upstream gradients and activations, i.e., the chain rule in matrix form.</p></section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Least squares as projection, in numbers</h3>
+<p>Fit y = β_0 + β_1 x through points (0, 1), (1, 2), (2, 4). With X = [[1,0],[1,1],[1,2]] and y = [1,2,4], the normal equations give X^T X = [[3,3],[3,5]], X^T y = [7,10], so β = [2/3, 3/2]: fitted line ⅔ + 1.5x. The hat matrix P = X(X^T X)^(−1)X^T projects y onto the column space; residuals r = (I − P)y = [1/6, −1/3, 1/6] satisfy X^T r = 0 — orthogonal to every column of X, exactly as the geometry demands. The residual sum of squares is 1/6.</p>
+<pre><code>import numpy as np
+X = np.array([[1.,0.],[1.,1.],[1.,2.]]); y = np.array([1.,2.,4.])
+beta, *_ = np.linalg.lstsq(X, y, rcond=None)
+print("beta:", beta)                      # [0.6667, 1.5]
+P = X @ np.linalg.inv(X.T @ X) @ X.T
+print("X' r =", X.T @ (np.eye(3)-P) @ y)  # ~ [0, 0]</code></pre>
+</div>
+<div class="example"><h3>Example 2: PCA of sensor-array data via SVD</h3>
+<p>A vibration sensor array records n = 500 samples on p = 12 channels. Centering the data matrix M and computing M = UΣV^T, suppose the singular values are σ = (42, 31, 8, 3, 1.5, …). The first two components capture (42² + 31²)/Σσ_i² ≈ 96% of the variance: the array's 12 channels are effectively 2-dimensional, with the rest being noise. Projecting onto the first two columns of V denoises the signal and gives a 2-D visualization. This is the Eckart–Young theorem at work: the rank-2 truncation is the best rank-2 approximation of M in the Frobenius norm.</p>
+</div>
+<div class="example"><h3>Example 3: Is this matrix positive definite?</h3>
+<p>A = [[4, 2],[2, 3]]. Eigenvalues: trace 7, determinant 12 − 4 = 8, so λ = (7 ± √17)/2 ≈ 5.56, 1.44 — both positive, hence PD. Equivalently, leading principal minors 4 &gt; 0 and det 8 &gt; 0 (Sylvester). Cholesky: L = [[2, 0],[1, √2]], check LL^T = A. Because A is PD, the quadratic f(x) = ½x^T A x − b^T x is strictly convex with unique minimizer x = A^(−1)b — the linear-system solve that sits inside every Newton step and every Gaussian computation.</p>
+</div>
+<div class="example"><h3>Example 4: Deriving the ridge-regression update</h3>
+<p>Ridge regression minimizes ‖y − Xβ‖² + λ‖β‖². Using the identities above, the gradient is −2X^T(y − Xβ) + 2λβ; setting it to zero gives β_ridge = (X^T X + λI)^(−1) X^T y. The λI term shifts every eigenvalue of X^T X up by λ, so the inverse always exists and the solution is shrunk toward zero — a damped pseudoinverse that stabilizes collinear features. In SVD terms with X = UΣV^T, ridge multiplies each singular component by σ_i/(σ_i² + λ): directions with σ_i² ≫ λ are kept, those with σ_i² ≪ λ are suppressed. This is spectral filtering, and early stopping of gradient descent does something similar.</p>
+</div></section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>For any matrix, rank + nullity = number of columns; the column space and the left nullspace are orthogonal complements in R^m.</li>
+<li>Least squares is orthogonal projection: β̂ = (X^T X)^(−1)X^T y solves the normal equations X^T Xβ = X^T y, equivalently X^T(y − Xβ) = 0.</li>
+<li>Spectral theorem: symmetric A = QΛQ^T with real eigenvalues and orthonormal eigenvectors; powers, functions, and definiteness all read off from Λ.</li>
+<li>SVD: A = UΣV^T for any matrix; truncated SVD is the optimal low-rank approximation (Eckart–Young); the pseudoinverse A⁺ = VΣ⁺U^T solves rank-deficient least squares.</li>
+<li>PCA is the SVD of the centered data matrix; explained-variance ratios are σ_i² / Σσ_j².</li>
+<li>Positive definiteness ⇔ all eigenvalues positive ⇔ all pivots positive ⇔ Cholesky A = LL^T exists; PD Hessians mean strict convexity, PSD covariances are automatic.</li>
+<li>Matrix-calculus core: ∇(a^T x) = a, ∇(x^T A x) = 2Ax (symmetric A), ∇‖y − Xβ‖² = −2X^T(y − Xβ), ∇log det X = X^(−1).</li>
+<li>Ridge regression is a spectrally damped pseudoinverse: each singular component is scaled by σ_i/(σ_i² + λ).</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>State the normal equations for least squares and explain in one sentence why they are an orthogonality condition.<details><summary>Answer</summary><p>X^T Xβ = X^T y, i.e., X^T(y − Xβ) = 0: the residual y − Xβ̂ is orthogonal to every column of X, which is exactly the condition that Xβ̂ is the closest point in the column space to y.</p></details></li>
+<li>For the data matrix M (n × p), how does the SVD give you PCA? What fraction of variance does the first k components explain?<details><summary>Answer</summary><p>Center M, compute M = UΣV^T: the principal-component directions are the columns of V and the component variances are σ_i²/(n − 1). The first k components explain (σ_1² + ··· + σ_k²)/(σ_1² + ··· + σ_p²) of the total variance.</p></details></li>
+<li>A symmetric 3 × 3 matrix has eigenvalues 4, 1, −2. Is it positive definite? Positive semidefinite? What does this imply about the critical point of a function with this Hessian?<details><summary>Answer</summary><p>Neither: a negative eigenvalue rules out both PD and PSD — the matrix is indefinite. The critical point is a saddle, not a minimum.</p></details></li>
+<li>Use the identity ∇_x(x^T A x) = 2Ax (A symmetric) to find the minimizer of f(x) = ½x^T A x − b^T x for A positive definite.<details><summary>Answer</summary><p>∇f = Ax − b; setting to zero gives x* = A^(−1)b. Since A is PD the Hessian is PD everywhere, so f is strictly convex and x* is the unique global minimizer.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li>Stanford EE364A Convex Optimization lectures (Stephen Boyd) [name only] — the first lectures' linear-algebra review (SVD, PSD cones, matrix calculus) is the gold standard for this material.</li>
+<li><a href="https://www.statlearning.com/">An Introduction to Statistical Learning</a> — free book; Chapter 10 (PCA) and Chapter 3 (least squares geometry) tie the factorizations directly to statistical practice, with Python/R labs.</li>
+<li><a href="https://alliance.seas.upenn.edu/~cis520/dynamic/2022/wiki/index.php?n=Main.Description">CIS 5200 wiki (Fall 2022)</a> — Penn's machine-learning course site; its linear-models and dimensionality-reduction lectures apply projections, SVD, and eigendecomposition to real ML problems.</li>
+<li>Zhang et al. — Dive into Deep Learning (d2l.ai) [name only] — free text; its linear-algebra appendix and PCA sections show how these factorizations appear inside deep-learning code.</li>
+<li><a href="https://mjo.osborne.economics.utoronto.ca/index.php/tutorial/index/1/int/i">Martin Osborne's math tutorial</a> — recommended in Penn's ECON 6100 syllabus; a compact, rigorous review of the linear algebra used in graduate coursework.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p0-1-probability-refresher.html">← 0.1 Probability Refresher</a><a class="next" href="p0-3-convexity-analysis.html">0.3 Convexity and Real Analysis Primer →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7.3 Stochastic Models — OID for AI, Technology and Electrical Systems</title>
+<link rel="stylesheet" href="../styles.css">
+</head>
+<body>
+<header class="site-header">
+<a class="brand" href="../index.html">OID for AI, Technology &amp; Electrical Systems</a>
+<nav class="crumbs"><a href="../index.html">Home</a> / <a href="../parts/part-7.html">Part 7: Operations, Stochastic Models, and Optimization</a> / Lesson 7.3</nav>
+</header>
+<main class="lesson">
+<p class="lesson-meta">Part 7 · Lesson 7.3 · ~60 min</p>
+<h1>7.3 Stochastic Models</h1>
+<p class="wharton-tag">Built from Wharton OIDD 9300: Stochastic Models</p>
+<section class="motivation"><h2>Why this matters for AI, technology, and electrical systems</h2><p>Packet arrivals, hardware failures, job submissions, bit errors — engineered systems are stochastic processes wearing different clothes. OIDD 9300 builds the modeling toolkit: Markov chains for stateful systems, Poisson processes for arrivals and failures, continuous-time chains for queues, and renewal theory for replacement and maintenance. If you can write the generator of your system, you can compute its steady state, its failure probabilities, and its long-run cost rate — which is most of reliability engineering and performance analysis.</p></section>
+<section><h2>Learning objectives</h2><ul>
+<li>Classify discrete-time Markov chain states and compute stationary distributions via balance equations.</li>
+<li>Construct Poisson processes from the memoryless property and apply thinning and superposition.</li>
+<li>Write generator matrices for CTMCs and derive steady-state distributions for birth–death processes.</li>
+<li>State the elementary and key renewal theorems and apply the renewal-reward theorem.</li>
+<li>Model arrivals, failures, and buffers in engineering systems with these tools.</li>
+</ul></section>
+<section><h2>Core content</h2>
+<h3>Discrete-time Markov chains</h3>
+<p>A Markov chain {X_n} on a countable state space satisfies P(X_{n+1} = j | history) = P(X_{n+1} = j | X_n) — the future depends on the past only through the present. The n-step transition probabilities obey the <strong>Chapman–Kolmogorov equations</strong>: P^{(m+n)} = P^{(m)} P^{(n)}, i.e., matrix powers of the one-step matrix P. States are classified as <strong>recurrent</strong> (return with probability 1) or <strong>transient</strong>, and recurrent states split into <strong>periodic</strong> and <strong>aperiodic</strong>. An irreducible, positive-recurrent, aperiodic chain has a unique <strong>stationary distribution</strong> π with π = πP, and P^n → 1π: the chain forgets its start. Stationarity is found from the global balance equations π_j = Σ_i π_i P_{ij} plus Σ π_j = 1.</p>
+<p><strong>Reversibility</strong> is a powerful special case: if π_i P_{ij} = π_j P_{ji} (detailed balance), the chain looks the same forwards and backwards in time, and π is automatically stationary. <strong>First-step analysis</strong> conditions on the first transition to get linear equations for hitting times and absorption probabilities — the technique behind gambler's-ruin calculations and, later, buffer-overflow probabilities in queues.</p>
+<h3>Poisson processes: the memoryless arrival model</h3>
+<p>Start from the <strong>memoryless property</strong>: the exponential distribution is the unique continuous law with P(T &gt; s+t | T &gt; s) = P(T &gt; t). Build a counting process N(t) with i.i.d. exponential(λ) interarrival times: then N(t) ~ Poisson(λt), increments are independent and stationary, and this is the <strong>Poisson process</strong>. Three operations make it a modeling Swiss-army knife. <strong>Superposition</strong>: the sum of independent Poisson(λ_i) processes is Poisson(Σλ_i) — aggregate arrivals stay Poisson. <strong>Thinning</strong>: keep each event independently with probability p; the survivors form a Poisson(pλ) process — packet sampling, filtered failure streams, randomized routing. <strong>Compound Poisson</strong>: each event carries a random batch size, giving N(t) = Σ_{i≤M(t)} B_i for jump sizes — models bursty arrivals. Drop stationarity for the <strong>nonhomogeneous</strong> Poisson process with rate λ(t): N(t) has mean ∫λ, the model for diurnal traffic and time-varying failure rates.</p>
+<p>Why it matters: the Poisson process is the maximum-entropy arrival model given only a rate, the limit of many sparse independent sources (the "Poisson limit" of multiplexed traffic), and the input process for every M/M/· queue in Lesson 7.8. When arrivals are <em>not</em> Poisson — bursty, correlated — that deviation is itself the phenomenon to model.</p>
+<h3>Continuous-time Markov chains and birth–death processes</h3>
+<p>A CTMC replaces the transition matrix with a <strong>generator matrix</strong> Q: q_{ij} (i≠j) is the transition <em>rate</em> from i to j, q_{ii} = −Σ_{j≠i} q_{ij}, and holding times in state i are exponential with rate −q_{ii}. The transition functions P(t) = e^{Qt} satisfy the <strong>Kolmogorov forward equations</strong> P'(t) = P(t)Q and <strong>backward equations</strong> P'(t) = QP(t). Stationarity solves πQ = 0.</p>
+<p><strong>Birth–death processes</strong> — transitions only between neighbors, with birth rates λ_n and death rates μ_n — admit a closed form. Detailed balance π_n λ_n = π_{n+1} μ_{n+1} gives π_n = π_0 ∏_{k=0}^{n−1} (λ_k/μ_{k+1}). Every M/M/1, M/M/c, and M/M/∞ queue is a birth–death process; their steady states in Lesson 7.8 are one-line corollaries of this formula. <strong>Uniformization</strong> converts a CTMC into a discrete-time chain subordinated to a Poisson clock (rate ≥ max exit rate), letting you compute transient probabilities via the discrete chain — the standard numerical workhorse.</p>
+<h3>Renewal theory: regenerative systems</h3>
+<p>A <strong>renewal process</strong> has i.i.d. inter-renewal times with mean μ — think component lifetimes, successive job completions, or rounds of a protocol. Let N(t) count renewals by t. The <strong>elementary renewal theorem</strong>: E[N(t)]/t → 1/μ. The <strong>key renewal theorem</strong> gives the asymptotic value of renewal-type convolutions: for directly Riemann integrable g, ∫_0^t g(t−s) dm(s) → (1/μ)∫_0^∞ g. The <strong>renewal-reward theorem</strong> is the practitioner's favorite: if each cycle earns random reward R with E[R] &lt; ∞, long-run reward per unit time → E[R]/E[cycle length] — average cost, availability, and throughput of any regenerative system in one ratio.</p>
+<p>The <strong>inspection paradox</strong> warns against naive sampling: pick a random time t; the interval covering t is size-biased — E[length] = E[X²]/E[X] ≥ E[X], strictly larger unless deterministic. A randomly inspected disk, server, or "average packet's queue" sees a longer-than-average interval. Age and excess-life distributions make this precise: the stationary excess life has density (1−F(x))/μ, the same object that appears in the M/G/1 waiting-time formula.</p>
+<h3>Random walks: recurrence, transience, and gambler's ruin</h3>
+<p>A <strong>random walk</strong> S_n = Σ_{i≤n} X_i with i.i.d. steps is the discrete engine behind diffusion limits and queueing approximations. <strong>Pólya's theorem</strong>: the simple symmetric walk is recurrent in 1 and 2 dimensions (returns to the origin with probability 1) but transient in 3+ — a drunk man finds his way home, a drunk bird may not. The <strong>gambler's ruin</strong> problem — a walk with absorbing boundaries at 0 and N — is solved by first-step analysis: with up-step probability p, ruin probability from k is [(q/p)^k − (q/p)^N]/[1 − (q/p)^N] for p ≠ 1/2, and 1 − k/N for p = 1/2. This is the discrete prototype of every buffer-overflow and ruin calculation in the course: Example 2 above is gambler's ruin with p = 0.45. The <strong>reflection principle</strong> for walks gives maximum distributions, foreshadowing its Brownian version in Lesson 7.4.</p>
+</section>
+<section><h2>Worked examples</h2>
+<div class="example"><h3>Example 1: Thinning a failure stream</h3>
+<p>Disk failures in a data center follow a Poisson process at λ = 0.02/hour. A monitoring agent independently samples each failure event with probability p = 0.1 for deep diagnosis. By thinning, sampled events form a Poisson(0.002) process: the expected number of sampled failures in a 30-day month is 0.002 × 720 = 1.44, and P(no sampled failure) = e^{−1.44} ≈ 0.237. The memoryless property means the agent's sampling doesn't distort the timing statistics of what it sees.</p></div>
+<div class="example"><h3>Example 2: First-step analysis for buffer overflow</h3>
+<p>A buffer holds up to N packets; each slot, a packet arrives with probability p = 0.45 or (if nonempty) departs with probability q = 0.55 — a birth–death random walk. Starting from k packets, the overflow probability before emptying satisfies h_k = p·h_{k+1} + q·h_{k−1} with h_0 = 0, h_N = 1. For p ≠ q: h_k = (1 − (q/p)^k)/(1 − (q/p)^N). With N = 50, k = 10, q/p ≈ 1.222: h_10 = (1 − 1.222^10)/(1 − 1.222^50) ≈ (1−7.3)/(1−2.4×10^4) ≈ 2.6×10^{−4}. First-step analysis turned a path question into algebra.</p>
+<pre><code>p, q, N, k = 0.45, 0.55, 50, 10
+r = q/p
+h = (1 - r**k)/(1 - r**N)
+print(h)  # ~0.00026</code></pre></div>
+<div class="example"><h3>Example 3: Age replacement via renewal reward</h3>
+<p>SSDs have i.i.d. lifetimes with mean μ = 4 years; an unplanned failure costs c_f = $5000 (downtime), a planned replacement costs c_p = $500. Replace at age T or failure, whichever first. Cycle length = min(X, T); cycle cost = c_p if X &gt; T else c_f. Long-run cost rate = E[cost]/E[min(X,T)] — the renewal-reward theorem. With exponential lifetimes (rate 1/4), E[min(X,T)] = 4(1−e^{−T/4}) and the optimal T solves c_p·λ·e^{... } — numerically T* ≈ 2.1 years, cutting cost ~30% vs. run-to-failure. (With IFR lifetimes the gain is larger; exponential is the worst case for preventive replacement.)</p></div>
+</section>
+<section class="key-results"><h2>Key results to remember</h2><ul>
+<li>Chapman–Kolmogorov: P^{(m+n)} = P^{(m)}P^{(n)}. Stationarity π = πP; irreducibility + positive recurrence + aperiodicity ⇒ convergence from any start.</li>
+<li>Exponential is the unique memoryless continuous law; i.i.d. exponential interarrivals define the Poisson process.</li>
+<li>Thinning (keep w.p. p → Poisson(pλ)) and superposition (sum → Poisson(Σλ_i)) keep you inside the Poisson family.</li>
+<li>CTMC generator Q with πQ = 0 for stationarity; birth–death steady state π_n = π_0 ∏(λ_k/μ_{k+1}) via detailed balance.</li>
+<li>Elementary renewal theorem: E[N(t)]/t → 1/μ. Renewal reward: long-run rate = E[reward per cycle]/E[cycle length].</li>
+<li>Inspection paradox: a randomly sampled interval is size-biased, E = E[X²]/E[X] — never confuse it with an ordinary interval.</li>
+<li>First-step analysis converts hitting-time and absorption questions into linear equations — the discrete precursor to queueing analysis.</li>
+</ul></section>
+<section><h2>Check your understanding</h2><ol>
+<li>Packets arrive as Poisson(1000/s). Each packet is independently routed to server A with probability 0.3. What is the arrival process at A, and what is P(no arrival at A in 10 ms)?<details><summary>Answer</summary><p>Thinning gives Poisson(300/s) at A. P(none in 0.01 s) = e^{−300×0.01} = e^{−3} ≈ 0.0498.</p></details></li>
+<li>A CTMC has states {0,1} with q_{01} = 2, q_{10} = 3. Find the stationary distribution.<details><summary>Answer</summary><p>πQ = 0: −2π_0 + 3π_1 = 0, π_0 + π_1 = 1 → π_0 = 3/5, π_1 = 2/5. (Detailed balance: 2π_0 = 3π_1.)</p></details></li>
+<li>Why is a randomly observed inter-failure time longer on average than the mean time between failures?<details><summary>Answer</summary><p>Size-biased sampling (inspection paradox): a random observation time is more likely to fall inside a long interval than a short one, so the observed interval has mean E[X²]/E[X] ≥ E[X].</p></details></li>
+<li>A machine's cycles have mean length 10 h and mean profit $200/cycle. What is the long-run profit rate, and what theorem justifies it?<details><summary>Answer</summary><p>$20/h, by the renewal-reward theorem: long-run rate = E[R]/E[cycle length] = 200/10.</p></details></li>
+</ol></section>
+<section><h2>Resources</h2><ul>
+<li><a href="https://www.sciencedirect.com/book/9780443187612/introduction-to-probability-models">Sheldon Ross, <em>Introduction to Probability Models</em> (book page)</a> — the standard text for this material: Markov chains, Poisson processes, CTMCs, renewal theory, queueing.</li>
+<li><a href="https://apps.wharton.upenn.edu/syllabi/?course=OIDD9300">Wharton syllabi listing for OIDD 9300</a> — past Stochastic Models sections.</li>
+<li><a href="https://oid.wharton.upenn.edu/programs/phd/course-descriptions/">Wharton OID PhD course descriptions</a> — official OIDD 9300 description and prerequisites.</li>
+<li><a href="https://oid.wharton.upenn.edu/?p=263">OM/OR qualifying exam coverage</a> — OIDD 9300 is one of the three courses the exam draws from.</li>
+<li><a href="https://ocw.mit.edu/courses/6-231-dynamic-programming-and-stochastic-control-fall-2015/resources/mit6_231f15_notes_short/">MIT OCW 6.231 lecture notes (Bertsekas)</a> — stochastic control notes that build directly on this course's machinery.</li>
+<li>David Williams, <em>Probability with Martingales</em> [name only] — rigorous treatment of filtrations, stopping times, and martingales for the follow-on course.</li>
+</ul></section>
+<nav class="prevnext"><a class="prev" href="p7-2-supply-chains.html">← 7.2 Supply Chains and Distribution</a><a class="next" href="p7-4-stochastic-processes.html">7.4 Stochastic Processes →</a></nav>
+</main>
+<footer><p>Operations, Information and Decisions for AI, Technology and Electrical Systems — a self-study course built from the Wharton OID PhD program.</p></footer>
+</body>
+</html>
