@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Operations Log — Nrupal Akolkar</title>
+<style>
+:root { --bg:#0c0c0c; --surface:#141414; --border:#2a2a2a; --green:#00ff88; --cyan:#00d4ff; --amber:#ffb800; --red:#ff6b6b; --text:#c8c8c8; --dim:#929292; --bright:#eeeeee; --mono:'JetBrains Mono','Cascadia Code','Fira Code',monospace; }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--text); font-family:var(--mono); line-height:1.55; }
+main { width:min(1120px, calc(100% - 32px)); margin:0 auto; padding:40px 0 64px; }
+header { border-bottom:1px solid var(--border); padding-bottom:24px; margin-bottom:28px; }
+.eyebrow { color:var(--green); text-transform:uppercase; letter-spacing:.12em; font-size:.78rem; }
+h1 { color:var(--bright); font-size:clamp(2rem,5vw,3.4rem); line-height:1.05; margin:.35rem 0 .7rem; }
+h2 { color:var(--bright); border-bottom:1px solid var(--border); padding-bottom:.45rem; margin-top:2.4rem; }
+h3 { color:var(--bright); margin-top:0; }
+a { color:var(--cyan); }
+code { color:var(--green); overflow-wrap:anywhere; }
+.meta, .note { color:var(--dim); }
+.callout { border:1px solid var(--amber); background:rgba(255,184,0,.06); padding:16px 18px; margin:20px 0; }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+.card { background:var(--surface); border:1px solid var(--border); padding:16px; }
+.big { display:block; color:var(--bright); font-size:2rem; line-height:1.1; margin:.2rem 0; }
+.status { color:var(--amber); font-weight:700; }
+.ok { color:var(--green); } .warn { color:var(--amber); } .bad { color:var(--red); }
+table { width:100%; border-collapse:collapse; margin:14px 0 22px; font-size:.92rem; }
+th, td { border:1px solid var(--border); padding:9px 10px; text-align:left; vertical-align:top; }
+th { color:var(--bright); background:#1a1a1a; }
+.small { font-size:.88rem; }
+footer { border-top:1px solid var(--border); margin-top:40px; padding-top:18px; color:var(--dim); font-size:.88rem; }
+@media (max-width:640px) { table { font-size:.82rem; } th, td { padding:7px; } }
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="eyebrow">Operations visibility window</div>
+  <h1>Operations Log</h1>
+  <p>The one maintained log of everything: every product listing, release and billing state, kept with its evidence and its date — so the story never has to be reconstructed from memory.</p>
+  <p class="meta">Generated: 2026-10-22 15:47 MDT<br>
+  Full-board verification: 2026-10-22 (every status below read at its source that day)</p>
+</header>
+
+<div class="callout"><strong>Read this first:</strong> this page uses records only. A status is shown <strong>Live — verified</strong> only when it was seen on the surface itself. Anything not yet verified is labelled as what it is — in review, in queue, not filed — never rounded up.</div>
+
+<section>
+<h2>The board at a glance</h2>
+<div class="grid">
+  <article class="card"><h3>Listings verified live</h3><span class="big ok">8</span><p>Seen at the source on the last full verification.</p></article>
+  <article class="card"><h3>In motion</h3><span class="big warn">5</span><p>Filed, in review, in queue, or awaiting a decision.</p></article>
+  <article class="card"><h3>Not yet online</h3><span class="big bad">4</span><p>Named plainly, with the reason on the board below.</p></article>
+  <article class="card"><h3>Releases in soak</h3><span class="big">2</span><p>Release candidates serving their one-week soak before they may be called releases.</p></article>
+</div>
+</section>
+
+<section>
+<h2>Listings board</h2>
+<table><thead><tr><th>Product</th><th>Surface</th><th>Status</th><th>What the record shows</th><th>Last verified</th></tr></thead><tbody>
+<tr><td>LetsAskIt</td><td>Official MCP Registry</td><td><span class="ok">Live — verified</span></td><td>io.github.nrupala/letsaskit, v0.4.0 — active, latest.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>Smithery</td><td><span class="ok">Live — verified</span></td><td>Live listing — scan passed; tools verified.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>Glama (Connectors directory)</td><td><span class="ok">Live — verified</span></td><td>Listed under Connectors (the hosted-server directory) — claimed, health checks passing, all 5 tools.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>MCP Rush</td><td><span class="ok">Live — verified</span></td><td>Listed and claimed.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>Claude Connectors Directory</td><td><span class="warn">In review</span></td><td>Submission in review since 2026-10-14 (checked signed-in, 2026-10-22).</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>Cline marketplace</td><td><span class="warn">Filed — open</span></td><td>Submission open in the Cline review queue (issue #2995).</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>PulseMCP</td><td><span class="bad">Not ingested</span></td><td>PulseMCP submissions are paused on their side; pickup runs automatically from the Official MCP Registry, where this server is active.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>MCP Market (mcpmarket.com)</td><td><span class="warn">Filed — in queue</span></td><td>Filed 2026-10-22 — free queue, listing expected in ~4–6 weeks.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>awesome-mcp-servers (GitHub list)</td><td><span class="warn">PR open</span></td><td>Pull request open (punkpeye/awesome-mcp-servers#17307); listing facts confirmed with the maintainers&#x27; checker.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>GitHub MCP Registry (github.com/mcp)</td><td><span class="bad">Not listed</span></td><td>No submission door exists; inclusion requested from GitHub directly (2026-10-22).</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>Gemini CLI gallery</td><td><span class="bad">Not indexed</span></td><td>Extension repository public since 2026-10-14; the gallery is crawler-indexed — ingest pending.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>MCP Marketplace (mcp-marketplace.io)</td><td><span class="bad">Not filed</span></td><td>Not yet filed — scheduled in the next wave.</td><td>2026-10-22</td></tr>
+<tr><td>LetsAskIt</td><td>mcp.so</td><td><span class="warn">Paid listing — decision pending</span></td><td>Paid listing — decision pending.</td><td>2026-10-22</td></tr>
+<tr><td>Conduit</td><td>Smithery</td><td><span class="ok">Live — verified</span></td><td>Live listing (sibling product, same operator).</td><td>2026-10-22</td></tr>
+<tr><td>Conduit</td><td>MCP Rush</td><td><span class="ok">Live — verified</span></td><td>Listed and claimed (sibling product, same operator).</td><td>2026-10-22</td></tr>
+<tr><td>codetopo</td><td>Smithery</td><td><span class="ok">Live — verified</span></td><td>Live listing (sibling product, same operator).</td><td>2026-10-22</td></tr>
+<tr><td>codetopo</td><td>MCP Rush</td><td><span class="ok">Live — verified</span></td><td>Listed and claimed (sibling product, same operator).</td><td>2026-10-22</td></tr>
+</tbody></table>
+</section>
+
+<section>
+<h2>Releases</h2>
+<table><thead><tr><th>Product</th><th>Batch</th><th>Release-gate verdict</th><th>State</th><th>Public record</th></tr></thead><tbody>
+<tr><td>LetsAskIt</td><td>v0.4.0 — N1–N6 fix batch (PR #28) + billing build</td><td>PASS WITH FINDINGS</td><td>Conditions (a) live Stripe cutover + (b) N1/N2 both MET 2026-10-22 — graduation judgment with gate thread</td><td>letsaskit.com/changelog</td></tr>
+<tr><td>LetsAskIt</td><td>Transaction-standard batch (PR #32/#33)</td><td>PASS WITH FINDINGS</td><td>IN SOAK — graduates 2026-10-28 if no disqualifying gap</td><td>letsaskit.com/changelog</td></tr>
+<tr><td>LetsAskIt</td><td>Stripe live cutover + changelog + ip-address 10.7.4 (PR #34, merge ca49521f)</td><td>PASS_WITH_FINDINGS — 0 secrets, 0 must-gate failures, 0 known vulns</td><td>LIVE 2026-10-22</td><td>letsaskit.com/changelog — &#x27;2026-10-22 — Stripe billing is live&#x27;</td></tr>
+<tr><td>Conduit</td><td>Transaction-standard batch</td><td>per Conduit lane</td><td>IN SOAK (cross-reference)</td><td>Conduit changelog</td></tr>
+</tbody></table>
+</section>
+
+<section>
+<h2>How this board is kept</h2>
+<ul>
+  <li>A row is written <strong>the day the act happens</strong> — never after.</li>
+  <li>A status changes only on <strong>live-surface verification</strong>. An email earns at most “in motion”; “live” requires the surface itself.</li>
+  <li>Every row carries its <strong>last-verified date</strong>; stale rows are re-verified before they are cited anywhere.</li>
+  <li>When trackers disagree, the one with the fresher direct verification wins — and the other is corrected the same day.</li>
+</ul>
+<p><strong>Worked example, 2026-10-22:</strong> a fleet sweep reported the Smithery listings absent and a Registry version that does not exist. Direct reads at the source the same day proved the listings live (LetsAskIt, Conduit, codetopo) and the Registry holding exactly one LetsAskIt record, v0.4.0. Every tracker was corrected that day, with the evidence attached. The log exists so that class of miss cannot hide again.</p>
+</section>
+
+<footer>
+<p><strong>Sources:</strong> the operations log (submissions, releases, actions, money, decisions — maintained daily, rendered to this page from the same records as the internal workbook).</p>
+<p><strong>Refresh:</strong> <code>python3 tools/build-ops-log-page.py</code> from the site repository. The generator writes <code>public/ops-log/index.html</code>.</p>
+<p>Products by <strong>2351485 ALBERTA INC. (AIMLDS)</strong>.</p>
+<p>This page is intentionally static and record-bound. It is not a live dashboard.</p>
+</footer>
+</main>
+</body>
+</html>
