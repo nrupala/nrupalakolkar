@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-20</updated>
+  <updated>2026-10-22</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>The agent doesn't get a shell</title>
+    <link href="https://nrupalakolkar.com/blog/the-agent-doesnt-get-a-shell"/>
+    <id>https://nrupalakolkar.com/blog/the-agent-doesnt-get-a-shell</id>
+    <updated>2026-10-22</updated>
+    <summary>Every tutorial says give the agent a shell. I give mine a menu instead — named tasks on defined forms, refusals as receipts, delivery proven at the destination — what that trade costs, what it buys, and the checker that ships with this post.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>No verification, no accountability: writing down the regime I actually run</title>
     <link href="https://nrupalakolkar.com/blog/no-verification-no-accountability"/>
