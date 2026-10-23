@@ -8,6 +8,16 @@
   <updated>2026-10-22</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
   <entry>
+    <title>A settings save is a deployment</title>
+    <link href="https://nrupalakolkar.com/blog/a-settings-save-is-a-deployment"/>
+    <id>https://nrupalakolkar.com/blog/a-settings-save-is-a-deployment</id>
+    <updated>2026-10-22</updated>
+    <summary>A settings save on a live service quietly promoted a version nobody had chosen for that afternoon. The rule I run now — any touch on a live service is a deployment, declared before and certified after — and why 'completely deployed' is a claim a list has to earn, with the checker that ships with this post.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
+  <entry>
     <title>The agent doesn't get a shell</title>
     <link href="https://nrupalakolkar.com/blog/the-agent-doesnt-get-a-shell"/>
     <id>https://nrupalakolkar.com/blog/the-agent-doesnt-get-a-shell</id>
