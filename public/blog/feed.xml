@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-22</updated>
+  <updated>2026-10-23</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>The training run that kept dying of heat</title>
+    <link href="https://nrupalakolkar.com/blog/the-training-run-that-kept-dying-of-heat"/>
+    <id>https://nrupalakolkar.com/blog/the-training-run-that-kept-dying-of-heat</id>
+    <updated>2026-10-23</updated>
+    <summary>Fifteen steps in, my training run died of its own heat. The standard fix — tell the card to use less power — said 'all done' and quietly did nothing. What worked was a speed limit set before the run started: steady at 72 degrees, about 70 watts instead of a hundred, and not one second slower.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>A settings save is a deployment</title>
     <link href="https://nrupalakolkar.com/blog/a-settings-save-is-a-deployment"/>
