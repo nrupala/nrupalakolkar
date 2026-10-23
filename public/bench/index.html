@@ -38,10 +38,10 @@ footer { border-top:1px solid var(--border); margin-top:40px; padding-top:18px; 
   <div class="eyebrow">Private visibility window · Access-gated</div>
   <h1>Bench Telemetry</h1>
   <p>The recorded state of the Wright bench: what ran, what it used, what the experiments show, what it cost, and what is not measured yet.</p>
-  <p class="meta">Generated: 2026-10-22 14:42 MDT (2026-10-22 20:42 UTC)<br>
+  <p class="meta">Generated: 2026-10-22 19:19 MDT (2026-10-23 01:19 UTC)<br>
   Baseline data as of: 2026-10-22 14:32 MDT<br>
   Telemetry spec as of: 2026-10-22 14:32 MDT<br>
-  Experiment RUN-LOG as of: 2026-10-22 14:10 MDT</p>
+  Experiment RUN-LOG as of: 2026-10-22 19:15 MDT</p>
 </header>
 
 <div class="callout"><strong>Read this first:</strong> this page uses records only. A value that has not been measured is labelled <strong>Not yet measured</strong>. It is never replaced with an estimate. Spec only — no daemon, hook, or telemetry writer is built yet.</div>
@@ -110,16 +110,16 @@ footer { border-top:1px solid var(--border); margin-top:40px; padding-top:18px; 
 
 <section>
 <h2>Experiment verdicts</h2>
-<p>An experiment outcome counts only after a dated result entry appears in the swimlane RUN-LOG. Data files alone are not a verdict.</p>
-<div class="grid"><article class='card'><h3>E1 — byte model vs token parent</h3><p><span class='status'>Pre-registered — no result logged yet</span></p><p><strong>Pre-registered pass test:</strong> Bolmo within 2 pts of OLMo on clean AND ≥5 pts ahead on injured. Fail: behind on both arms, OR too slow to batch-score (practical leg).</p></article>
-<article class='card'><h3>E4 — CPU/GPU route probe</h3><p><span class='status'>Pre-registered — no result logged yet; GPU arm deferred in the RUN-LOG</span></p><p><strong>Pre-registered pass test:</strong> precision-matched arms agree within noise; any gap traces to the precision arm, not a device arm. (On a CPU-only venue this tests the precision confound directly; the device arm is the deferred part.)</p></article>
-<article class='card'><h3>E7 — substrate micro-benchmark</h3><p><span class='status'>Pre-registered — no result logged yet</span></p><p><strong>Pre-registered pass test:</strong> arm (iii) beats arm (i) by ≥10 pts with weights untouched.</p></article></div>
+<p>Experiment outcomes are taken from the swimlane round results — the written close-outs of the append-only RUN-LOG, where every number traces to a dated log entry. Data files alone are not a verdict.</p>
+<div class="grid"><article class='card'><h3>E1 — byte model vs token parent</h3><p><span class='status'>Round 1: FAIL (practical leg); accuracy criterion met numerically but NOT established · Round 2: DEFERRED (venue, not evidence)</span></p><p>The leg routes through a live-browser RunPod login with the vault-held credential; that flow is outside this seat&#x27;s toolset and no API/CLI/connector route exists. Balance never checked; nothing spent; nothing to terminate</p><p><strong>Pre-registered pass test:</strong> Bolmo within 2 pts of OLMo on clean AND ≥5 pts ahead on injured. Fail: behind on both arms, OR too slow to batch-score (practical leg).</p></article>
+<article class='card'><h3>E4 — CPU/GPU route probe</h3><p><span class='status'>Round 1: PASS on the precision arm; GPU arm DEFERRED; INT8 arm TOOLING/VENUE-BLOCKED · Round 2: DEFERRED (venue, not evidence); DEFERRED with leg 2</span></p><p>The leg routes through a live-browser RunPod login with the vault-held credential; that flow is outside this seat&#x27;s toolset and no API/CLI/connector route exists. Balance never checked; nothing spent; nothing to terminate Venue-dependent by its own definition; not attempted on the 7 GB VM, where quantize_dynamic is a logged two-time OOM kill</p><p><strong>Pre-registered pass test:</strong> precision-matched arms agree within noise; any gap traces to the precision arm, not a device arm. (On a CPU-only venue this tests the precision confound directly; the device arm is the deferred part.)</p></article>
+<article class='card'><h3>E7 — substrate micro-benchmark</h3><p><span class='status'>Round 1: FAIL vs pre-registered criterion · Round 2: FAIL vs pre-registered criterion (fair trial this time)</span></p><p>Identity substrate scored 68.8% vs flat&#x27;s 71.9% (−3.1 pts vs the required +10); the retention policy&#x27;s measured effect was exactly 0.0 pts</p><p><strong>Pre-registered pass test:</strong> arm (iii) beats arm (i) by ≥10 pts with weights untouched.</p></article></div>
 </section>
 
 <section>
 <h2>Costs and bench load</h2>
 <div class="grid">
-  <article class="card"><h3>Money spent</h3><p><span class="status">Not yet measured</span></p><p>The telemetry baseline does not carry a monetary cost series.</p></article>
+  <article class="card"><h3>Money spent</h3><p><span class="status">Swimlane spend to date: US$0.00</span></p><p>Round 1 US$0.00 · Round 2 US$0.00. The telemetry baseline carries no wider monetary cost series for the bench itself.</p></article>
   <article class="card"><h3>Tokens and wall time</h3><p><span class="status">Not yet measured</span></p><p>Per-run cost is register item N1 — the baseline calls it the biggest gap.</p></article>
   <article class="card"><h3>Owner steering</h3><span class="big">≥ 40</span><p>Resolved approval cards in about 26 hours. A floor only; a weekly series is not measured.</p></article>
   <article class="card"><h3>Harness footprint</h3><p><strong>20</strong> checklist gates</p><p>Checklists: 36,100 chars<br>AGENTS.md: 82,912 chars<br>MEMORY.md: 408,032 chars</p></article>
@@ -144,7 +144,7 @@ footer { border-top:1px solid var(--border); margin-top:40px; padding-top:18px; 
 </section>
 
 <footer>
-<p><strong>Sources:</strong> <code>~/workspace/bench-telemetry/TELEMETRY-BASELINE-2026-10-22.md</code>; <code>~/workspace/bench-telemetry/TELEMETRY-LOG-SPEC.md</code>; <code>~/workspace/byte-swimlane/RUN-LOG.md</code>.</p>
+<p><strong>Sources:</strong> <code>~/workspace/bench-telemetry/TELEMETRY-BASELINE-2026-10-22.md</code>; <code>~/workspace/bench-telemetry/TELEMETRY-LOG-SPEC.md</code>; <code>~/workspace/byte-swimlane/RUN-LOG.md</code>; <code>~/workspace/byte-swimlane/ROUND-1-RESULTS.md</code>; <code>~/workspace/byte-swimlane/ROUND-2-RESULTS.md</code>.</p>
 <p><strong>Refresh:</strong> <code>python3 tools/build-bench-page.py</code> from the site repository. The generator writes <code>public/bench/index.html</code>.</p>
 <p>This page is intentionally static and record-bound. It is not a live dashboard.</p>
 </footer>

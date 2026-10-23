@@ -153,6 +153,54 @@ def experiment_state(runlog: str, exp: str) -> tuple[str, str]:
     return ("Pre-registered — no result logged yet", criterion)
 
 
+def verdict_rows(text: str) -> list[tuple[str, str, str]]:
+    """Parse a round results file's 'Verdicts at a glance' table.
+
+    Returns (experiment name, verdict, one-line reason) per row, cleaned.
+    The round results files are the swimlane's written close-outs of the
+    append-only RUN-LOG, so their verdict tables are the record-bound
+    source for experiment states (the RUN-LOG's free-form entries do not
+    parse reliably into one-line states).
+    """
+    seg = section(text, "## Verdicts at a glance", "\n## ")
+    rows = []
+    for cells in table_rows(seg):
+        if len(cells) >= 3 and cells[0].lower() not in ("experiment", "leg"):
+            rows.append((cells[0], cells[1], cells[2]))
+    return rows
+
+
+def round_state(rounds: list[tuple[str, str]], exp: str) -> tuple[str, str]:
+    """Compose one experiment's state from the round verdict tables.
+
+    rounds is [(round label, results text), ...] in chronological order.
+    Every word rendered comes from the files; nothing is paraphrased.
+    """
+    states, detail = [], ""
+    for label, text in rounds:
+        matched = [(v, r) for (name, v, r) in verdict_rows(text)
+                   if re.search(rf"\b{exp}\b", name)]
+        if matched:
+            states.append(f"{label}: " + "; ".join(v for v, _ in matched))
+            detail = " ".join(r for _, r in matched if r)
+    if not states:
+        return ("Pre-registered — no result logged yet", "")
+    return (" · ".join(states), detail)
+
+
+def swimlane_spend(rounds: list[tuple[str, str]]) -> tuple[str, str] | None:
+    """Sum the 'Money spent: US$X' headers of the round results files."""
+    per_round, total = [], 0.0
+    for label, text in rounds:
+        m = re.search(r"Money spent:\s*\**\s*US\$([\d.]+)", text)
+        if m:
+            per_round.append(f"{label} US${m.group(1)}")
+            total += float(m.group(1))
+    if not per_round:
+        return None
+    return (f"US${total:.2f}", " · ".join(per_round))
+
+
 def render(args: argparse.Namespace) -> str:
     baseline_path = Path(args.baseline).expanduser()
     spec_path = Path(args.spec).expanduser()
@@ -211,19 +259,46 @@ def render(args: argparse.Namespace) -> str:
         for num, item, capture in not_measured
     ) or "<tr><td colspan='3'>Not yet measured — no register was found in the baseline.</td></tr>"
 
+    rounds = []
+    for rp in args.round_results:
+        rpath = Path(rp).expanduser()
+        if rpath.exists():
+            m = re.search(r"ROUND-(\d+)-RESULTS", rpath.name)
+            rounds.append((f"Round {m.group(1)}" if m else rpath.stem,
+                           rpath.read_text(encoding="utf-8")))
+
     experiments = []
     for exp, label in [
         ("E1", "E1 — byte model vs token parent"),
         ("E4", "E4 — CPU/GPU route probe"),
         ("E7", "E7 — substrate micro-benchmark"),
     ]:
-        state, criterion = experiment_state(runlog, exp)
+        _, criterion = experiment_state(runlog, exp)
+        state, detail = round_state(rounds, exp)
+        detail_html = f"<p>{esc(detail)}</p>" if detail else ""
         experiments.append(
             f"<article class='card'><h3>{esc(label)}</h3>"
             f"<p><span class='status'>{esc(state)}</span></p>"
+            f"{detail_html}"
             f"<p><strong>Pre-registered pass test:</strong> {esc(criterion)}</p></article>"
         )
     experiment_cards = "\n".join(experiments)
+
+    spend = swimlane_spend(rounds)
+    if spend:
+        spend_total, spend_detail = spend
+        money_card = (
+            f"<article class=\"card\"><h3>Money spent</h3>"
+            f"<p><span class=\"status\">Swimlane spend to date: {esc(spend_total)}</span></p>"
+            f"<p>{esc(spend_detail)}. The telemetry baseline carries no wider "
+            f"monetary cost series for the bench itself.</p></article>"
+        )
+    else:
+        money_card = (
+            "<article class=\"card\"><h3>Money spent</h3>"
+            "<p><span class=\"status\">Not yet measured</span></p>"
+            "<p>The telemetry baseline does not carry a monetary cost series.</p></article>"
+        )
 
     spec_status = "Spec only — no daemon, hook, or telemetry writer is built yet." \
         if "SPEC ONLY" in spec.upper() else "Telemetry spec status not stated in the source."
@@ -318,14 +393,14 @@ footer {{ border-top:1px solid var(--border); margin-top:40px; padding-top:18px;
 
 <section>
 <h2>Experiment verdicts</h2>
-<p>An experiment outcome counts only after a dated result entry appears in the swimlane RUN-LOG. Data files alone are not a verdict.</p>
+<p>Experiment outcomes are taken from the swimlane round results — the written close-outs of the append-only RUN-LOG, where every number traces to a dated log entry. Data files alone are not a verdict.</p>
 <div class="grid">{experiment_cards}</div>
 </section>
 
 <section>
 <h2>Costs and bench load</h2>
 <div class="grid">
-  <article class="card"><h3>Money spent</h3><p><span class="status">Not yet measured</span></p><p>The telemetry baseline does not carry a monetary cost series.</p></article>
+  {money_card}
   <article class="card"><h3>Tokens and wall time</h3><p><span class="status">Not yet measured</span></p><p>Per-run cost is register item N1 — the baseline calls it the biggest gap.</p></article>
   <article class="card"><h3>Owner steering</h3><span class="big">{esc(steering)}</span><p>Resolved approval cards in about 26 hours. A floor only; a weekly series is not measured.</p></article>
   <article class="card"><h3>Harness footprint</h3><p><strong>{esc(gate_count)}</strong> checklist gates</p><p>Checklists: {esc(checklist_chars)} chars<br>AGENTS.md: {esc(agents_chars)} chars<br>MEMORY.md: {esc(memory_chars)} chars</p></article>
@@ -341,7 +416,7 @@ footer {{ border-top:1px solid var(--border); margin-top:40px; padding-top:18px;
 </section>
 
 <footer>
-<p><strong>Sources:</strong> <code>~/workspace/bench-telemetry/TELEMETRY-BASELINE-2026-10-22.md</code>; <code>~/workspace/bench-telemetry/TELEMETRY-LOG-SPEC.md</code>; <code>~/workspace/byte-swimlane/RUN-LOG.md</code>.</p>
+<p><strong>Sources:</strong> <code>~/workspace/bench-telemetry/TELEMETRY-BASELINE-2026-10-22.md</code>; <code>~/workspace/bench-telemetry/TELEMETRY-LOG-SPEC.md</code>; <code>~/workspace/byte-swimlane/RUN-LOG.md</code>; <code>~/workspace/byte-swimlane/ROUND-1-RESULTS.md</code>; <code>~/workspace/byte-swimlane/ROUND-2-RESULTS.md</code>.</p>
 <p><strong>Refresh:</strong> <code>python3 tools/build-bench-page.py</code> from the site repository. The generator writes <code>public/bench/index.html</code>.</p>
 <p>This page is intentionally static and record-bound. It is not a live dashboard.</p>
 </footer>
@@ -358,6 +433,10 @@ def main() -> int:
     p.add_argument("--baseline", default=str(home / "workspace/bench-telemetry/TELEMETRY-BASELINE-2026-10-22.md"))
     p.add_argument("--spec", default=str(home / "workspace/bench-telemetry/TELEMETRY-LOG-SPEC.md"))
     p.add_argument("--run-log", default=str(home / "workspace/byte-swimlane/RUN-LOG.md"))
+    p.add_argument("--round-results", nargs="*", default=[
+        str(home / "workspace/byte-swimlane/ROUND-1-RESULTS.md"),
+        str(home / "workspace/byte-swimlane/ROUND-2-RESULTS.md"),
+    ])
     p.add_argument("--output", default=str(repo_root / "public/bench/index.html"))
     args = p.parse_args()
 
