@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-23</updated>
+  <updated>2026-10-24</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>The 2,500 emails that never moved</title>
+    <link href="https://nrupalakolkar.com/blog/the-2500-emails-that-never-moved"/>
+    <id>https://nrupalakolkar.com/blog/the-2500-emails-that-never-moved</id>
+    <updated>2026-10-24</updated>
+    <summary>My assistant proudly trashed 2,500 emails. A twenty-email test proved it had deleted zero — every call had failed, and the counter had counted picks, not changes. The rule I run now: test small, read every reply, re-check the end state, and report only the verified number.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The training run that kept dying of heat</title>
     <link href="https://nrupalakolkar.com/blog/the-training-run-that-kept-dying-of-heat"/>
