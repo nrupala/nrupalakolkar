@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-24</updated>
+  <updated>2026-10-25</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>The number that was there all along</title>
+    <link href="https://nrupalakolkar.com/blog/the-number-that-was-there-all-along"/>
+    <id>https://nrupalakolkar.com/blog/the-number-that-was-there-all-along</id>
+    <updated>2026-10-25</updated>
+    <summary>We searched our own records and the public web and concluded a company number had never existed. The one office that issues it had it on file the whole time — and its record carried a second, quieter error.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The 2,500 emails that never moved</title>
     <link href="https://nrupalakolkar.com/blog/the-2500-emails-that-never-moved"/>
