@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-25</updated>
+  <updated>2026-10-26</updated>
   <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  <entry>
+    <title>The phone test that overruled every green tick</title>
+    <link href="https://nrupalakolkar.com/blog/the-phone-test-that-overruled-every-green-tick"/>
+    <id>https://nrupalakolkar.com/blog/the-phone-test-that-overruled-every-green-tick</id>
+    <updated>2026-10-26</updated>
+    <summary>Every automated check said the app was ready to graduate. Then I put it on my own phone, pressed Talk while it spoke, and watched pause and stop fail. The graduation was cancelled that night.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 Nrupal Akolkar. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The number that was there all along</title>
     <link href="https://nrupalakolkar.com/blog/the-number-that-was-there-all-along"/>
