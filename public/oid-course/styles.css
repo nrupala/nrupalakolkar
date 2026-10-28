@@ -61,7 +61,7 @@ h3 { font-size: 1.1rem; margin: 1.6rem 0 0.6rem; }
   margin: 0;
 }
 
-.wharton-tag {
+.course-tag {
   display: inline-block;
   background: var(--accent-soft);
   border: 1px solid var(--line);

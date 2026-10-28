@@ -22,3 +22,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Links page (`/links`) is now a three-panel layout: Pages menu on the left,
   the link cards in the center, Infrastructure subdomains on the right.
   Stacks to a single column on narrow screens.
+### Changed
+- OID course (`/oid-course/`): school specification removed throughout — lesson tags, footers, and intro now carry generic doctoral-course provenance ("Many reputed schools run this kind of program"); the `wharton-tag` CSS class renamed to `course-tag`. References and resource links unchanged.
