@@ -123,14 +123,53 @@ async function handleContact(request: Request, env: Env): Promise<Response> {
   if (!name || !looksLikeEmail(email) || !message) {
     return json({ ok: false, error: "missing_fields" }, 400);
   }
+  // Optional file attachments (2026-10-28): the browser base64-encodes each
+  // file into the same JSON body as the rest of the form -- no new endpoint,
+  // no third-party service. The bytes are stored in KV under their own keys
+  // (contact-file:<ref>:<n>); the submission record and the forwarded copy
+  // carry only names and sizes, plus a note appended to the message so the
+  // attachment is visible in the Sheet log and the notification email.
+  const attFiles: { name: string; type: string; data: string; bytes: number }[] = [];
+  if (Array.isArray(b.attachments)) {
+    for (const raw of b.attachments.slice(0, 3)) {
+      if (!raw || typeof raw !== "object") continue;
+      const o = raw as Record<string, unknown>;
+      const aName = clean(o.name, 200);
+      const aType = clean(o.type, 120);
+      const aData = typeof o.data === "string" ? o.data.replace(/\s+/g, "") : "";
+      if (!aName || !aData || aData.length > 7000000) continue;
+      if (!/^[A-Za-z0-9+/]+={0,2}$/.test(aData)) continue;
+      attFiles.push({
+        name: aName,
+        type: aType,
+        data: aData,
+        bytes: Math.floor((aData.length * 3) / 4),
+      });
+    }
+  }
   const ref = rid();
+  let finalMessage = message;
+  if (attFiles.length > 0) {
+    const list = attFiles
+      .map((f) => `${f.name} (${Math.max(1, Math.round(f.bytes / 1024))} KB)`)
+      .join(", ");
+    finalMessage = `${message}\n\n[Attachments stored with this submission under ref ${ref}: ${list}]`;
+    for (let i = 0; i < attFiles.length; i++) {
+      const f = attFiles[i];
+      await env.SUBMISSIONS.put(
+        `contact-file:${ref}:${i}`,
+        JSON.stringify({ name: f.name, type: f.type, data: f.data })
+      );
+    }
+  }
   const rec = {
     type: "contact",
     ref,
     name,
     email,
     subject,
-    message,
+    message: finalMessage,
+    attachments: attFiles.map((f) => ({ name: f.name, type: f.type, bytes: f.bytes })),
     ts: new Date().toISOString(),
     ip: request.headers.get("cf-connecting-ip") || "",
   };

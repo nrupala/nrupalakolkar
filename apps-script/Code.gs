@@ -24,7 +24,7 @@
  *     editor to approve the Gmail permission (labeling needs it).
  */
 
-var NOTIFY_EMAIL = 'nrupalakolkar@gmail.com';
+var NOTIFY_EMAIL = 'REPLACE_WITH_YOUR_EMAIL';
 var SHARED_SECRET = 'REPLACE_WITH_A_LONG_RANDOM_STRING';
 
 // Contact-form Topic -> Gmail label. Must match the Topic dropdown values on
