@@ -39,7 +39,7 @@ Internal checklist for drafting a new post. Public copy rules apply to every pos
 - Related posts: a "More from the blog" block linking at least one related
   post, once a related post exists (leave an HTML comment placeholder until then).
 - links-row: All posts, Home, All links, Consulting.
-- Footer: `© 2026 Nrupal Akolkar` + page URL.
+- Footer: `© 2026 2351485 ALBERTA INC.` + page URL.
 - Layout: three-panel shell — left "More from the blog" nav, article center,
   right "Actions" panel (Contact, Bookmark this article, Share).
 
