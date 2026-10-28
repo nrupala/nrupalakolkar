@@ -24,6 +24,8 @@ calculates, you decide.
 - https://thinkwithfinance.com — finance thinking
 - https://pipavia.com — Conduit (trust-per-connection)
 - https://linktary.com — Linktary (trust-per-link)
+- https://aimlds.org/sanitycheck — Sanity Check (technical architecture sanity check)
+- https://aimlds.org/aecp — AECP (100% Apache enterprise computing platform)
 - https://x.com/nrupal_akolkar — X
 - https://linkedin.com/in/nrupalakolkar — LinkedIn
 
