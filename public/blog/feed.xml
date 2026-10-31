@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-10-30</updated>
+  <updated>2026-10-31</updated>
   <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  <entry>
+    <title>Two copies of the same manual that weren't</title>
+    <link href="https://nrupalakolkar.com/blog/two-copies-of-the-same-manual-that-werent"/>
+    <id>https://nrupalakolkar.com/blog/two-copies-of-the-same-manual-that-werent</id>
+    <updated>2026-10-31</updated>
+    <summary>The same transformer manual arrived twice, with the same 17 chapters. Fifteen matched byte for byte. Two were quietly different revisions, hiding under the same name.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The handbook hiding in four copies</title>
     <link href="https://nrupalakolkar.com/blog/the-handbook-hiding-in-four-copies"/>
