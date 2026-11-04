@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-11-03</updated>
+  <updated>2026-11-04</updated>
   <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  <entry>
+    <title>Gold In, Gold Out</title>
+    <link href="https://nrupalakolkar.com/blog/gold-in-gold-out"/>
+    <id>https://nrupalakolkar.com/blog/gold-in-gold-out</id>
+    <updated>2026-11-04</updated>
+    <summary>The model was ready to train. The data was not ready to be believed. Before anyone was allowed to call the model good, the data had to earn the word first — in writing, topic by topic, with its weak spots named.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The Library Was Never Small — It Was Unlabelled</title>
     <link href="https://nrupalakolkar.com/blog/the-library-was-never-small-it-was-unlabelled"/>
