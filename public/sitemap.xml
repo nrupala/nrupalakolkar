@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://nrupalakolkar.com/</loc><lastmod>2026-09-26</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://nrupalakolkar.com/</loc><lastmod>2026-11-12</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
   <url><loc>https://nrupalakolkar.com/books</loc><lastmod>2026-09-26</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://nrupalakolkar.com/consulting</loc><lastmod>2026-09-26</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://nrupalakolkar.com/selected-works</loc><lastmod>2026-09-27</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -13,9 +13,29 @@
   <url><loc>https://nrupalakolkar.com/blog/fixed-axis-timeline</loc><lastmod>2026-09-27</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
 <url><loc>https://nrupalakolkar.com/blog/dont-escape-script-in-workers</loc><lastmod>2026-09-28</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://nrupalakolkar.com/blog/firefox-ssl-ech-fix</loc><lastmod>2026-09-26</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://nrupalakolkar.com/changelog</loc><lastmod>2026-09-27</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://nrupalakolkar.com/changelog</loc><lastmod>2026-11-12</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://nrupalakolkar.com/partner</loc><lastmod>2026-09-27</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://nrupalakolkar.com/blog/registry</loc><lastmod>2026-09-27</lastmod><changefreq>weekly</changefreq><priority>0.6</priority></url>
   <url><loc>https://nrupalakolkar.com/privacy</loc><lastmod>2026-10-28</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://nrupalakolkar.com/terms</loc><lastmod>2026-11-07</lastmod><changefreq>monthly</changefreq><priority>0.5</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/a-settings-save-is-a-deployment</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/available-is-not-licensed</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/gold-in-gold-out</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/line-filter-unstyled-site</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/no-verification-no-accountability</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/testing-the-judge-verdict</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-2500-emails-that-never-moved</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-agent-doesnt-get-a-shell</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-book-with-the-wrong-authors-name</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-handbook-hiding-in-four-copies</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-library-was-never-small-it-was-unlabelled</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-number-that-was-there-all-along</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-phone-test-that-overruled-every-green-tick</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-preview-that-pretended-to-be-a-book</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-purchase-we-refused-to-call-a-sale</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-temperature-that-never-changed</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/the-training-run-that-kept-dying-of-heat</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/two-copies-of-the-same-manual-that-werent</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/blog/zero-sales-and-a-room-full-of-machines</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
+  <url><loc>https://nrupalakolkar.com/card/</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
 </urlset>
