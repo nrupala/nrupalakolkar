@@ -20,75 +20,33 @@
 
 <div class="panels"><aside class="side-panel" aria-label="More from the blog"><div class="panel-title">More from the blog</div><nav class="side-nav" aria-label="Recent posts"><a href="/blog/the-2500-emails-that-never-moved" aria-current="page">The 2,500 emails that never moved <span class="sdesc">-- you are here</span></a><a href="/blog/the-training-run-that-kept-dying-of-heat">The training run that kept dying of heat <span class="sdesc">-- 2026-10-23</span></a><a href="/blog/a-settings-save-is-a-deployment">A settings save is a deployment <span class="sdesc">-- 2026-10-22</span></a><a href="/blog/the-agent-doesnt-get-a-shell">The agent doesn&rsquo;t get a shell <span class="sdesc">-- 2026-10-22</span></a><a href="/blog/no-verification-no-accountability">No verification, no accountability: writing down the regime I actually run <span class="sdesc">-- 2026-10-20</span></a><a href="/blog/available-is-not-licensed">Available is not licensed: the second reader that froze part of my training corpus <span class="sdesc">-- 2026-10-19</span></a><a href="/blog">All posts <span class="sdesc">-- archive</span></a></nav></aside><div class="center-panel">
 
-<div class="prose">&ldquo;Done,&rdquo; my assistant told me. &ldquo;2,500 emails trashed.&rdquo;</div>
+<div class="prose">Every automated job you run reports the size of its intention.</div>
 
-<div class="prose">It sounded like a good evening&rsquo;s work. My inbox had been filling for months with the same kind of notice, over and over &mdash; a build had failed, a run had failed, please come and look. I never came and looked. The pile just grew. Thousands of them, all saying almost the same thing, all unread.</div>
+<div class="prose">Run a cleanup, a migration, a sync, a bulk delete &mdash; the progress comes back clean and confident. Eight hundred processed. Two thousand five hundred done. The numbers feel like proof, because numbers always do.</div>
 
-<div class="prose">So I asked for a clean-up. Delete the pile. Keep everything else.</div>
-
-<div class="prose">My assistant got to work. First report: 800 gone. Then, a little later, the bigger number &mdash; 2,500 gone.</div>
-
-<div class="prose">There was only one problem. Not a single email had moved.</div>
-
-<h2 class="section-title">A pile nobody wants to count by hand</h2>
-
-<div class="prose">You know this pile. Everyone who builds things for a living has one.</div>
-
-<div class="prose">Every time an automated job fails, a notice lands in your inbox. One failure is useful. It tells you something broke. A hundred failures of the same job, on the same night, for the same reason, are not a hundred pieces of news. They are one piece of news, shouted a hundred times.</div>
-
-<div class="prose">Mine had grown into the thousands. I did not want to sit and delete them one by one, and I did not have to. That is exactly the kind of dull, careful, bulk work I hand to my assistant.</div>
-
-<div class="prose">So I did. Clear the failure notices. Leave the rest of my mail alone.</div>
-
-<div class="prose">The assistant ran the job in batches. Select a batch. Delete the batch. Count the batch. Move on to the next one. The numbers came back clean and confident. Eight hundred. Then twenty-five hundred.</div>
-
-<div class="prose">Clean numbers feel like proof. That feeling is the trap this whole story lives in.</div>
-
-<h2 class="section-title">The twenty-email test</h2>
-
-<div class="prose">Here is the part I am most grateful for, and it was not the big run. It was the small one.</div>
-
-<div class="prose">Before anyone believed the big number, we ran a tiny test. Pick just twenty emails. Delete those twenty. Then go back and look &mdash; really look &mdash; for those same twenty in the inbox.</div>
-
-<span class="codeblock">pick 20 &rarr; delete 20 &rarr; look again<br>20 picked, 20 still there = 0 changed</span>
-
-<div class="prose">All twenty were still there.</div>
-
-<div class="prose">Not nineteen. Not most of them. All twenty, sitting exactly where they had always sat, untouched.</div>
-
-<div class="prose">A test that small takes minutes. It also tells the truth in a way a run of thousands never can, because you can check every single one of them with your own eyes. Twenty tries. Twenty still present. The real total for the whole evening was not 800, and it was not 2,500.</div>
-
-<div class="prose">It was zero.</div>
-
-<h2 class="section-title">Every call had failed &mdash; quietly</h2>
-
-<div class="prose">Once we knew the emails had not moved, the next question was simple: why did the job report success?</div>
-
-<div class="prose">The answer was plain, once someone looked at what each delete call actually said back. Every single call had failed. My mail connection could read my inbox, but it did not have permission to change it. Each delete was refused, every time, for the same reason.</div>
-
-<div class="prose">But the counting never listened to the refusals. The job counted the emails it had <em>picked</em>, not the emails that had <em>moved</em>. Pick 800, write down 800. Pick 2,500, write down 2,500. The number grew because the picking grew. Nothing else was happening at all.</div>
-
-<div class="prose">This is the quietest kind of failure there is. Nothing crashed. Nothing flashed red. The work just reported the size of its own intention, as if the intention were the result.</div>
+<div class="prose">But a number like that usually counts what the job <em>touched</em>. What it selected. What it attempted. Whether anything actually changed is a different question &mdash; and most jobs never ask it, because the counting is wired to the picking, not to the result.</div>
 
 <div class="prose">I have spent more than two decades in work where that difference matters. In a plant, &ldquo;we sent the signal to close the valve&rdquo; is not the same sentence as &ldquo;the valve is closed.&rdquo; You check the valve. You read the position. You do not file the intention and call it the outcome.</div>
 
-<div class="prose">My inbox taught the same lesson, in a much smaller room.</div>
+<div class="prose">Bulk work at a desk obeys the same physics. It just fails more quietly.</div>
 
-<h2 class="section-title">I was told the truth the same night</h2>
+<h2 class="section-title">One night in my own inbox</h2>
 
-<div class="prose">I want to be fair about what happened next, because it is the reason I still trust the system that made the mistake.</div>
+<div class="prose">You know the pile I mean. Every time an automated job fails, a notice lands in your inbox. One failure is useful &mdash; it tells you something broke. A hundred failures of the same job, on the same night, for the same reason, are one piece of news shouted a hundred times. Mine had grown into the thousands, and I asked for a clean-up: delete the pile, keep everything else &mdash; the kind of dull, careful, bulk work I hand to my assistant.</div>
 
-<div class="prose">The failure was not hidden. It was not softened into &ldquo;partially completed,&rdquo; and it was not discovered by me weeks later in a quiet inbox that never got any smaller. It was brought to me the same night, in full: the big numbers were wrong, the test that proved it was described, and the real number &mdash; zero &mdash; was said out loud.</div>
+<div class="prose">The reports came back in batches. First 800 gone. Then 2,500.</div>
 
-<div class="prose">That matters. A wrong number is a mistake. A wrong number nobody corrects becomes a habit, and then it becomes how you see the world. You start making plans on top of fiction. &ldquo;The inbox is clean now&rdquo; leads to &ldquo;so we do not need to fix the permission.&rdquo; Except the inbox was never clean, and the permission was the whole problem.</div>
+<div class="prose">Not a single email had moved.</div>
 
-<div class="prose">The fix we settled on was not clever. There were only ever two honest ways forward: give the connection the permission it was missing and run the job again &mdash; properly, this time &mdash; or delete the pile by hand, in the inbox itself, where I could see each batch disappear. Until one of those happened, the job stayed open. Unfinished. Named as unfinished.</div>
+<div class="prose">We know that because of a small test, and the small test is the hero of this story. Before anyone believed the big number, we deleted just twenty emails &mdash; then went back and looked for those same twenty, one by one. All twenty were still there. Twenty tries, twenty still present. The real total for the whole evening was not 800, and it was not 2,500. It was zero.</div>
 
-<div class="prose">No re-run on a hope. No third big number to feel good about.</div>
+<div class="prose">The cause was plain, once someone read what each delete call actually said back. Every call had failed: the connection could read the inbox but did not have permission to change it, so each delete was refused, every time, for the same reason. The counting never listened to the refusals. It counted the emails it had picked. Pick 800, write down 800. Pick 2,500, write down 2,500. Nothing crashed, nothing flashed red. The work had simply reported the size of its own intention as if the intention were the result.</div>
 
-<h2 class="section-title">The rule I keep now</h2>
+<div class="prose">I will say one thing in fairness, because it is part of the lesson: the failure was not hidden, and it was not discovered by me weeks later in an inbox that never shrank. It was disclosed the same night, in full &mdash; the big numbers were wrong, the test that proved it was described, and the real number was said out loud. Zero. A wrong number is a mistake. A wrong number nobody corrects becomes a habit, and then it becomes how you see the world.</div>
 
-<div class="prose">I run a lot of bulk work through assistants now &mdash; clean-ups, sweeps, updates, checks across long lists of things. This night changed the shape of every one of those jobs. The rules are short, and I offer them the way I would to a friend who is about to trust a confident progress bar:</div>
+<h2 class="section-title">The rules I keep now</h2>
+
+<div class="prose">I run a lot of bulk work now &mdash; clean-ups, sweeps, updates, checks across long lists of things. That night changed the shape of every one of those jobs. The rules are short, and I offer them the way I would to a friend who is about to trust a confident progress bar:</div>
 
 <div class="prose"><strong>Count what changed, not what you touched.</strong> Selecting, opening, attempting &mdash; none of those are results. The only number worth reporting is the number you verified changed.</div>
 
@@ -110,7 +68,7 @@
 
 <div class="prose">Most trust is not lost in dramatic moments. It is lost in small, confident reports that nobody checks &mdash; a count that was really a guess, a &ldquo;done&rdquo; that was really an &ldquo;attempted,&rdquo; a green tick that meant &ldquo;we tried.&rdquo; Each one is tiny. Together, they build a picture of the world that is quietly, completely wrong.</div>
 
-<div class="prose">The cure is not suspicion. I do not check everything my assistant does, and I could not &mdash; the checking would eat the time the help was meant to save. The cure is a habit, built into the work itself: prove the effect, on a sample small enough to see whole, and let the big number earn its size from that proof.</div>
+<div class="prose">The cure is not suspicion. I do not check every job by hand, and I could not &mdash; the checking would eat the time the help was meant to save. The cure is a habit, built into the work itself: prove the effect, on a sample small enough to see whole, and let the big number earn its size from that proof.</div>
 
 <div class="prose">2,500 emails never moved. One honest test of twenty told me so.</div>
 
