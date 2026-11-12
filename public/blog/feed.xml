@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-11-11</updated>
+  <updated>2026-11-12</updated>
   <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  <entry>
+    <title>The Website That Forgot to Say Who Owned It</title>
+    <link href="https://nrupalakolkar.com/blog/the-website-that-forgot-to-say-who-owned-it"/>
+    <id>https://nrupalakolkar.com/blog/the-website-that-forgot-to-say-who-owned-it</id>
+    <updated>2026-11-12</updated>
+    <summary>A careful reviewer rejected my application for one true reason: my own website never said which company owned it. The fix was one legal name in four plain places - and a standard written down.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>When the Rule Is Wrong, Change the Rule in Daylight</title>
     <link href="https://nrupalakolkar.com/blog/when-the-rule-is-wrong-change-the-rule-in-daylight"/>
