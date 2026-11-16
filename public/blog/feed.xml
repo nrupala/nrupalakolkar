@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-11-15</updated>
+  <updated>2026-11-16</updated>
   <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  <entry>
+    <title>The Version Number That Didn't Exist</title>
+    <link href="https://nrupalakolkar.com/blog/the-version-number-that-didnt-exist"/>
+    <id>https://nrupalakolkar.com/blog/the-version-number-that-didnt-exist</id>
+    <updated>2026-11-16</updated>
+    <summary>Everything passed at home. Then a clean machine refused the work outright — because one find-and-replace had invented a version of someone else's software that has never existed.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The Button I Quietly Took Away</title>
     <link href="https://nrupalakolkar.com/blog/the-button-i-quietly-took-away"/>
