@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-11-16</updated>
+  <updated>2026-11-17</updated>
   <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  <entry>
+    <title>The Third Time, Make It Impossible</title>
+    <link href="https://nrupalakolkar.com/blog/the-third-time-make-it-impossible"/>
+    <id>https://nrupalakolkar.com/blog/the-third-time-make-it-impossible</id>
+    <updated>2026-11-17</updated>
+    <summary>The same silence came back on three different sites. The first two times I fixed the page. The third time I fixed the reader itself — so the bug has nowhere left to live.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The Version Number That Didn't Exist</title>
     <link href="https://nrupalakolkar.com/blog/the-version-number-that-didnt-exist"/>
