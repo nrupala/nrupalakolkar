@@ -74,10 +74,16 @@ No payment processing in this repo. Greps for
 `stripe|paddle|checkout|billing` over the TS/JS/Python sources
 return only an incidental mention in `tools/build-ops-log-page.py`
 (ops-log prose) — no payment SDK, checkout or webhook code in the
-graph. The `books.html` order form (`/api/book-order`) is a
+graph. Two money-adjacent surfaces exist outside the graphed code:
+(a) the `books.html` order form (`/api/book-order`) is a
 notify/order-interest capture into KV + Sheet + email (see
-Topology); it takes no card details and charges nothing. Hosting
-runs on the owner's Cloudflare account via the Actions deploy.
+Topology); it takes no card details and charges nothing; and
+(b) outbound donation/tip links in the static HTML pages — they
+send a willing reader to an external tip page; nothing is processed
+or recorded by this repo. (Correction added 2026-11-18: the first
+version of this section omitted the tip links, which live in HTML
+the graph does not parse.) Hosting runs on the owner's Cloudflare
+account via the Actions deploy.
 
 ## How an agent should approach
 
