@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-11-22</updated>
+  <updated>2026-11-23</updated>
   <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  <entry>
+    <title>The Proof That Caught Its Own Mistake</title>
+    <link href="https://nrupalakolkar.com/blog/the-proof-that-caught-its-own-mistake"/>
+    <id>https://nrupalakolkar.com/blog/the-proof-that-caught-its-own-mistake</id>
+    <updated>2026-11-23</updated>
+    <summary>My code matched the standard worked example to a third of an amp. Then the proof tool handed me back my own wrong number — a bound I had written by hand, off by two amps in five point seven million.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The Books I Said We Didn't Have</title>
     <link href="https://nrupalakolkar.com/blog/the-books-i-said-we-didnt-have"/>
