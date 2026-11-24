@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-11-23</updated>
+  <updated>2026-11-24</updated>
   <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  <entry>
+    <title>The Counterexample That Could Not Happen</title>
+    <link href="https://nrupalakolkar.com/blog/the-counterexample-that-could-not-happen"/>
+    <id>https://nrupalakolkar.com/blog/the-counterexample-that-could-not-happen</id>
+    <updated>2026-11-24</updated>
+    <summary>The proof tool handed me a case that broke my own claim — a current ninety-nine amps past a bound I had set. I rebuilt the corner by hand. The case could not happen.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The Proof That Caught Its Own Mistake</title>
     <link href="https://nrupalakolkar.com/blog/the-proof-that-caught-its-own-mistake"/>
