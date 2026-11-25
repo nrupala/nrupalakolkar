@@ -5,8 +5,18 @@
   <link href="https://nrupalakolkar.com/blog/feed.xml" rel="self"/>
   <link href="https://nrupalakolkar.com/blog/"/>
   <id>https://nrupalakolkar.com/blog/</id>
-  <updated>2026-11-24</updated>
+  <updated>2026-11-25</updated>
   <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  <entry>
+    <title>The Error Message That Guessed</title>
+    <link href="https://nrupalakolkar.com/blog/the-error-message-that-guessed"/>
+    <id>https://nrupalakolkar.com/blog/the-error-message-that-guessed</id>
+    <updated>2026-11-25</updated>
+    <summary>My phone kept saying another app was using the microphone. No app was. The permission was off, and my own error message had been guessing instead of measuring.</summary>
+    <author><name>Nrupal Akolkar</name></author>
+    <category term="engineering"/>
+    <rights>© 2026 2351485 ALBERTA INC. All rights reserved.</rights>
+  </entry>
   <entry>
     <title>The Counterexample That Could Not Happen</title>
     <link href="https://nrupalakolkar.com/blog/the-counterexample-that-could-not-happen"/>
